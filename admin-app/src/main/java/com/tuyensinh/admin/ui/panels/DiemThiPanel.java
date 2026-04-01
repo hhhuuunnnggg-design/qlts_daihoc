@@ -1,95 +1,109 @@
 package com.tuyensinh.admin.ui.panels;
 
+import com.tuyensinh.admin.ui.*;
 import com.tuyensinh.admin.ui.MainFrame;
 import com.tuyensinh.entity.*;
-import com.tuyensinh.dao.PhuongThucDao;
 import com.tuyensinh.service.*;
-import com.tuyensinh.util.*;
+import com.tuyensinh.dao.PhuongThucDao;
 import javax.swing.*;
-import javax.swing.table.*;
 import java.awt.*;
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
-public class DiemThiPanel extends JPanel {
+/**
+ * Refactored: extends BaseCrudPanel with custom phuong thuc filter toolbar.
+ */
+public class DiemThiPanel extends BaseCrudPanel<DiemThi> {
 
-    private MainFrame mainFrame;
-    private ThiSinhService thiSinhService = new ThiSinhService();
-    private DiemThiService diemThiService = new DiemThiService();
-    private PhuongThucDao phuongThucDao = new PhuongThucDao();
+    private ThiSinhService thiSinhService;
+    private DiemThiService diemThiService;
+    private PhuongThucDao phuongThucDao;
 
-    private JTable table;
-    private DefaultTableModel model;
-    private JComboBox<PhuongThuc> cboPhuongThuc;
-    private JTextField txtSearch;
-    private JButton btnSearch, btnAdd, btnEdit, btnDelete;
-    private JLabel lblTotal;
+    private JComboBox<PhuongThuc> phuongThucFilter;
 
     public DiemThiPanel(MainFrame mainFrame) {
-        this.mainFrame = mainFrame;
+        super(mainFrame);
+        thiSinhService = new ThiSinhService();
+        diemThiService = new DiemThiService();
+        phuongThucDao = new PhuongThucDao();
         initUI();
         loadData();
     }
 
-    private void initUI() {
-        setLayout(new BorderLayout(5, 5));
-        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+    @Override
+    protected String[] getTableColumns() {
+        return new String[]{"ID", "So BD", "CCCD", "Ho Ten", "Phuong Thuc", "Nam TS", "Ghi chu"};
+    }
 
-        JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.LEFT));
+    @Override
+    protected DiemThi getSelectedEntity() {
+        int row = table.getSelectedRow();
+        if (row < 0) return null;
+        return diemThiService.findById((Integer) model.getValueAt(row, 0));
+    }
+
+    @Override
+    protected Integer getSelectedId() {
+        int row = table.getSelectedRow();
+        return row < 0 ? null : (Integer) model.getValueAt(row, 0);
+    }
+
+    @Override
+    public String getPageTitle() {
+        return UIConstants.PAGE_DIEM_THI;
+    }
+
+    @Override
+    protected void buildToolbar() {
+        JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
+
         toolbar.add(new JLabel("Phuong thuc:"));
-        cboPhuongThuc = new JComboBox<>();
-        cboPhuongThuc.addItem(null);
+        phuongThucFilter = new JComboBox<>();
+        phuongThucFilter.addItem(null);
         for (PhuongThuc pt : phuongThucDao.findAll()) {
-            cboPhuongThuc.addItem(pt);
+            phuongThucFilter.addItem(pt);
         }
-        cboPhuongThuc.addActionListener(e -> loadData());
-        toolbar.add(cboPhuongThuc);
+        phuongThucFilter.addActionListener(e -> loadData());
+        toolbar.add(phuongThucFilter);
 
         toolbar.add(new JLabel("  Tim kiem:"));
-        txtSearch = new JTextField(15);
-        txtSearch.addActionListener(e -> loadData());
-        toolbar.add(txtSearch);
-        btnSearch = new JButton("Tim");
+        searchTextField = new JTextField(15);
+        searchTextField.addActionListener(e -> loadData());
+        toolbar.add(searchTextField);
+
+        JButton btnSearch = new JButton("Tim");
         btnSearch.addActionListener(e -> loadData());
         toolbar.add(btnSearch);
 
-        toolbar.add(Box.createHorizontalStrut(20));
-        btnAdd = new JButton("Them diem");
+        toolbar.add(Box.createHorizontalStrut(16));
+
+        JButton btnAdd = new JButton("Them diem");
         btnAdd.addActionListener(e -> showAddDialog());
         toolbar.add(btnAdd);
 
-        btnEdit = new JButton("Sua");
+        JButton btnEdit = new JButton("Sua");
         btnEdit.addActionListener(e -> showEditDialog());
         toolbar.add(btnEdit);
 
-        btnDelete = new JButton("Xoa");
-        btnDelete.addActionListener(e -> deleteDiem());
+        JButton btnDelete = new JButton("Xoa");
+        btnDelete.addActionListener(e -> doDelete());
         toolbar.add(btnDelete);
 
         add(toolbar, BorderLayout.NORTH);
-
-        model = new DefaultTableModel(
-            new String[]{"ID", "So BD", "CCCD", "Ho Ten", "Phuong Thuc", "Nam TS", "Ghi chu"}, 0) {
-            @Override public boolean isCellEditable(int row, int col) { return false; }
-        };
-        table = new JTable(model);
-        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        table.setRowHeight(25);
-        JTableHeader header = table.getTableHeader();
-        header.setFont(new Font("Arial", Font.BOLD, 12));
-        add(new JScrollPane(table), BorderLayout.CENTER);
-
-        lblTotal = new JLabel("Tong: 0 ban ghi");
-        JPanel bottom = new JPanel(new BorderLayout());
-        bottom.add(lblTotal, BorderLayout.WEST);
-        add(bottom, BorderLayout.SOUTH);
     }
 
-    private void loadData() {
+    @Override
+    protected void buildBottomBar() {
+        totalLabel = new JLabel("Tong: 0 ban ghi");
+        totalLabel.setFont(UIConstants.FONT_SMALL);
+        add(totalLabel, BorderLayout.SOUTH);
+    }
+
+    @Override
+    public void loadData() {
         model.setRowCount(0);
-        PhuongThuc pt = (PhuongThuc) cboPhuongThuc.getSelectedItem();
-        String kw = txtSearch.getText().trim();
+        PhuongThuc pt = (PhuongThuc) phuongThucFilter.getSelectedItem();
+        String kw = searchTextField != null ? searchTextField.getText().trim() : "";
 
         List<DiemThi> list;
         if (!kw.isEmpty()) {
@@ -103,131 +117,105 @@ public class DiemThiPanel extends JPanel {
 
         for (DiemThi dt : list) {
             ThiSinh ts = dt.getThiSinh();
-            String hoTen = ts != null ? ts.getHoVaTen() : "";
-            String cccd = ts != null ? ts.getCccd() : "";
             model.addRow(new Object[]{
                 dt.getDiemthiId(),
                 dt.getSobaodanh(),
-                cccd,
-                hoTen,
+                ts != null ? ts.getCccd() : "",
+                ts != null ? ts.getHoVaTen() : "",
                 dt.getPhuongThuc() != null ? dt.getPhuongThuc().getTenPhuongthuc() : "",
                 dt.getNamTuyensinh(),
                 dt.getGhiChu()
             });
         }
-        lblTotal.setText("Tong: " + list.size() + " ban ghi");
+        updateTotalLabel(list.size(), "ban ghi");
     }
 
-    private DiemThi getSelected() {
-        int row = table.getSelectedRow();
-        if (row < 0) return null;
-        Integer id = (Integer) model.getValueAt(row, 0);
-        return diemThiService.findById(id);
+    @Override
+    protected String getEntityDisplayName(DiemThi dt) {
+        return dt.getThiSinh() != null ? dt.getThiSinh().getHoVaTen() : String.valueOf(dt.getDiemthiId());
     }
 
-    private void showAddDialog() {
+    @Override
+    protected void deleteEntity(DiemThi dt) throws Exception {
+        diemThiService.delete(dt);
+    }
+
+    @Override
+    protected void showAddDialog() {
         JTextField txtSbd = new JTextField(20);
         JTextField txtCccd = new JTextField(20);
         JComboBox<PhuongThuc> cboPt = new JComboBox<>();
-        for (PhuongThuc pt : phuongThucDao.findAll()) {
-            cboPt.addItem(pt);
-        }
-        JSpinner spnNam = new JSpinner(new SpinnerNumberModel((Integer) 2026, (Integer) 2020, (Integer) 2030, (Integer) 1));
+        for (PhuongThuc pt : phuongThucDao.findAll()) cboPt.addItem(pt);
+
+        JSpinner spnNam = new JSpinner(new SpinnerNumberModel(2026, 2020, 2030, 1));
         JTextField txtGhiChu = new JTextField(20);
 
-        Object[] msg = {
-            "So bao danh:", txtSbd,
-            "CCCD (tim thi sinh):", txtCccd,
-            "Phuong thuc (*):", cboPt,
-            "Nam tuyen sinh:", spnNam,
-            "Ghi chu:", txtGhiChu
-        };
+        int r = JOptionPane.showConfirmDialog(this,
+            new Object[]{
+                "So bao danh:", txtSbd,
+                "CCCD (tim thi sinh):", txtCccd,
+                "Phuong thuc (*):", cboPt,
+                "Nam tuyen sinh:", spnNam,
+                "Ghi chu:", txtGhiChu
+            },
+            "Them diem thi", JOptionPane.OK_CANCEL_OPTION);
+        if (r != JOptionPane.OK_OPTION) return;
 
-        int result = JOptionPane.showConfirmDialog(this, msg, "Them diem thi", JOptionPane.OK_CANCEL_OPTION);
-        if (result == JOptionPane.OK_OPTION) {
-            String cccd = txtCccd.getText().trim();
-            if (cccd.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "CCCD la bat buoc!");
-                return;
-            }
-            PhuongThuc pt = (PhuongThuc) cboPt.getSelectedItem();
-            if (pt == null) {
-                JOptionPane.showMessageDialog(this, "Chon phuong thuc!");
-                return;
-            }
+        String cccd = txtCccd.getText().trim();
+        if (cccd.isEmpty()) { showMessage(this, "CCCD la bat buoc!"); return; }
 
-            Optional<ThiSinh> optTs = thiSinhService.findByCccd(cccd);
-            if (optTs.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Khong tim thay thi sinh voi CCCD: " + cccd);
-                return;
-            }
+        PhuongThuc pt = (PhuongThuc) cboPt.getSelectedItem();
+        if (pt == null) { showMessage(this, "Chon phuong thuc!"); return; }
 
-            DiemThi dt = new DiemThi();
-            dt.setThiSinh(optTs.get());
-            dt.setPhuongThuc(pt);
-            dt.setSobaodanh(txtSbd.getText().trim().isEmpty() ? null : txtSbd.getText().trim());
-            dt.setNamTuyensinh((Short) spnNam.getValue());
-            dt.setGhiChu(txtGhiChu.getText().trim().isEmpty() ? null : txtGhiChu.getText().trim());
+        Optional<ThiSinh> optTs = thiSinhService.findByCccd(cccd);
+        if (optTs.isEmpty()) { showMessage(this, "Khong tim thay thi sinh voi CCCD: " + cccd); return; }
 
-            try {
-                diemThiService.save(dt);
-                JOptionPane.showMessageDialog(this, "Them thanh cong!");
-                loadData();
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Loi: " + ex.getMessage());
-            }
+        DiemThi dt = new DiemThi();
+        dt.setThiSinh(optTs.get());
+        dt.setPhuongThuc(pt);
+        dt.setSobaodanh(txtSbd.getText().trim().isEmpty() ? null : txtSbd.getText().trim());
+        dt.setNamTuyensinh((Short) spnNam.getValue());
+        dt.setGhiChu(txtGhiChu.getText().trim().isEmpty() ? null : txtGhiChu.getText().trim());
+
+        try {
+            diemThiService.save(dt);
+            showSuccess(this, "Them thanh cong!");
+            loadData();
+        } catch (Exception ex) {
+            showError(this, ex.getMessage());
         }
     }
 
-    private void showEditDialog() {
-        DiemThi dt = getSelected();
-        if (dt == null) {
-            JOptionPane.showMessageDialog(this, "Chon ban ghi can sua!");
-            return;
-        }
+    @Override
+    protected void showEditDialog() {
+        DiemThi dt = getSelectedEntity();
+        if (dt == null) { showSelectRow(); return; }
+
         JTextField txtSbd = new JTextField(dt.getSobaodanh() != null ? dt.getSobaodanh() : "");
         JTextField txtGhiChu = new JTextField(dt.getGhiChu() != null ? dt.getGhiChu() : "");
-        JSpinner spnNam = new JSpinner(new SpinnerNumberModel(Integer.valueOf(dt.getNamTuyensinh()), Integer.valueOf(2020), Integer.valueOf(2030), Integer.valueOf(1)));
+        JSpinner spnNam = new JSpinner(new SpinnerNumberModel(
+            dt.getNamTuyensinh() != null ? dt.getNamTuyensinh().intValue() : 2026, 2020, 2030, 1));
 
-        Object[] msg = {
-            "Thi sinh: " + (dt.getThiSinh() != null ? dt.getThiSinh().getHoVaTen() : "N/A"),
-            "So bao danh:", txtSbd,
-            "Nam tuyen sinh:", spnNam,
-            "Ghi chu:", txtGhiChu
-        };
+        int r = JOptionPane.showConfirmDialog(this,
+            new Object[]{
+                "Thi sinh: " + (dt.getThiSinh() != null ? dt.getThiSinh().getHoVaTen() : "N/A"),
+                "So bao danh:", txtSbd,
+                "Nam tuyen sinh:", spnNam,
+                "Ghi chu:", txtGhiChu
+            },
+            "Sua diem thi", JOptionPane.OK_CANCEL_OPTION);
+        if (r != JOptionPane.OK_OPTION) return;
 
-        int result = JOptionPane.showConfirmDialog(this, msg, "Sua diem thi", JOptionPane.OK_CANCEL_OPTION);
-        if (result == JOptionPane.OK_OPTION) {
-            dt.setSobaodanh(txtSbd.getText().trim().isEmpty() ? null : txtSbd.getText().trim());
-            dt.setNamTuyensinh((Short) spnNam.getValue());
-            dt.setGhiChu(txtGhiChu.getText().trim().isEmpty() ? null : txtGhiChu.getText().trim());
-            try {
-                diemThiService.update(dt);
-                JOptionPane.showMessageDialog(this, "Cap nhat thanh cong!");
-                loadData();
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Loi: " + ex.getMessage());
-            }
-        }
-    }
+        dt.setSobaodanh(txtSbd.getText().trim().isEmpty() ? null : txtSbd.getText().trim());
+        dt.setNamTuyensinh((Short) spnNam.getValue());
+        dt.setGhiChu(txtGhiChu.getText().trim().isEmpty() ? null : txtGhiChu.getText().trim());
 
-    private void deleteDiem() {
-        DiemThi dt = getSelected();
-        if (dt == null) {
-            JOptionPane.showMessageDialog(this, "Chon ban ghi can xoa!");
-            return;
-        }
-        int confirm = JOptionPane.showConfirmDialog(this,
-            "Ban co chac xoa diem thi cua '" + (dt.getThiSinh() != null ? dt.getThiSinh().getHoVaTen() : "") + "'?",
-            "Xac nhan", JOptionPane.YES_NO_OPTION);
-        if (confirm == JOptionPane.YES_OPTION) {
-            try {
-                diemThiService.delete(dt);
-                JOptionPane.showMessageDialog(this, "Xoa thanh cong!");
-                loadData();
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Loi: " + ex.getMessage());
-            }
+        try {
+            diemThiService.update(dt);
+            showSuccess(this, "Cap nhat thanh cong!");
+            loadData();
+        } catch (Exception ex) {
+            showError(this, ex.getMessage());
         }
     }
 }

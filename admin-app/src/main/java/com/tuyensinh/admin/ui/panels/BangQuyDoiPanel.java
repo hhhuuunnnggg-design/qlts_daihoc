@@ -1,81 +1,71 @@
 package com.tuyensinh.admin.ui.panels;
 
+import com.tuyensinh.admin.ui.*;
 import com.tuyensinh.admin.ui.MainFrame;
 import com.tuyensinh.entity.*;
 import com.tuyensinh.service.*;
 import com.tuyensinh.dao.*;
 import javax.swing.*;
-import javax.swing.table.*;
 import java.awt.*;
 import java.math.BigDecimal;
 import java.util.List;
 
-public class BangQuyDoiPanel extends JPanel {
+/**
+ * Refactored: extends BaseCrudPanel, uses TableFactory + parse helpers.
+ */
+public class BangQuyDoiPanel extends BaseCrudPanel<BangQuyDoi> {
 
-    private MainFrame mainFrame;
-    private BangQuyDoiService service = new BangQuyDoiService();
-    private PhuongThucDao phuongThucDao = new PhuongThucDao();
-    private ToHopDao toHopDao = new ToHopDao();
-    private MonDao monDao = new MonDao();
-
-    private JTable table;
-    private DefaultTableModel model;
-    private JTextField txtSearch;
-    private JButton btnAdd, btnEdit, btnDelete;
-    private JLabel lblTotal;
+    private BangQuyDoiService service;
+    private PhuongThucDao phuongThucDao;
+    private ToHopDao toHopDao;
+    private MonDao monDao;
 
     public BangQuyDoiPanel(MainFrame mainFrame) {
-        this.mainFrame = mainFrame;
+        super(mainFrame);
+        service = new BangQuyDoiService();
+        phuongThucDao = new PhuongThucDao();
+        toHopDao = new ToHopDao();
+        monDao = new MonDao();
         initUI();
         loadData();
     }
 
-    private void initUI() {
-        setLayout(new BorderLayout(5, 5));
-        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
-        JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        toolbar.add(new JLabel("Tim kiem:"));
-        txtSearch = new JTextField(20);
-        txtSearch.addActionListener(e -> loadData());
-        toolbar.add(txtSearch);
-        toolbar.add(Box.createHorizontalStrut(20));
-        btnAdd = new JButton("Them moi");
-        btnAdd.addActionListener(e -> showAddDialog());
-        toolbar.add(btnAdd);
-        btnEdit = new JButton("Sua");
-        btnEdit.addActionListener(e -> showEditDialog());
-        toolbar.add(btnEdit);
-        btnDelete = new JButton("Xoa");
-        btnDelete.addActionListener(e -> deleteBqd());
-        toolbar.add(btnDelete);
-        add(toolbar, BorderLayout.NORTH);
-
-        model = new DefaultTableModel(
-            new String[]{"ID", "Ma QD", "Ph. thuc", "To hop", "Mon", "Diem A", "Diem B", "Diem QD A", "Diem QD B", "Phan vi"}, 0) {
-            @Override public boolean isCellEditable(int row, int col) { return false; }
-        };
-        table = new JTable(model);
-        table.setRowHeight(25);
-        JTableHeader header = table.getTableHeader();
-        header.setFont(new Font("Arial", Font.BOLD, 12));
-        add(new JScrollPane(table), BorderLayout.CENTER);
-
-        lblTotal = new JLabel("Tong: 0");
-        JPanel bottom = new JPanel(new BorderLayout());
-        bottom.add(lblTotal, BorderLayout.WEST);
-        add(bottom, BorderLayout.SOUTH);
+    @Override
+    protected String[] getTableColumns() {
+        return new String[]{"ID", "Ma QD", "Ph. thuc", "To hop", "Mon", "Diem A", "Diem B", "Diem QD A", "Diem QD B", "Phan vi"};
     }
 
-    private void loadData() {
+    @Override
+    protected BangQuyDoi getSelectedEntity() {
+        int row = table.getSelectedRow();
+        if (row < 0) return null;
+        return service.findById((Integer) model.getValueAt(row, 0));
+    }
+
+    @Override
+    protected Integer getSelectedId() {
+        int row = table.getSelectedRow();
+        return row < 0 ? null : (Integer) model.getValueAt(row, 0);
+    }
+
+    @Override
+    public String getPageTitle() {
+        return UIConstants.PAGE_BANG_QUY_DOI;
+    }
+
+    @Override
+    protected void buildBottomBar() {
+        totalLabel = new JLabel("Tong: 0");
+        totalLabel.setFont(UIConstants.FONT_SMALL);
+        add(totalLabel, BorderLayout.SOUTH);
+    }
+
+    @Override
+    public void loadData() {
         model.setRowCount(0);
-        String kw = txtSearch.getText().trim();
-        List<BangQuyDoi> list;
-        if (kw.isEmpty()) {
-            list = service.findAll();
-        } else {
-            list = service.search(kw);
-        }
+        String kw = searchTextField.getText().trim();
+        List<BangQuyDoi> list = kw.isEmpty() ? service.findAll() : service.search(kw);
+
         for (BangQuyDoi bqd : list) {
             model.addRow(new Object[]{
                 bqd.getBangquydoiId(),
@@ -90,17 +80,21 @@ public class BangQuyDoiPanel extends JPanel {
                 bqd.getPhanVi()
             });
         }
-        lblTotal.setText("Tong: " + list.size() + " ban ghi");
+        updateTotalLabel(list.size(), "ban ghi");
     }
 
-    private BangQuyDoi getSelected() {
-        int row = table.getSelectedRow();
-        if (row < 0) return null;
-        Integer id = (Integer) model.getValueAt(row, 0);
-        return service.findById(id);
+    @Override
+    protected String getEntityDisplayName(BangQuyDoi bqd) {
+        return bqd.getMaQuydoi();
     }
 
-    private void showAddDialog() {
+    @Override
+    protected void deleteEntity(BangQuyDoi bqd) throws Exception {
+        service.delete(bqd);
+    }
+
+    @Override
+    protected void showAddDialog() {
         JTextField txtMa = new JTextField(20);
         JComboBox<PhuongThuc> cboPt = new JComboBox<>();
         JComboBox<ToHop> cboTh = new JComboBox<>();
@@ -110,91 +104,74 @@ public class BangQuyDoiPanel extends JPanel {
         for (PhuongThuc pt : phuongThucDao.findAll()) cboPt.addItem(pt);
         for (ToHop th : toHopDao.findAll()) cboTh.addItem(th);
         for (Mon m : monDao.findAll()) cboMon.addItem(m);
+
         JTextField txtTu = new JTextField("0", 10);
         JTextField txtDen = new JTextField("30", 10);
         JTextField txtQdTu = new JTextField("0", 10);
         JTextField txtQdDen = new JTextField("30", 10);
 
-        Object[] msg = {
+        int r = JOptionPane.showConfirmDialog(this, new Object[]{
             "Ma quy doi (*):", txtMa,
             "Phuong thuc (*):", cboPt,
             "To hop:", cboTh,
             "Mon:", cboMon,
             "Diem tu:", txtTu, "Den:", txtDen,
             "Diem quy doi tu:", txtQdTu, "Den:", txtQdDen
-        };
+        }, "Them bang quy doi", JOptionPane.OK_CANCEL_OPTION);
+        if (r != JOptionPane.OK_OPTION) return;
 
-        int result = JOptionPane.showConfirmDialog(this, msg, "Them bang quy doi", JOptionPane.OK_CANCEL_OPTION);
-        if (result == JOptionPane.OK_OPTION) {
-            if (txtMa.getText().trim().isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Ma quy doi la bat buoc!");
-                return;
-            }
-            BangQuyDoi bqd = new BangQuyDoi();
-            bqd.setMaQuydoi(txtMa.getText().trim());
-            bqd.setPhuongThuc((PhuongThuc) cboPt.getSelectedItem());
-            bqd.setToHop((ToHop) cboTh.getSelectedItem());
-            bqd.setMon((Mon) cboMon.getSelectedItem());
-            try { bqd.setDiemTu(new BigDecimal(txtTu.getText().trim())); } catch (Exception ex) {}
-            try { bqd.setDiemDen(new BigDecimal(txtDen.getText().trim())); } catch (Exception ex) {}
-            try { bqd.setDiemQuydoiTu(new BigDecimal(txtQdTu.getText().trim())); } catch (Exception ex) {}
-            try { bqd.setDiemQuydoiDen(new BigDecimal(txtQdDen.getText().trim())); } catch (Exception ex) {}
-            try {
-                service.save(bqd);
-                JOptionPane.showMessageDialog(this, "Them thanh cong!");
-                loadData();
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Loi: " + ex.getMessage());
-            }
+        if (txtMa.getText().trim().isEmpty()) {
+            showMessage(this, "Ma quy doi la bat buoc!");
+            return;
+        }
+
+        BangQuyDoi bqd = new BangQuyDoi();
+        bqd.setMaQuydoi(txtMa.getText().trim());
+        bqd.setPhuongThuc((PhuongThuc) cboPt.getSelectedItem());
+        bqd.setToHop((ToHop) cboTh.getSelectedItem());
+        bqd.setMon((Mon) cboMon.getSelectedItem());
+        bqd.setDiemTu(parseBigDecimal(txtTu.getText()));
+        bqd.setDiemDen(parseBigDecimal(txtDen.getText()));
+        bqd.setDiemQuydoiTu(parseBigDecimal(txtQdTu.getText()));
+        bqd.setDiemQuydoiDen(parseBigDecimal(txtQdDen.getText()));
+
+        try {
+            service.save(bqd);
+            showSuccess(this, "Them thanh cong!");
+            loadData();
+        } catch (Exception ex) {
+            showError(this, ex.getMessage());
         }
     }
 
-    private void showEditDialog() {
-        BangQuyDoi bqd = getSelected();
-        if (bqd == null) {
-            JOptionPane.showMessageDialog(this, "Chon ban ghi can sua!");
-            return;
-        }
+    @Override
+    protected void showEditDialog() {
+        BangQuyDoi bqd = getSelectedEntity();
+        if (bqd == null) { showSelectRow(); return; }
+
         JTextField txtTu = new JTextField(bqd.getDiemTu() != null ? bqd.getDiemTu().toString() : "0", 10);
         JTextField txtDen = new JTextField(bqd.getDiemDen() != null ? bqd.getDiemDen().toString() : "30", 10);
         JTextField txtQdTu = new JTextField(bqd.getDiemQuydoiTu() != null ? bqd.getDiemQuydoiTu().toString() : "0", 10);
         JTextField txtQdDen = new JTextField(bqd.getDiemQuydoiDen() != null ? bqd.getDiemQuydoiDen().toString() : "30", 10);
-        Object[] msg = {
+
+        int r = JOptionPane.showConfirmDialog(this, new Object[]{
             "Ma: " + bqd.getMaQuydoi(),
             "Diem tu:", txtTu, "Den:", txtDen,
             "Diem quy doi tu:", txtQdTu, "Den:", txtQdDen
-        };
-        int result = JOptionPane.showConfirmDialog(this, msg, "Sua bang quy doi", JOptionPane.OK_CANCEL_OPTION);
-        if (result == JOptionPane.OK_OPTION) {
-            try { bqd.setDiemTu(new BigDecimal(txtTu.getText().trim())); } catch (Exception ex) {}
-            try { bqd.setDiemDen(new BigDecimal(txtDen.getText().trim())); } catch (Exception ex) {}
-            try { bqd.setDiemQuydoiTu(new BigDecimal(txtQdTu.getText().trim())); } catch (Exception ex) {}
-            try { bqd.setDiemQuydoiDen(new BigDecimal(txtQdDen.getText().trim())); } catch (Exception ex) {}
-            try {
-                service.update(bqd);
-                JOptionPane.showMessageDialog(this, "Cap nhat thanh cong!");
-                loadData();
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Loi: " + ex.getMessage());
-            }
-        }
-    }
+        }, "Sua bang quy doi", JOptionPane.OK_CANCEL_OPTION);
+        if (r != JOptionPane.OK_OPTION) return;
 
-    private void deleteBqd() {
-        BangQuyDoi bqd = getSelected();
-        if (bqd == null) {
-            JOptionPane.showMessageDialog(this, "Chon ban ghi can xoa!");
-            return;
-        }
-        int confirm = JOptionPane.showConfirmDialog(this, "Ban co sach xoa ban ghi nay?", "Xac nhan", JOptionPane.YES_NO_OPTION);
-        if (confirm == JOptionPane.YES_OPTION) {
-            try {
-                service.delete(bqd);
-                JOptionPane.showMessageDialog(this, "Xoa thanh cong!");
-                loadData();
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Loi: " + ex.getMessage());
-            }
+        bqd.setDiemTu(parseBigDecimal(txtTu.getText()));
+        bqd.setDiemDen(parseBigDecimal(txtDen.getText()));
+        bqd.setDiemQuydoiTu(parseBigDecimal(txtQdTu.getText()));
+        bqd.setDiemQuydoiDen(parseBigDecimal(txtQdDen.getText()));
+
+        try {
+            service.update(bqd);
+            showSuccess(this, "Cap nhat thanh cong!");
+            loadData();
+        } catch (Exception ex) {
+            showError(this, ex.getMessage());
         }
     }
 }

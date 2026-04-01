@@ -1,80 +1,72 @@
 package com.tuyensinh.admin.ui.panels;
 
+import com.tuyensinh.admin.ui.*;
 import com.tuyensinh.admin.ui.MainFrame;
 import com.tuyensinh.entity.*;
 import com.tuyensinh.service.*;
 import javax.swing.*;
-import javax.swing.table.*;
 import java.awt.*;
 import java.util.List;
 
-public class ToHopPanel extends JPanel {
+/**
+ * Refactored: extends BaseCrudPanel, uses TableFactory + parse helpers.
+ * loadData() fetchs subject list per row — kept as-is (business-specific logic).
+ */
+public class ToHopPanel extends BaseCrudPanel<ToHop> {
 
-    private MainFrame mainFrame;
-    private XetTuyenService service = new XetTuyenService();
-    private ToHopService toHopService = new ToHopService();
-    private MonService monService = new MonService();
-
-    private JTable table;
-    private DefaultTableModel model;
-    private JTextField txtSearch;
-    private JButton btnSearch, btnAdd, btnEdit, btnDelete;
+    private XetTuyenService service;
+    private ToHopService toHopService;
 
     public ToHopPanel(MainFrame mainFrame) {
-        this.mainFrame = mainFrame;
+        super(mainFrame);
+        service = new XetTuyenService();
+        toHopService = new ToHopService();
         initUI();
         loadData();
     }
 
-    private void initUI() {
-        setLayout(new BorderLayout(5, 5));
-        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+    @Override
+    protected String[] getTableColumns() {
+        return new String[]{"ID", "Ma to hop", "Ten to hop", "Mon 1", "Mon 2", "Mon 3", "Loai"};
+    }
 
-        JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        toolbar.add(new JLabel("Tim kiem:"));
-        txtSearch = new JTextField(20);
-        txtSearch.addActionListener(e -> loadData());
-        toolbar.add(txtSearch);
-        btnSearch = new JButton("Tim");
-        btnSearch.addActionListener(e -> loadData());
-        toolbar.add(btnSearch);
-        toolbar.add(Box.createHorizontalStrut(20));
-        btnAdd = new JButton("Them moi");
-        btnAdd.addActionListener(e -> showAddDialog());
-        toolbar.add(btnAdd);
-        btnEdit = new JButton("Sua");
-        btnEdit.addActionListener(e -> showEditDialog());
-        toolbar.add(btnEdit);
-        btnDelete = new JButton("Xoa");
-        btnDelete.addActionListener(e -> deleteToHop());
-        toolbar.add(btnDelete);
-        add(toolbar, BorderLayout.NORTH);
+    @Override
+    protected ToHop getSelectedEntity() {
+        int row = table.getSelectedRow();
+        return row < 0 ? null : toHopService.findById((Integer) model.getValueAt(row, 0));
+    }
 
-        model = new DefaultTableModel(
-            new String[]{"ID", "Ma to hop", "Ten to hop", "Mon 1", "Mon 2", "Mon 3", "Loai"}, 0) {
-            @Override
-            public boolean isCellEditable(int row, int col) { return false; }
-        };
-        table = new JTable(model);
-        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        table.setRowHeight(25);
+    @Override
+    protected Integer getSelectedId() {
+        int row = table.getSelectedRow();
+        return row < 0 ? null : (Integer) model.getValueAt(row, 0);
+    }
+
+    @Override
+    public String getPageTitle() {
+        return UIConstants.PAGE_TO_HOP;
+    }
+
+    @Override
+    protected void configureTableColumns() {
         table.getColumnModel().getColumn(0).setPreferredWidth(40);
         table.getColumnModel().getColumn(1).setPreferredWidth(80);
         table.getColumnModel().getColumn(2).setPreferredWidth(200);
-        JTableHeader header = table.getTableHeader();
-        header.setFont(new Font("Arial", Font.BOLD, 12));
-        add(new JScrollPane(table), BorderLayout.CENTER);
     }
 
-    private void loadData() {
+    @Override
+    protected void buildBottomBar() {
+        totalLabel = new JLabel("Tong: 0");
+        totalLabel.setFont(UIConstants.FONT_SMALL);
+        add(totalLabel, BorderLayout.SOUTH);
+    }
+
+    @Override
+    public void loadData() {
         model.setRowCount(0);
-        List<ToHop> list;
-        String kw = txtSearch.getText().trim();
-        if (kw.isEmpty()) {
-            list = service.findAllToHop();
-        } else {
-            list = service.searchToHop(kw);
-        }
+        String kw = searchTextField.getText().trim();
+        var list = kw.isEmpty() ? service.findAllToHop() : service.searchToHop(kw);
+
         for (ToHop th : list) {
             List<ToHopMon> monList = toHopService.getMonByToHop(th.getTohopId());
             String m1 = "", m2 = "", m3 = "";
@@ -89,69 +81,67 @@ public class ToHopPanel extends JPanel {
             }
             model.addRow(new Object[]{th.getTohopId(), th.getMaTohop(), th.getTenTohop(), m1, m2, m3, loai});
         }
+        updateTotalLabel(list.size(), "");
     }
 
-    private ToHop getSelected() {
-        int row = table.getSelectedRow();
-        if (row < 0) return null;
-        Integer id = (Integer) model.getValueAt(row, 0);
-        return toHopService.findById(id);
+    @Override
+    protected String getEntityDisplayName(ToHop th) {
+        return th.getMaTohop();
     }
 
-    private void showAddDialog() {
+    @Override
+    protected void deleteEntity(ToHop th) throws Exception {
+        toHopService.delete(th);
+    }
+
+    @Override
+    protected void showAddDialog() {
         JTextField txtMa = new JTextField(20);
         JTextField txtTen = new JTextField(20);
-        Object[] msg = {"Ma to hop (*):", txtMa, "Ten to hop:", txtTen};
-        int result = JOptionPane.showConfirmDialog(this, msg, "Them to hop moi", JOptionPane.OK_CANCEL_OPTION);
-        if (result == JOptionPane.OK_OPTION) {
-            if (txtMa.getText().trim().isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Ma to hop la bat buoc!");
-                return;
-            }
-            ToHop th = new ToHop();
-            th.setMaTohop(txtMa.getText().trim());
-            th.setTenTohop(txtTen.getText().trim().isEmpty() ? null : txtTen.getText().trim());
-            try {
-                toHopService.save(th);
-                JOptionPane.showMessageDialog(this, "Them thanh cong!");
-                loadData();
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Loi: " + ex.getMessage());
-            }
+
+        int r = JOptionPane.showConfirmDialog(this,
+            new Object[]{"Ma to hop (*):", txtMa, "Ten to hop:", txtTen},
+            "Them to hop moi", JOptionPane.OK_CANCEL_OPTION);
+        if (r != JOptionPane.OK_OPTION) return;
+
+        if (txtMa.getText().trim().isEmpty()) {
+            showMessage(this, "Ma to hop la bat buoc!");
+            return;
+        }
+
+        ToHop th = new ToHop();
+        th.setMaTohop(txtMa.getText().trim());
+        th.setTenTohop(txtTen.getText().trim().isEmpty() ? null : txtTen.getText().trim());
+
+        try {
+            toHopService.save(th);
+            showSuccess(this, "Them thanh cong!");
+            loadData();
+        } catch (Exception ex) {
+            showError(this, ex.getMessage());
         }
     }
 
-    private void showEditDialog() {
-        ToHop th = getSelected();
-        if (th == null) { JOptionPane.showMessageDialog(this, "Chon to hop can sua!"); return; }
+    @Override
+    protected void showEditDialog() {
+        ToHop th = getSelectedEntity();
+        if (th == null) { showSelectRow(); return; }
+
         JTextField txtTen = new JTextField(th.getTenTohop() != null ? th.getTenTohop() : "");
-        Object[] msg = {"Ma to hop: " + th.getMaTohop() + " (khong doi)", "Ten to hop:", txtTen};
-        int result = JOptionPane.showConfirmDialog(this, msg, "Sua to hop", JOptionPane.OK_CANCEL_OPTION);
-        if (result == JOptionPane.OK_OPTION) {
-            th.setTenTohop(txtTen.getText().trim().isEmpty() ? null : txtTen.getText().trim());
-            try {
-                toHopService.update(th);
-                JOptionPane.showMessageDialog(this, "Cap nhat thanh cong!");
-                loadData();
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Loi: " + ex.getMessage());
-            }
-        }
-    }
 
-    private void deleteToHop() {
-        ToHop th = getSelected();
-        if (th == null) { JOptionPane.showMessageDialog(this, "Chon to hop can xoa!"); return; }
-        int confirm = JOptionPane.showConfirmDialog(this,
-            "Ban co chac xoa to hop '" + th.getMaTohop() + "'?", "Xac nhan", JOptionPane.YES_NO_OPTION);
-        if (confirm == JOptionPane.YES_OPTION) {
-            try {
-                toHopService.delete(th);
-                JOptionPane.showMessageDialog(this, "Xoa thanh cong!");
-                loadData();
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Loi: " + ex.getMessage());
-            }
+        int r = JOptionPane.showConfirmDialog(this,
+            new Object[]{"Ma to hop: " + th.getMaTohop() + " (khong doi)", "Ten to hop:", txtTen},
+            "Sua to hop", JOptionPane.OK_CANCEL_OPTION);
+        if (r != JOptionPane.OK_OPTION) return;
+
+        th.setTenTohop(txtTen.getText().trim().isEmpty() ? null : txtTen.getText().trim());
+
+        try {
+            toHopService.update(th);
+            showSuccess(this, "Cap nhat thanh cong!");
+            loadData();
+        } catch (Exception ex) {
+            showError(this, ex.getMessage());
         }
     }
 }

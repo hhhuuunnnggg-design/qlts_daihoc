@@ -1,69 +1,87 @@
 package com.tuyensinh.admin.ui.panels;
 
+import com.tuyensinh.admin.ui.*;
 import com.tuyensinh.admin.ui.MainFrame;
-import com.tuyensinh.dao.PhuongThucDao;
 import com.tuyensinh.entity.*;
 import com.tuyensinh.service.*;
 import javax.swing.*;
-import javax.swing.table.*;
 import java.awt.*;
-import java.util.List;
-import java.util.Optional;
 
-public class DiemCongPanel extends JPanel {
+/**
+ * Refactored: extends BaseCrudPanel, uses TableFactory + parse helpers.
+ */
+public class DiemCongPanel extends BaseCrudPanel<DiemCong> {
 
-    private DiemCongService diemCongService = new DiemCongService();
-    private ThiSinhService thiSinhService = new ThiSinhService();
-    private NganhToHopService nganhToHopService = new NganhToHopService();
-    private PhuongThucDao phuongThucDao = new PhuongThucDao();
-
-    private JTable table;
-    private DefaultTableModel model;
-    private JButton btnAdd, btnEdit, btnDelete;
-    private JLabel lblTotal;
+    private DiemCongService diemCongService;
+    private ThiSinhService thiSinhService;
+    private NganhToHopService nganhToHopService;
+    private com.tuyensinh.dao.PhuongThucDao phuongThucDao;
 
     public DiemCongPanel(MainFrame mainFrame) {
+        super(mainFrame);
+        diemCongService = new DiemCongService();
+        thiSinhService = new ThiSinhService();
+        nganhToHopService = new NganhToHopService();
+        phuongThucDao = new com.tuyensinh.dao.PhuongThucDao();
         initUI();
         loadData();
     }
 
-    private void initUI() {
-        setLayout(new BorderLayout(5, 5));
-        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
-        JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        toolbar.add(new JLabel("Quan ly diem cong (diem uu tien, diem chung chi)"));
-        toolbar.add(Box.createHorizontalStrut(20));
-        btnAdd = new JButton("Them moi");
-        btnAdd.addActionListener(e -> showAddDialog());
-        toolbar.add(btnAdd);
-        btnEdit = new JButton("Sua");
-        btnEdit.addActionListener(e -> showEditDialog());
-        toolbar.add(btnEdit);
-        btnDelete = new JButton("Xoa");
-        btnDelete.addActionListener(e -> deleteDiemCong());
-        toolbar.add(btnDelete);
-        add(toolbar, BorderLayout.NORTH);
-
-        model = new DefaultTableModel(
-            new String[]{"ID", "CCCD", "Ho Ten", "Nganh", "To Hop", "Ph. thuc", "Diem CC", "Diem UT", "Diem Tong"}, 0) {
-            @Override public boolean isCellEditable(int row, int col) { return false; }
-        };
-        table = new JTable(model);
-        table.setRowHeight(25);
-        JTableHeader header = table.getTableHeader();
-        header.setFont(new Font("Arial", Font.BOLD, 12));
-        add(new JScrollPane(table), BorderLayout.CENTER);
-
-        lblTotal = new JLabel("Tong: 0");
-        JPanel bottom = new JPanel(new BorderLayout());
-        bottom.add(lblTotal, BorderLayout.WEST);
-        add(bottom, BorderLayout.SOUTH);
+    @Override
+    protected String[] getTableColumns() {
+        return new String[]{"ID", "CCCD", "Ho Ten", "Nganh", "To Hop", "Ph. thuc", "Diem CC", "Diem UT", "Diem Tong"};
     }
 
-    private void loadData() {
+    @Override
+    protected DiemCong getSelectedEntity() {
+        int row = table.getSelectedRow();
+        if (row < 0) return null;
+        return diemCongService.findById((Integer) model.getValueAt(row, 0));
+    }
+
+    @Override
+    protected Integer getSelectedId() {
+        int row = table.getSelectedRow();
+        return row < 0 ? null : (Integer) model.getValueAt(row, 0);
+    }
+
+    @Override
+    public String getPageTitle() {
+        return UIConstants.PAGE_DIEM_CONG;
+    }
+
+    @Override
+    protected void buildToolbar() {
+        JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
+        toolbar.add(new JLabel("Quan ly diem cong (diem uu tien, diem chung chi)"));
+        toolbar.add(Box.createHorizontalStrut(20));
+
+        JButton btnAdd = new JButton("Them moi");
+        btnAdd.addActionListener(e -> showAddDialog());
+        toolbar.add(btnAdd);
+
+        JButton btnEdit = new JButton("Sua");
+        btnEdit.addActionListener(e -> showEditDialog());
+        toolbar.add(btnEdit);
+
+        JButton btnDelete = new JButton("Xoa");
+        btnDelete.addActionListener(e -> doDelete());
+        toolbar.add(btnDelete);
+
+        add(toolbar, BorderLayout.NORTH);
+    }
+
+    @Override
+    protected void buildBottomBar() {
+        totalLabel = new JLabel("Tong: 0");
+        totalLabel.setFont(UIConstants.FONT_SMALL);
+        add(totalLabel, BorderLayout.SOUTH);
+    }
+
+    @Override
+    public void loadData() {
         model.setRowCount(0);
-        List<DiemCong> list = diemCongService.findAll();
+        var list = diemCongService.findAll();
         for (DiemCong dc : list) {
             ThiSinh ts = dc.getThiSinh();
             model.addRow(new Object[]{
@@ -78,121 +96,97 @@ public class DiemCongPanel extends JPanel {
                 dc.getDiemTong()
             });
         }
-        lblTotal.setText("Tong: " + list.size() + " ban ghi");
+        updateTotalLabel(list.size(), "ban ghi");
     }
 
-    private DiemCong getSelected() {
-        int row = table.getSelectedRow();
-        if (row < 0) return null;
-        Integer id = (Integer) model.getValueAt(row, 0);
-        return diemCongService.findById(id);
+    @Override
+    protected String getEntityDisplayName(DiemCong dc) {
+        return dc.getThiSinh() != null ? dc.getThiSinh().getHoVaTen() : String.valueOf(dc.getDiemcongId());
     }
 
-    private void showAddDialog() {
+    @Override
+    protected void deleteEntity(DiemCong dc) throws Exception {
+        diemCongService.delete(dc);
+    }
+
+    @Override
+    protected void showAddDialog() {
         JTextField txtCccd = new JTextField(20);
         JComboBox<NganhToHop> cboNt = new JComboBox<>();
         JComboBox<PhuongThuc> cboPt = new JComboBox<>();
         for (NganhToHop nt : nganhToHopService.findAll()) cboNt.addItem(nt);
         for (PhuongThuc pt : phuongThucDao.findAll()) cboPt.addItem(pt);
+
         JTextField txtDiemCC = new JTextField("0", 20);
         JTextField txtDiemUT = new JTextField("0", 20);
 
-        Object[] msg = {
+        int r = JOptionPane.showConfirmDialog(this, new Object[]{
             "CCCD thi sinh:", txtCccd,
             "Nganh - To hop:", cboNt,
             "Phuong thuc:", cboPt,
             "Diem chung chi:", txtDiemCC,
             "Diem uu tien:", txtDiemUT
-        };
+        }, "Them diem cong", JOptionPane.OK_CANCEL_OPTION);
+        if (r != JOptionPane.OK_OPTION) return;
 
-        int result = JOptionPane.showConfirmDialog(this, msg, "Them diem cong", JOptionPane.OK_CANCEL_OPTION);
-        if (result == JOptionPane.OK_OPTION) {
-            String cccd = txtCccd.getText().trim();
-            if (cccd.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "CCCD la bat buoc!");
-                return;
-            }
-            Optional<ThiSinh> optTs = thiSinhService.findByCccd(cccd);
-            if (optTs.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Khong tim thay thi sinh!");
-                return;
-            }
-            NganhToHop nt = (NganhToHop) cboNt.getSelectedItem();
-            PhuongThuc pt = (PhuongThuc) cboPt.getSelectedItem();
-            if (nt == null || pt == null) {
-                JOptionPane.showMessageDialog(this, "Chon day du thong tin!");
-                return;
-            }
+        String cccd = txtCccd.getText().trim();
+        if (cccd.isEmpty()) { showMessage(this, "CCCD la bat buoc!"); return; }
 
-            DiemCong dc = new DiemCong();
-            dc.setThiSinh(optTs.get());
-            dc.setNganhToHop(nt);
-            dc.setPhuongThuc(pt);
-            try { dc.setDiemChungchi(new java.math.BigDecimal(txtDiemCC.getText().trim())); } catch (Exception ex) {}
-            try { dc.setDiemUutienXt(new java.math.BigDecimal(txtDiemUT.getText().trim())); } catch (Exception ex) {}
-            try {
-                java.math.BigDecimal cc = dc.getDiemChungchi() != null ? dc.getDiemChungchi() : java.math.BigDecimal.ZERO;
-                java.math.BigDecimal ut = dc.getDiemUutienXt() != null ? dc.getDiemUutienXt() : java.math.BigDecimal.ZERO;
-                dc.setDiemTong(cc.add(ut));
-            } catch (Exception ex) {}
+        var optTs = thiSinhService.findByCccd(cccd);
+        if (optTs.isEmpty()) { showMessage(this, "Khong tim thay thi sinh!"); return; }
 
-            try {
-                diemCongService.save(dc);
-                JOptionPane.showMessageDialog(this, "Them thanh cong!");
-                loadData();
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Loi: " + ex.getMessage());
-            }
+        NganhToHop nt = (NganhToHop) cboNt.getSelectedItem();
+        PhuongThuc pt = (PhuongThuc) cboPt.getSelectedItem();
+        if (nt == null || pt == null) { showMessage(this, "Chon day du thong tin!"); return; }
+
+        DiemCong dc = new DiemCong();
+        dc.setThiSinh(optTs.get());
+        dc.setNganhToHop(nt);
+        dc.setPhuongThuc(pt);
+        dc.setDiemChungchi(parseBigDecimal(txtDiemCC.getText()));
+        dc.setDiemUutienXt(parseBigDecimal(txtDiemUT.getText()));
+
+        java.math.BigDecimal cc = dc.getDiemChungchi() != null ? dc.getDiemChungchi() : java.math.BigDecimal.ZERO;
+        java.math.BigDecimal ut = dc.getDiemUutienXt() != null ? dc.getDiemUutienXt() : java.math.BigDecimal.ZERO;
+        dc.setDiemTong(cc.add(ut));
+
+        try {
+            diemCongService.save(dc);
+            showSuccess(this, "Them thanh cong!");
+            loadData();
+        } catch (Exception ex) {
+            showError(this, ex.getMessage());
         }
     }
 
-    private void showEditDialog() {
-        DiemCong dc = getSelected();
-        if (dc == null) {
-            JOptionPane.showMessageDialog(this, "Chon ban ghi can sua!");
-            return;
-        }
+    @Override
+    protected void showEditDialog() {
+        DiemCong dc = getSelectedEntity();
+        if (dc == null) { showSelectRow(); return; }
+
         JTextField txtDiemCC = new JTextField(dc.getDiemChungchi() != null ? dc.getDiemChungchi().toString() : "0", 20);
         JTextField txtDiemUT = new JTextField(dc.getDiemUutienXt() != null ? dc.getDiemUutienXt().toString() : "0", 20);
-        Object[] msg = {
+
+        int r = JOptionPane.showConfirmDialog(this, new Object[]{
             "Thi sinh: " + (dc.getThiSinh() != null ? dc.getThiSinh().getHoVaTen() : ""),
             "Diem chung chi:", txtDiemCC,
             "Diem uu tien:", txtDiemUT
-        };
-        int result = JOptionPane.showConfirmDialog(this, msg, "Sua diem cong", JOptionPane.OK_CANCEL_OPTION);
-        if (result == JOptionPane.OK_OPTION) {
-            try { dc.setDiemChungchi(new java.math.BigDecimal(txtDiemCC.getText().trim())); } catch (Exception ex) {}
-            try { dc.setDiemUutienXt(new java.math.BigDecimal(txtDiemUT.getText().trim())); } catch (Exception ex) {}
-            try {
-                java.math.BigDecimal cc = dc.getDiemChungchi() != null ? dc.getDiemChungchi() : java.math.BigDecimal.ZERO;
-                java.math.BigDecimal ut = dc.getDiemUutienXt() != null ? dc.getDiemUutienXt() : java.math.BigDecimal.ZERO;
-                dc.setDiemTong(cc.add(ut));
-            } catch (Exception ex) {}
-            try {
-                diemCongService.update(dc);
-                JOptionPane.showMessageDialog(this, "Cap nhat thanh cong!");
-                loadData();
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Loi: " + ex.getMessage());
-            }
-        }
-    }
+        }, "Sua diem cong", JOptionPane.OK_CANCEL_OPTION);
+        if (r != JOptionPane.OK_OPTION) return;
 
-    private void deleteDiemCong() {
-        DiemCong dc = getSelected();
-        if (dc == null) {
-            JOptionPane.showMessageDialog(this, "Chon ban ghi can xoa!");
-            return;
-        }
-        int confirm = JOptionPane.showConfirmDialog(this, "Ban co chac xoa ban ghi nay?", "Xac nhan", JOptionPane.YES_NO_OPTION);
-        if (confirm == JOptionPane.YES_OPTION) {
-            try {
-                diemCongService.delete(dc);
-                JOptionPane.showMessageDialog(this, "Xoa thanh cong!");
-                loadData();
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Loi: " + ex.getMessage());
-            }
+        dc.setDiemChungchi(parseBigDecimal(txtDiemCC.getText()));
+        dc.setDiemUutienXt(parseBigDecimal(txtDiemUT.getText()));
+
+        java.math.BigDecimal cc = dc.getDiemChungchi() != null ? dc.getDiemChungchi() : java.math.BigDecimal.ZERO;
+        java.math.BigDecimal ut = dc.getDiemUutienXt() != null ? dc.getDiemUutienXt() : java.math.BigDecimal.ZERO;
+        dc.setDiemTong(cc.add(ut));
+
+        try {
+            diemCongService.update(dc);
+            showSuccess(this, "Cap nhat thanh cong!");
+            loadData();
+        } catch (Exception ex) {
+            showError(this, ex.getMessage());
         }
     }
 }

@@ -1,88 +1,68 @@
 package com.tuyensinh.admin.ui.panels;
 
+import com.tuyensinh.admin.ui.*;
 import com.tuyensinh.admin.ui.MainFrame;
 import com.tuyensinh.entity.*;
 import com.tuyensinh.service.*;
 import javax.swing.*;
-import javax.swing.table.*;
 import java.awt.*;
-import java.util.List;
 
-public class NganhPanel extends JPanel {
+/**
+ * Refactored: extends BaseCrudPanel, uses TableFactory + parse helpers.
+ */
+public class NganhPanel extends BaseCrudPanel<Nganh> {
 
-    private MainFrame mainFrame;
-    private XetTuyenService service = new XetTuyenService();
-    private ToHopService toHopService = new ToHopService();
-
-    private JTable table;
-    private DefaultTableModel model;
-    private JTextField txtSearch;
-    private JButton btnSearch, btnAdd, btnEdit, btnDelete;
-    private JLabel lblTotal;
+    private XetTuyenService service;
 
     public NganhPanel(MainFrame mainFrame) {
-        this.mainFrame = mainFrame;
+        super(mainFrame);
+        service = new XetTuyenService();
         initUI();
         loadData();
     }
 
-    private void initUI() {
-        setLayout(new BorderLayout(5, 5));
-        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
-        JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        toolbar.add(new JLabel("Tim kiem:"));
-        txtSearch = new JTextField(20);
-        txtSearch.addActionListener(e -> loadData());
-        toolbar.add(txtSearch);
-
-        btnSearch = new JButton("Tim");
-        btnSearch.addActionListener(e -> loadData());
-        toolbar.add(btnSearch);
-
-        toolbar.add(Box.createHorizontalStrut(20));
-        btnAdd = new JButton("Them moi");
-        btnAdd.addActionListener(e -> showAddDialog());
-        toolbar.add(btnAdd);
-
-        btnEdit = new JButton("Sua");
-        btnEdit.addActionListener(e -> showEditDialog());
-        toolbar.add(btnEdit);
-
-        btnDelete = new JButton("Xoa");
-        btnDelete.addActionListener(e -> deleteNganh());
-        toolbar.add(btnDelete);
-
-        add(toolbar, BorderLayout.NORTH);
-
-        model = new DefaultTableModel(
-            new String[]{"ID", "Ma nganh", "Ten nganh", "Chi tieu", "Diem san", "Diem TT", "Active"}, 0) {
-            @Override
-            public boolean isCellEditable(int row, int col) { return false; }
-        };
-        table = new JTable(model);
-        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        table.setRowHeight(25);
-        JTableHeader header = table.getTableHeader();
-        header.setFont(new Font("Arial", Font.BOLD, 12));
-        JScrollPane scrollPane = new JScrollPane(table);
-        add(scrollPane, BorderLayout.CENTER);
-
-        lblTotal = new JLabel("Tong: 0 nganh");
-        JPanel bottom = new JPanel(new BorderLayout());
-        bottom.add(lblTotal, BorderLayout.WEST);
-        add(bottom, BorderLayout.SOUTH);
+    @Override
+    protected String[] getTableColumns() {
+        return new String[]{"ID", "Ma nganh", "Ten nganh", "Chi tieu", "Diem san", "Diem TT", "Active"};
     }
 
-    private void loadData() {
+    @Override
+    protected Nganh getSelectedEntity() {
+        int row = table.getSelectedRow();
+        if (row < 0) return null;
+        return service.findNganhById(getSelectedId());
+    }
+
+    @Override
+    protected Integer getSelectedId() {
+        int row = table.getSelectedRow();
+        return row < 0 ? null : (Integer) model.getValueAt(row, 0);
+    }
+
+    @Override
+    public String getPageTitle() {
+        return UIConstants.PAGE_NGANH;
+    }
+
+    @Override
+    protected void configureTableColumns() {
+        table.getColumnModel().getColumn(0).setPreferredWidth(40);
+        table.getColumnModel().getColumn(1).setPreferredWidth(100);
+        table.getColumnModel().getColumn(2).setPreferredWidth(200);
+    }
+
+    @Override
+    protected void buildBottomBar() {
+        totalLabel = new JLabel("Tong: 0 nganh");
+        totalLabel.setFont(UIConstants.FONT_SMALL);
+        add(totalLabel, BorderLayout.SOUTH);
+    }
+
+    @Override
+    public void loadData() {
         model.setRowCount(0);
-        List<Nganh> list;
-        String kw = txtSearch.getText().trim();
-        if (kw.isEmpty()) {
-            list = service.findAllNganh();
-        } else {
-            list = service.searchNganh(kw);
-        }
+        String kw = searchTextField.getText().trim();
+        var list = kw.isEmpty() ? service.findAllNganh() : service.searchNganh(kw);
         for (Nganh n : list) {
             model.addRow(new Object[]{
                 n.getNganhId(),
@@ -94,102 +74,94 @@ public class NganhPanel extends JPanel {
                 n.getIsActive() ? "Active" : "Inactive"
             });
         }
-        lblTotal.setText("Tong: " + list.size() + " nganh");
+        updateTotalLabel(list.size(), "nganh");
     }
 
-    private Nganh getSelected() {
-        int row = table.getSelectedRow();
-        if (row < 0) return null;
-        Integer id = (Integer) model.getValueAt(row, 0);
-        return service.findNganhById(id);
+    @Override
+    protected String getEntityDisplayName(Nganh n) {
+        return n.getTenNganh();
     }
 
-    private void showAddDialog() {
+    @Override
+    protected void deleteEntity(Nganh n) throws Exception {
+        service.deleteNganh(n);
+    }
+
+    @Override
+    protected void showAddDialog() {
         JTextField txtMa = new JTextField(20);
         JTextField txtTen = new JTextField(20);
         JTextField txtChiTieu = new JTextField("100", 20);
         JTextField txtDiemSan = new JTextField(20);
         JCheckBox chkActive = new JCheckBox("Active", true);
 
-        Object[] msg = {
-            "Ma nganh (*):", txtMa,
-            "Ten nganh (*):", txtTen,
-            "Chi tieu:", txtChiTieu,
-            "Diem san:", txtDiemSan,
-            "Active:", chkActive
-        };
+        int r = JOptionPane.showConfirmDialog(this,
+            new Object[]{
+                "Ma nganh (*):", txtMa,
+                "Ten nganh (*):", txtTen,
+                "Chi tieu:", txtChiTieu,
+                "Diem san:", txtDiemSan,
+                "Active:", chkActive
+            },
+            "Them nganh moi", JOptionPane.OK_CANCEL_OPTION);
+        if (r != JOptionPane.OK_OPTION) return;
 
-        int result = JOptionPane.showConfirmDialog(this, msg, "Them nganh moi", JOptionPane.OK_CANCEL_OPTION);
-        if (result == JOptionPane.OK_OPTION) {
-            if (txtMa.getText().trim().isEmpty() || txtTen.getText().trim().isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Ma va Ten nganh la bat buoc!");
-                return;
-            }
-            Nganh n = new Nganh();
-            n.setMaNganh(txtMa.getText().trim());
-            n.setTenNganh(txtTen.getText().trim());
-            try { n.setChiTieu(Integer.parseInt(txtChiTieu.getText().trim())); } catch (Exception ex) {}
-            try { n.setDiemSan(new java.math.BigDecimal(txtDiemSan.getText().trim())); } catch (Exception ex) {}
-            n.setIsActive(chkActive.isSelected());
-            try {
-                service.saveNganh(n);
-                JOptionPane.showMessageDialog(this, "Them thanh cong!");
-                loadData();
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Loi: " + ex.getMessage());
-            }
+        if (txtMa.getText().trim().isEmpty() || txtTen.getText().trim().isEmpty()) {
+            showMessage(this, "Ma va Ten nganh la bat buoc!");
+            return;
+        }
+
+        Nganh n = new Nganh();
+        n.setMaNganh(txtMa.getText().trim());
+        n.setTenNganh(txtTen.getText().trim());
+        n.setChiTieu(parseInt(txtChiTieu.getText()));
+        n.setDiemSan(parseBigDecimal(txtDiemSan.getText()));
+        n.setIsActive(chkActive.isSelected());
+
+        try {
+            service.saveNganh(n);
+            showSuccess(this, "Them thanh cong!");
+            loadData();
+        } catch (Exception ex) {
+            showError(this, ex.getMessage());
         }
     }
 
-    private void showEditDialog() {
-        Nganh n = getSelected();
-        if (n == null) { JOptionPane.showMessageDialog(this, "Chon nganh can sua!"); return; }
+    @Override
+    protected void showEditDialog() {
+        Nganh n = getSelectedEntity();
+        if (n == null) { showSelectRow(); return; }
 
         JTextField txtTen = new JTextField(n.getTenNganh());
-        JTextField txtChiTieu = new JTextField(String.valueOf(n.getChiTieu()), 20);
+        JTextField txtChiTieu = new JTextField(String.valueOf(n.getChiTieu() != null ? n.getChiTieu() : ""), 20);
         JTextField txtDiemSan = new JTextField(n.getDiemSan() != null ? n.getDiemSan().toString() : "", 20);
         JTextField txtDiemTT = new JTextField(n.getDiemTrungTuyen() != null ? n.getDiemTrungTuyen().toString() : "", 20);
         JCheckBox chkActive = new JCheckBox("Active", n.getIsActive());
 
-        Object[] msg = {
-            "Ma nganh: " + n.getMaNganh() + " (khong doi)",
-            "Ten nganh:", txtTen,
-            "Chi tieu:", txtChiTieu,
-            "Diem san:", txtDiemSan,
-            "Diem trung tuyen:", txtDiemTT,
-            "Active:", chkActive
-        };
+        int r = JOptionPane.showConfirmDialog(this,
+            new Object[]{
+                "Ma nganh: " + n.getMaNganh() + " (khong doi)",
+                "Ten nganh:", txtTen,
+                "Chi tieu:", txtChiTieu,
+                "Diem san:", txtDiemSan,
+                "Diem trung tuyen:", txtDiemTT,
+                "Active:", chkActive
+            },
+            "Sua nganh", JOptionPane.OK_CANCEL_OPTION);
+        if (r != JOptionPane.OK_OPTION) return;
 
-        int result = JOptionPane.showConfirmDialog(this, msg, "Sua nganh", JOptionPane.OK_CANCEL_OPTION);
-        if (result == JOptionPane.OK_OPTION) {
-            n.setTenNganh(txtTen.getText().trim());
-            try { n.setChiTieu(Integer.parseInt(txtChiTieu.getText().trim())); } catch (Exception ex) {}
-            try { n.setDiemSan(new java.math.BigDecimal(txtDiemSan.getText().trim())); } catch (Exception ex) {}
-            try { n.setDiemTrungTuyen(new java.math.BigDecimal(txtDiemTT.getText().trim())); } catch (Exception ex) {}
-            n.setIsActive(chkActive.isSelected());
-            try {
-                service.updateNganh(n);
-                JOptionPane.showMessageDialog(this, "Cap nhat thanh cong!");
-                loadData();
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Loi: " + ex.getMessage());
-            }
-        }
-    }
+        n.setTenNganh(txtTen.getText().trim());
+        n.setChiTieu(parseInt(txtChiTieu.getText()));
+        n.setDiemSan(parseBigDecimal(txtDiemSan.getText()));
+        n.setDiemTrungTuyen(parseBigDecimal(txtDiemTT.getText()));
+        n.setIsActive(chkActive.isSelected());
 
-    private void deleteNganh() {
-        Nganh n = getSelected();
-        if (n == null) { JOptionPane.showMessageDialog(this, "Chon nganh can xoa!"); return; }
-        int confirm = JOptionPane.showConfirmDialog(this,
-            "Ban co chac xoa nganh '" + n.getTenNganh() + "'?", "Xac nhan", JOptionPane.YES_NO_OPTION);
-        if (confirm == JOptionPane.YES_OPTION) {
-            try {
-                service.deleteNganh(n);
-                JOptionPane.showMessageDialog(this, "Xoa thanh cong!");
-                loadData();
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Loi: " + ex.getMessage());
-            }
+        try {
+            service.updateNganh(n);
+            showSuccess(this, "Cap nhat thanh cong!");
+            loadData();
+        } catch (Exception ex) {
+            showError(this, ex.getMessage());
         }
     }
 }
