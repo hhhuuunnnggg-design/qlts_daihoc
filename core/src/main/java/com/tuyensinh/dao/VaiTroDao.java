@@ -1,7 +1,10 @@
 package com.tuyensinh.dao;
 
 import com.tuyensinh.entity.VaiTro;
-import org.hibernate.Session;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.util.List;
 
 public class VaiTroDao extends BaseDao<VaiTro> {
@@ -11,26 +14,24 @@ public class VaiTroDao extends BaseDao<VaiTro> {
         return VaiTro.class;
     }
 
-    @SuppressWarnings("unchecked")
     public List<VaiTro> findAll() {
-        try (Session session = getSession()) {
-            return session.createQuery("FROM VaiTro ORDER BY vaitroId").getResultList();
-        }
+        CriteriaBuilder cb = cb();
+        CriteriaQuery<VaiTro> cq = cb.createQuery(VaiTro.class);
+        Root<VaiTro> root = cq.from(VaiTro.class);
+        cq.select(root).orderBy(cb.asc(root.get("vaitroId")));
+        return em().createQuery(cq).getResultList();
     }
 
     public VaiTro findByMa(String maVaitro) {
-        try (Session session = getSession()) {
-            return (VaiTro) session.createQuery(
-                "FROM VaiTro vt WHERE vt.maVaitro = :ma")
-                .setParameter("ma", maVaitro)
-                .setMaxResults(1)
-                .uniqueResult();
-        }
+        CriteriaBuilder cb = cb();
+        CriteriaQuery<VaiTro> cq = cb.createQuery(VaiTro.class);
+        Root<VaiTro> root = cq.from(VaiTro.class);
+        cq.select(root).where(cb.equal(root.get("maVaitro"), maVaitro));
+        List<VaiTro> list = em().createQuery(cq).setMaxResults(1).getResultList();
+        return list.isEmpty() ? null : list.get(0);
     }
 
     public VaiTro findById(Short id) {
-        try (Session session = getSession()) {
-            return session.get(VaiTro.class, id);
-        }
+        return em().find(VaiTro.class, id);
     }
 }

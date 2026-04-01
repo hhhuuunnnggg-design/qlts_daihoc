@@ -1,8 +1,13 @@
 package com.tuyensinh.dao;
 
-import com.tuyensinh.entity.VaiTro;
 import com.tuyensinh.entity.NguoiDung;
-import org.hibernate.Session;
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,89 +19,125 @@ public class NguoiDungDao extends BaseDao<NguoiDung> {
     }
 
     public Optional<NguoiDung> findByUsername(String username) {
-        try (Session session = getSession()) {
-            @SuppressWarnings("unchecked")
-            NguoiDung nd = (NguoiDung) session.createQuery(
-                "FROM NguoiDung nd WHERE nd.username = :username")
-                .setParameter("username", username)
-                .setMaxResults(1)
-                .uniqueResult();
-            return Optional.ofNullable(nd);
-        }
+        CriteriaBuilder cb = cb();
+        CriteriaQuery<NguoiDung> cq = cb.createQuery(NguoiDung.class);
+        Root<NguoiDung> root = cq.from(NguoiDung.class);
+        cq.select(root).where(cb.equal(root.get("username"), username));
+        List<NguoiDung> list = em().createQuery(cq).setMaxResults(1).getResultList();
+        return list.isEmpty() ? Optional.empty() : Optional.of(list.get(0));
     }
 
     public Optional<NguoiDung> findByEmail(String email) {
-        try (Session session = getSession()) {
-            @SuppressWarnings("unchecked")
-            NguoiDung nd = (NguoiDung) session.createQuery(
-                "FROM NguoiDung nd WHERE nd.email = :email")
-                .setParameter("email", email)
-                .setMaxResults(1)
-                .uniqueResult();
-            return Optional.ofNullable(nd);
-        }
+        CriteriaBuilder cb = cb();
+        CriteriaQuery<NguoiDung> cq = cb.createQuery(NguoiDung.class);
+        Root<NguoiDung> root = cq.from(NguoiDung.class);
+        cq.select(root).where(cb.equal(root.get("email"), email));
+        List<NguoiDung> list = em().createQuery(cq).setMaxResults(1).getResultList();
+        return list.isEmpty() ? Optional.empty() : Optional.of(list.get(0));
     }
 
-    @SuppressWarnings("unchecked")
     public List<NguoiDung> findByVaiTro(Short vaitroId) {
-        try (Session session = getSession()) {
-            return session.createQuery(
-                "FROM NguoiDung nd WHERE nd.vaiTro.vaitroId = :vaitroId ORDER BY nd.username")
-                .setParameter("vaitroId", vaitroId)
-                .getResultList();
-        }
+        CriteriaBuilder cb = cb();
+        CriteriaQuery<NguoiDung> cq = cb.createQuery(NguoiDung.class);
+        Root<NguoiDung> root = cq.from(NguoiDung.class);
+        Join<NguoiDung, ?> vaiTro = root.join("vaiTro");
+        cq.select(root).where(
+            cb.equal(vaiTro.get("vaitroId"), vaitroId)
+        );
+        cq.orderBy(cb.asc(root.get("username")));
+        return em().createQuery(cq).getResultList();
     }
 
-    @SuppressWarnings("unchecked")
     public List<NguoiDung> findActiveUsers() {
-        try (Session session = getSession()) {
-            return session.createQuery(
-                "FROM NguoiDung nd WHERE nd.isActive = true ORDER BY nd.username")
-                .getResultList();
-        }
+        CriteriaBuilder cb = cb();
+        CriteriaQuery<NguoiDung> cq = cb.createQuery(NguoiDung.class);
+        Root<NguoiDung> root = cq.from(NguoiDung.class);
+        cq.select(root).where(cb.equal(root.get("isActive"), true));
+        cq.orderBy(cb.asc(root.get("username")));
+        return em().createQuery(cq).getResultList();
     }
 
-    @SuppressWarnings("unchecked")
     public List<NguoiDung> searchByUsernameOrHoTen(String keyword) {
-        try (Session session = getSession()) {
-            return session.createQuery(
-                "FROM NguoiDung nd WHERE nd.username LIKE :kw OR nd.hoTen LIKE :kw ORDER BY nd.username")
-                .setParameter("kw", "%" + keyword + "%")
-                .getResultList();
-        }
+        CriteriaBuilder cb = cb();
+        CriteriaQuery<NguoiDung> cq = cb.createQuery(NguoiDung.class);
+        Root<NguoiDung> root = cq.from(NguoiDung.class);
+        String kw = "%" + keyword + "%";
+        Predicate p1 = cb.like(root.get("username"), kw);
+        Predicate p2 = cb.like(root.get("hoTen"), kw);
+        cq.select(root).where(cb.or(p1, p2));
+        cq.orderBy(cb.asc(root.get("username")));
+        return em().createQuery(cq).getResultList();
     }
 
-    @SuppressWarnings("unchecked")
     public List<NguoiDung> findByPage(int page, int pageSize) {
-        try (Session session = getSession()) {
-            return session.createQuery("FROM NguoiDung nd ORDER BY nd.username")
-                .setFirstResult((page - 1) * pageSize)
-                .setMaxResults(pageSize)
-                .getResultList();
-        }
+        CriteriaBuilder cb = cb();
+        CriteriaQuery<NguoiDung> cq = cb.createQuery(NguoiDung.class);
+        Root<NguoiDung> root = cq.from(NguoiDung.class);
+        cq.select(root).orderBy(cb.asc(root.get("username")));
+        TypedQuery<NguoiDung> q = em().createQuery(cq);
+        q.setFirstResult((page - 1) * pageSize);
+        q.setMaxResults(pageSize);
+        return q.getResultList();
     }
 
     public long countAll() {
-        try (Session session = getSession()) {
-            return (Long) session.createQuery("SELECT COUNT(*) FROM NguoiDung").getSingleResult();
+        return count();
+    }
+
+    @Override
+    public NguoiDung save(NguoiDung nd) {
+        // Kiem tra trung username
+        if (findByUsername(nd.getUsername()).isPresent()) {
+            throw new RuntimeException("Username '" + nd.getUsername() + "' da ton tai!");
         }
+        // Kiem tra trung email (neu co gia tri)
+        if (nd.getEmail() != null && !nd.getEmail().isEmpty()) {
+            if (findByEmail(nd.getEmail()).isPresent()) {
+                throw new RuntimeException("Email '" + nd.getEmail() + "' da duoc su dung!");
+            }
+        }
+        // Kiem tra vai tro hop le
+        if (nd.getVaiTro() == null || nd.getVaiTro().getVaitroId() == null) {
+            throw new RuntimeException("Vai tro khong hop le!");
+        }
+        return super.save(nd);
+    }
+
+    @Override
+    public void update(NguoiDung nd) {
+        // Kiem tra trung email (neu co thay doi)
+        if (nd.getEmail() != null && !nd.getEmail().isEmpty()) {
+            Optional<NguoiDung> existing = findByEmail(nd.getEmail());
+            if (existing.isPresent() && !existing.get().getNguoidungId().equals(nd.getNguoidungId())) {
+                throw new RuntimeException("Email '" + nd.getEmail() + "' da duoc su dung boi tai khoan khac!");
+            }
+        }
+        super.update(nd);
     }
 
     public void updatePassword(NguoiDung nd, String newPasswordHash) {
-        try (Session session = getSession()) {
-            session.beginTransaction();
+        EntityManager em = em();
+        em.getTransaction().begin();
+        try {
             nd.setPasswordHash(newPasswordHash);
-            session.update(nd);
-            session.getTransaction().commit();
+            em.merge(nd);
+            em.getTransaction().commit();
+        } catch (RuntimeException e) {
+            if (em.getTransaction().isActive()) em.getTransaction().rollback();
+            throw e;
         }
     }
 
     public void toggleActive(NguoiDung nd) {
-        try (Session session = getSession()) {
-            session.beginTransaction();
+        EntityManager em = em();
+        em.getTransaction().begin();
+        try {
             nd.setIsActive(!nd.getIsActive());
-            session.update(nd);
-            session.getTransaction().commit();
+            em.merge(nd);
+            em.getTransaction().commit();
+        } catch (RuntimeException e) {
+            if (em.getTransaction().isActive()) em.getTransaction().rollback();
+            throw e;
         }
     }
 }

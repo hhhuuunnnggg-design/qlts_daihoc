@@ -10,8 +10,6 @@ import java.util.List;
 
 public class NguyenVongPanel extends JPanel {
 
-    private MainFrame mainFrame;
-    private XetTuyenService xetTuyenService = new XetTuyenService();
     private NguyenVongService nguyenVongService = new NguyenVongService();
 
     private JTable table;
@@ -20,7 +18,6 @@ public class NguyenVongPanel extends JPanel {
     private JLabel lblTotal;
 
     public NguyenVongPanel(MainFrame mainFrame) {
-        this.mainFrame = mainFrame;
         initUI();
         loadData();
     }
@@ -66,7 +63,7 @@ public class NguyenVongPanel extends JPanel {
                 nv.getNganhToHop() != null && nv.getNganhToHop().getToHop() != null ? nv.getNganhToHop().getToHop().getMaTohop() : "",
                 nv.getPhuongThuc() != null ? nv.getPhuongThuc().getMaPhuongthuc() : "",
                 nv.getThuTu(),
-                nv.getDiemsxettuyen() != null ? nv.getDiemsxettuyen() : "",
+                nv.getDiemXettuyen() != null ? nv.getDiemXettuyen() : "",
                 nv.getKetQua()
             });
         }

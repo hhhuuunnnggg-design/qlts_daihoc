@@ -157,7 +157,6 @@ public class ThiSinhPanel extends JPanel {
         JTextField txtDt = new JTextField(20);
         JTextField txtEmail = new JTextField(20);
         JTextField txtNs = new JTextField(20);
-        JTextField txtNs2 = new JTextField("yyyy-MM-dd", 20);
         JComboBox<String> cboGt = new JComboBox<>(new String[]{"", "Nam", "Nu"});
         JComboBox<DoiTuongUutien> cboDt = new JComboBox<>();
         JComboBox<KhuVucUutien> cboKv = new JComboBox<>();

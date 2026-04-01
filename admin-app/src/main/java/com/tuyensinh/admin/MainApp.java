@@ -1,9 +1,9 @@
 package com.tuyensinh.admin;
 
 import com.tuyensinh.admin.ui.*;
-import com.tuyensinh.admin.ui.dialogs.*;
 import com.tuyensinh.entity.*;
 import com.tuyensinh.service.*;
+import com.tuyensinh.util.DataSeeder;
 import com.tuyensinh.util.HibernateUtil;
 import javax.swing.*;
 import java.awt.*;
@@ -14,6 +14,8 @@ public class MainApp {
     public static AuthService authService = new AuthService();
 
     public static void main(String[] args) {
+        DataSeeder.seedIfNeeded();
+
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {

@@ -1,7 +1,10 @@
 package com.tuyensinh.dao;
 
 import com.tuyensinh.entity.Mon;
-import org.hibernate.Session;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,54 +16,32 @@ public class MonDao extends BaseDao<Mon> {
     }
 
     public Optional<Mon> findByMa(String maMon) {
-        try (Session session = getSession()) {
-            @SuppressWarnings("unchecked")
-            Mon mon = (Mon) session.createQuery(
-                "FROM Mon m WHERE m.maMon = :ma")
-                .setParameter("ma", maMon)
-                .setMaxResults(1)
-                .uniqueResult();
-            return Optional.ofNullable(mon);
-        }
+        CriteriaBuilder cb = cb();
+        CriteriaQuery<Mon> cq = cb.createQuery(Mon.class);
+        Root<Mon> root = cq.from(Mon.class);
+        cq.select(root).where(cb.equal(root.get("maMon"), maMon));
+        List<Mon> list = em().createQuery(cq).setMaxResults(1).getResultList();
+        return list.isEmpty() ? Optional.empty() : Optional.of(list.get(0));
     }
 
-    @SuppressWarnings("unchecked")
     public List<Mon> findByLoaiMon(String loaiMon) {
-        try (Session session = getSession()) {
-            return session.createQuery(
-                "FROM Mon m WHERE m.loaiMon = :loai ORDER BY m.maMon")
-                .setParameter("loai", loaiMon)
-                .getResultList();
-        }
+        CriteriaBuilder cb = cb();
+        CriteriaQuery<Mon> cq = cb.createQuery(Mon.class);
+        Root<Mon> root = cq.from(Mon.class);
+        cq.select(root).where(cb.equal(root.get("loaiMon"), loaiMon));
+        cq.orderBy(cb.asc(root.get("maMon")));
+        return em().createQuery(cq).getResultList();
     }
 
-    @SuppressWarnings("unchecked")
     public List<Mon> findNangKhieuMon() {
-        try (Session session = getSession()) {
-            return session.createQuery(
-                "FROM Mon m WHERE m.loaiMon = :loai ORDER BY m.maMon")
-                .setParameter("loai", Mon.LoaiMon.NANG_KHIEU)
-                .getResultList();
-        }
+        return findByLoaiMon(Mon.LoaiMon.NANG_KHIEU);
     }
 
-    @SuppressWarnings("unchecked")
     public List<Mon> findDanhGiaNangLuc() {
-        try (Session session = getSession()) {
-            return session.createQuery(
-                "FROM Mon m WHERE m.loaiMon = :loai ORDER BY m.maMon")
-                .setParameter("loai", Mon.LoaiMon.DANH_GIA_NANG_LUC)
-                .getResultList();
-        }
+        return findByLoaiMon(Mon.LoaiMon.DANH_GIA_NANG_LUC);
     }
 
-    @SuppressWarnings("unchecked")
     public List<Mon> findMonHoc() {
-        try (Session session = getSession()) {
-            return session.createQuery(
-                "FROM Mon m WHERE m.loaiMon = :loai ORDER BY m.maMon")
-                .setParameter("loai", Mon.LoaiMon.MON_HOC)
-                .getResultList();
-        }
+        return findByLoaiMon(Mon.LoaiMon.MON_HOC);
     }
 }

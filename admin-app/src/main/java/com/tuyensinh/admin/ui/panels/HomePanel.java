@@ -1,9 +1,14 @@
-package com.tuyensinh.admin.ui;
+package com.tuyensinh.admin.ui.panels;
 
+import com.tuyensinh.admin.ui.MainFrame;
 import javax.swing.*;
 import java.awt.*;
 
 public class HomePanel extends JPanel {
+
+    public HomePanel() {
+        initUI();
+    }
 
     public HomePanel(MainFrame mainFrame) {
         initUI();

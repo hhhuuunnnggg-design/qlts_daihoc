@@ -1,19 +1,19 @@
 package com.tuyensinh.admin.ui.panels;
 
 import com.tuyensinh.admin.ui.MainFrame;
+import com.tuyensinh.dao.PhuongThucDao;
 import com.tuyensinh.entity.*;
 import com.tuyensinh.service.*;
 import javax.swing.*;
 import javax.swing.table.*;
 import java.awt.*;
 import java.util.List;
+import java.util.Optional;
 
 public class DiemCongPanel extends JPanel {
 
-    private MainFrame mainFrame;
     private DiemCongService diemCongService = new DiemCongService();
     private ThiSinhService thiSinhService = new ThiSinhService();
-    private XetTuyenService xetTuyenService = new XetTuyenService();
     private NganhToHopService nganhToHopService = new NganhToHopService();
     private PhuongThucDao phuongThucDao = new PhuongThucDao();
 
@@ -23,7 +23,6 @@ public class DiemCongPanel extends JPanel {
     private JLabel lblTotal;
 
     public DiemCongPanel(MainFrame mainFrame) {
-        this.mainFrame = mainFrame;
         initUI();
         loadData();
     }

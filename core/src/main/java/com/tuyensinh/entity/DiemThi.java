@@ -3,6 +3,7 @@ package com.tuyensinh.entity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
@@ -12,6 +13,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "xt_diemthi")
+@ToString(exclude = {"danhSachDiemChiTiet", "thiSinh"})
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

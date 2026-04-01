@@ -40,6 +40,10 @@ public class XetTuyenService {
         return nganhDao.findByMa(ma);
     }
 
+    public Nganh findNganhById(Integer id) {
+        return nganhDao.findById(id);
+    }
+
     public Nganh saveNganh(Nganh n) {
         return nganhDao.save(n);
     }

@@ -1,20 +1,16 @@
 package com.tuyensinh.admin.ui.panels;
 
 import com.tuyensinh.admin.ui.MainFrame;
+import com.tuyensinh.dao.PhuongThucDao;
 import com.tuyensinh.entity.*;
-import com.tuyensinh.service.*;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.io.*;
-import java.util.*;
 import java.util.List;
 
 public class DiemImportPanel extends JPanel {
 
-    private MainFrame mainFrame;
-    private DiemThiService diemThiService = new DiemThiService();
-    private ThiSinhService thiSinhService = new ThiSinhService();
     private PhuongThucDao phuongThucDao = new PhuongThucDao();
 
     private JTextArea taLog;
@@ -25,7 +21,6 @@ public class DiemImportPanel extends JPanel {
     private JSpinner spnNam;
 
     public DiemImportPanel(MainFrame mainFrame) {
-        this.mainFrame = mainFrame;
         initUI();
     }
 
@@ -153,12 +148,12 @@ public class DiemImportPanel extends JPanel {
                     if (ext.endsWith(".csv")) {
                         count = importCSV(file, pt, nam);
                     } else {
-                        publish("Chi ho tro file CSV (moi file Excel luu thanh CSV truoc khi import)");
+                        log("Chi ho tro file CSV (moi file Excel luu thanh CSV truoc khi import)");
                         JOptionPane.showMessageDialog(DiemImportPanel.this,
                             "Chi ho tro import tu file CSV.\nVui long luu file Excel thanh CSV truoc!");
                     }
                 } catch (Exception e) {
-                    publish("Loi: " + e.getMessage());
+                    log("Loi: " + e.getMessage());
                     e.printStackTrace();
                 }
                 return count;
@@ -190,10 +185,10 @@ public class DiemImportPanel extends JPanel {
     }
 
     private int importCSV(File file, PhuongThuc defaultPt, Short nam) throws Exception {
-        publish("Bat dau doc file: " + file.getName());
+        log("Bat dau doc file: " + file.getName());
         BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"));
         String line = reader.readLine(); // skip header
-        publish("Doc header: " + line);
+        log("Doc header: " + line);
 
         int count = 0;
         int lineNum = 1;
@@ -205,7 +200,7 @@ public class DiemImportPanel extends JPanel {
             try {
                 String[] parts = line.split(",");
                 if (parts.length < 2) {
-                    publish("Dong " + lineNum + ": dinh dang sai, bo qua");
+                    log("Dong " + lineNum + ": dinh dang sai, bo qua");
                     continue;
                 }
 
@@ -214,15 +209,15 @@ public class DiemImportPanel extends JPanel {
 
                 // Find or create DiemThi
                 // ...
-                publish("Dong " + lineNum + ": " + sobaodanh + " - " + ptMa);
+                log("Dong " + lineNum + ": " + sobaodanh + " - " + ptMa);
                 count++;
             } catch (Exception e) {
-                publish("Dong " + lineNum + " loi: " + e.getMessage());
+                log("Dong " + lineNum + " loi: " + e.getMessage());
             }
         }
 
         reader.close();
-        publish("Hoan tat! Tong so: " + count + " ban ghi");
+        log("Hoan tat! Tong so: " + count + " ban ghi");
         return count;
     }
 

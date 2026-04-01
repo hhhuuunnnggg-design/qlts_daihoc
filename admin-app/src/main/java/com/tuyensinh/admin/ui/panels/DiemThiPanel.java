@@ -2,6 +2,7 @@ package com.tuyensinh.admin.ui.panels;
 
 import com.tuyensinh.admin.ui.MainFrame;
 import com.tuyensinh.entity.*;
+import com.tuyensinh.dao.PhuongThucDao;
 import com.tuyensinh.service.*;
 import com.tuyensinh.util.*;
 import javax.swing.*;
@@ -9,6 +10,7 @@ import javax.swing.table.*;
 import java.awt.*;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 public class DiemThiPanel extends JPanel {
 
@@ -130,7 +132,7 @@ public class DiemThiPanel extends JPanel {
         for (PhuongThuc pt : phuongThucDao.findAll()) {
             cboPt.addItem(pt);
         }
-        JSpinner spnNam = new JSpinner(new SpinnerNumberModel(2026, 2020, 2030, 1));
+        JSpinner spnNam = new JSpinner(new SpinnerNumberModel((Integer) 2026, (Integer) 2020, (Integer) 2030, (Integer) 1));
         JTextField txtGhiChu = new JTextField(20);
 
         Object[] msg = {
@@ -185,7 +187,7 @@ public class DiemThiPanel extends JPanel {
         }
         JTextField txtSbd = new JTextField(dt.getSobaodanh() != null ? dt.getSobaodanh() : "");
         JTextField txtGhiChu = new JTextField(dt.getGhiChu() != null ? dt.getGhiChu() : "");
-        JSpinner spnNam = new JSpinner(new SpinnerNumberModel(dt.getNamTuyensinh(), 2020, 2030, 1));
+        JSpinner spnNam = new JSpinner(new SpinnerNumberModel(Integer.valueOf(dt.getNamTuyensinh()), Integer.valueOf(2020), Integer.valueOf(2030), Integer.valueOf(1)));
 
         Object[] msg = {
             "Thi sinh: " + (dt.getThiSinh() != null ? dt.getThiSinh().getHoVaTen() : "N/A"),

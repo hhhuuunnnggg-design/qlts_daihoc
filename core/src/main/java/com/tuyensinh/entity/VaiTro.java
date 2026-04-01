@@ -3,6 +3,7 @@ package com.tuyensinh.entity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -12,6 +13,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "xt_vaitro")
+@ToString(exclude = {"danhSachNguoiDung"})
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -36,4 +38,9 @@ public class VaiTro {
 
     public static final String ADMIN = "ADMIN";
     public static final String USER  = "USER";
+
+    @Override
+    public String toString() {
+        return maVaitro + " - " + tenVaitro;
+    }
 }

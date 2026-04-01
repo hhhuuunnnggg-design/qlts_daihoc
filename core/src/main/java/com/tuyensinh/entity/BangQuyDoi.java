@@ -3,6 +3,7 @@ package com.tuyensinh.entity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -10,6 +11,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "xt_bangquydoi")
+@ToString(exclude = {})
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

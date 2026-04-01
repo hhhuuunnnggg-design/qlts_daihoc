@@ -1,7 +1,9 @@
 package com.tuyensinh.dao;
 
 import com.tuyensinh.entity.DoiTuongUutien;
-import org.hibernate.Session;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 import java.util.List;
 
 public class DoiTuongUutienDao extends BaseDao<DoiTuongUutien> {
@@ -11,10 +13,11 @@ public class DoiTuongUutienDao extends BaseDao<DoiTuongUutien> {
         return DoiTuongUutien.class;
     }
 
-    @SuppressWarnings("unchecked")
     public List<DoiTuongUutien> findAll() {
-        try (Session session = getSession()) {
-            return session.createQuery("FROM DoiTuongUutien ORDER BY maDoituong").getResultList();
-        }
+        CriteriaBuilder cb = cb();
+        CriteriaQuery<DoiTuongUutien> cq = cb.createQuery(DoiTuongUutien.class);
+        Root<DoiTuongUutien> root = cq.from(DoiTuongUutien.class);
+        cq.select(root).orderBy(cb.asc(root.get("maDoituong")));
+        return em().createQuery(cq).getResultList();
     }
 }

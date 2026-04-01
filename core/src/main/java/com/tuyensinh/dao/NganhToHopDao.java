@@ -1,7 +1,11 @@
 package com.tuyensinh.dao;
 
 import com.tuyensinh.entity.NganhToHop;
-import org.hibernate.Session;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.util.List;
 import java.util.Optional;
 
@@ -12,45 +16,51 @@ public class NganhToHopDao extends BaseDao<NganhToHop> {
         return NganhToHop.class;
     }
 
-    @SuppressWarnings("unchecked")
     public List<NganhToHop> findByNganhId(Integer nganhId) {
-        try (Session session = getSession()) {
-            return session.createQuery(
-                "FROM NganhToHop nt WHERE nt.nganh.nganhId = :nid ORDER BY nt.toHop.maTohop")
-                .setParameter("nid", nganhId)
-                .getResultList();
-        }
+        CriteriaBuilder cb = cb();
+        CriteriaQuery<NganhToHop> cq = cb.createQuery(NganhToHop.class);
+        Root<NganhToHop> root = cq.from(NganhToHop.class);
+        Join<NganhToHop, ?> nganh = root.join("nganh");
+        Join<NganhToHop, ?> toHop = root.join("toHop");
+        cq.select(root).where(cb.equal(nganh.get("nganhId"), nganhId));
+        cq.orderBy(cb.asc(toHop.get("maTohop")));
+        return em().createQuery(cq).getResultList();
     }
 
-    @SuppressWarnings("unchecked")
     public List<NganhToHop> findByToHopId(Integer tohopId) {
-        try (Session session = getSession()) {
-            return session.createQuery(
-                "FROM NganhToHop nt WHERE nt.toHop.tohopId = :tid ORDER BY nt.nganh.maNganh")
-                .setParameter("tid", tohopId)
-                .getResultList();
-        }
+        CriteriaBuilder cb = cb();
+        CriteriaQuery<NganhToHop> cq = cb.createQuery(NganhToHop.class);
+        Root<NganhToHop> root = cq.from(NganhToHop.class);
+        Join<NganhToHop, ?> toHop = root.join("toHop");
+        Join<NganhToHop, ?> nganh = root.join("nganh");
+        cq.select(root).where(cb.equal(toHop.get("tohopId"), tohopId));
+        cq.orderBy(cb.asc(nganh.get("maNganh")));
+        return em().createQuery(cq).getResultList();
     }
 
     public Optional<NganhToHop> findByNganhAndToHop(Integer nganhId, Integer tohopId) {
-        try (Session session = getSession()) {
-            @SuppressWarnings("unchecked")
-            NganhToHop nt = (NganhToHop) session.createQuery(
-                "FROM NganhToHop nt WHERE nt.nganh.nganhId = :nid AND nt.toHop.tohopId = :tid")
-                .setParameter("nid", nganhId)
-                .setParameter("tid", tohopId)
-                .setMaxResults(1)
-                .uniqueResult();
-            return Optional.ofNullable(nt);
-        }
+        CriteriaBuilder cb = cb();
+        CriteriaQuery<NganhToHop> cq = cb.createQuery(NganhToHop.class);
+        Root<NganhToHop> root = cq.from(NganhToHop.class);
+        Join<NganhToHop, ?> nganh = root.join("nganh");
+        Join<NganhToHop, ?> toHop = root.join("toHop");
+        cq.select(root).where(
+            cb.and(
+                cb.equal(nganh.get("nganhId"), nganhId),
+                cb.equal(toHop.get("tohopId"), tohopId)
+            )
+        );
+        List<NganhToHop> list = em().createQuery(cq).setMaxResults(1).getResultList();
+        return list.isEmpty() ? Optional.empty() : Optional.of(list.get(0));
     }
 
-    @SuppressWarnings("unchecked")
     public List<NganhToHop> findAll() {
-        try (Session session = getSession()) {
-            return session.createQuery(
-                "FROM NganhToHop nt ORDER BY nt.nganh.maNganh, nt.toHop.maTohop")
-                .getResultList();
-        }
+        CriteriaBuilder cb = cb();
+        CriteriaQuery<NganhToHop> cq = cb.createQuery(NganhToHop.class);
+        Root<NganhToHop> root = cq.from(NganhToHop.class);
+        Join<NganhToHop, ?> nganh = root.join("nganh");
+        Join<NganhToHop, ?> toHop = root.join("toHop");
+        cq.select(root).orderBy(cb.asc(nganh.get("maNganh")), cb.asc(toHop.get("maTohop")));
+        return em().createQuery(cq).getResultList();
     }
 }

@@ -3,12 +3,14 @@ package com.tuyensinh.entity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
 
 @Entity
 @Table(name = "xt_diemthi_chitiet")
+@ToString(exclude = {"diemThi", "mon"})
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

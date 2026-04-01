@@ -22,12 +22,15 @@
 /home/hung/Desktop/clone_1/TuyenSinhDaiHoc_2026/core/src/main/java/com/tuyensinh/dao/BaseDao.java
 /home/hung/Desktop/clone_1/TuyenSinhDaiHoc_2026/core/src/main/java/com/tuyensinh/service/VaiTroService.java
 /home/hung/Desktop/clone_1/TuyenSinhDaiHoc_2026/core/src/main/java/com/tuyensinh/util/PasswordUtil.java
+/home/hung/Desktop/clone_1/TuyenSinhDaiHoc_2026/core/src/main/java/com/tuyensinh/TestCRUD.java
 /home/hung/Desktop/clone_1/TuyenSinhDaiHoc_2026/core/src/main/java/com/tuyensinh/dao/NguyenVongDao.java
+/home/hung/Desktop/clone_1/TuyenSinhDaiHoc_2026/core/src/main/java/com/tuyensinh/util/DataSeeder.java
 /home/hung/Desktop/clone_1/TuyenSinhDaiHoc_2026/core/src/main/java/com/tuyensinh/dao/MonDao.java
 /home/hung/Desktop/clone_1/TuyenSinhDaiHoc_2026/core/src/main/java/com/tuyensinh/util/StringUtil.java
 /home/hung/Desktop/clone_1/TuyenSinhDaiHoc_2026/core/src/main/java/com/tuyensinh/entity/DiemThi.java
 /home/hung/Desktop/clone_1/TuyenSinhDaiHoc_2026/core/src/main/java/com/tuyensinh/dao/DiemThiDao.java
 /home/hung/Desktop/clone_1/TuyenSinhDaiHoc_2026/core/src/main/java/com/tuyensinh/entity/DoiTuongUutien.java
+/home/hung/Desktop/clone_1/TuyenSinhDaiHoc_2026/core/src/main/java/com/tuyensinh/test.java
 /home/hung/Desktop/clone_1/TuyenSinhDaiHoc_2026/core/src/main/java/com/tuyensinh/dao/KhuVucUutienDao.java
 /home/hung/Desktop/clone_1/TuyenSinhDaiHoc_2026/core/src/main/java/com/tuyensinh/service/XetTuyenService.java
 /home/hung/Desktop/clone_1/TuyenSinhDaiHoc_2026/core/src/main/java/com/tuyensinh/entity/NguyenVong.java

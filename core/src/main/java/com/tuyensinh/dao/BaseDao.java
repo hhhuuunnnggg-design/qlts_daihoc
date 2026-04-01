@@ -1,67 +1,86 @@
 package com.tuyensinh.dao;
 
 import com.tuyensinh.util.HibernateUtil;
-import org.hibernate.Session;
-import org.hibernate.query.Query;
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public abstract class BaseDao<T> {
 
     protected abstract Class<T> getEntityClass();
 
-    protected Session getSession() {
-        return HibernateUtil.getSession();
+    private static final ThreadLocal<EntityManager> EM = new ThreadLocal<>();
+
+    protected EntityManager em() {
+        EntityManager current = EM.get();
+        if (current == null || !current.isOpen()) {
+            current = HibernateUtil.getSessionFactory().createEntityManager();
+            EM.set(current);
+        }
+        return current;
+    }
+
+    protected CriteriaBuilder cb() {
+        return em().getCriteriaBuilder();
     }
 
     public T findById(Integer id) {
-        try (Session session = getSession()) {
-            return session.get(getEntityClass(), id);
-        }
-    }
-
-    public Optional<T> findByIdOptional(Integer id) {
-        return Optional.ofNullable(findById(id));
-    }
-
-    @SuppressWarnings("unchecked")
-    public List<T> findAll() {
-        try (Session session = getSession()) {
-            Query<T> query = session.createQuery("FROM " + getEntityClass().getSimpleName(), getEntityClass());
-            return query.getResultList();
-        }
+        return em().find(getEntityClass(), id);
     }
 
     public T save(T entity) {
-        try (Session session = getSession()) {
-            session.beginTransaction();
-            session.persist(entity);
-            session.getTransaction().commit();
+        EntityManager em = em();
+        em.getTransaction().begin();
+        try {
+            em.persist(entity);
+            em.getTransaction().commit();
             return entity;
+        } catch (RuntimeException e) {
+            if (em.getTransaction().isActive()) em.getTransaction().rollback();
+            throw e;
         }
     }
 
     public void update(T entity) {
-        try (Session session = getSession()) {
-            session.beginTransaction();
-            session.update(entity);
-            session.getTransaction().commit();
+        EntityManager em = em();
+        em.getTransaction().begin();
+        try {
+            em.merge(entity);
+            em.getTransaction().commit();
+        } catch (RuntimeException e) {
+            if (em.getTransaction().isActive()) em.getTransaction().rollback();
+            throw e;
         }
     }
 
     public void saveOrUpdate(T entity) {
-        try (Session session = getSession()) {
-            session.beginTransaction();
-            session.saveOrUpdate(entity);
-            session.getTransaction().commit();
+        EntityManager em = em();
+        em.getTransaction().begin();
+        try {
+            em.unwrap(org.hibernate.Session.class).saveOrUpdate(entity);
+            em.getTransaction().commit();
+        } catch (RuntimeException e) {
+            if (em.getTransaction().isActive()) em.getTransaction().rollback();
+            throw e;
         }
     }
 
     public void delete(T entity) {
-        try (Session session = getSession()) {
-            session.beginTransaction();
-            session.delete(entity);
-            session.getTransaction().commit();
+        EntityManager em = em();
+        em.getTransaction().begin();
+        try {
+            em.remove(em.contains(entity) ? entity : em.merge(entity));
+            em.getTransaction().commit();
+        } catch (RuntimeException e) {
+            if (em.getTransaction().isActive()) em.getTransaction().rollback();
+            throw e;
         }
     }
 
@@ -72,47 +91,67 @@ public abstract class BaseDao<T> {
         }
     }
 
-    @SuppressWarnings("unchecked")
+    public List<T> findAll() {
+        CriteriaQuery<T> cq = cb().createQuery(getEntityClass());
+        cq.from(getEntityClass());
+        return em().createQuery(cq).getResultList();
+    }
+
     public List<T> findByPage(int page, int pageSize) {
-        try (Session session = getSession()) {
-            Query<T> query = session.createQuery("FROM " + getEntityClass().getSimpleName(), getEntityClass());
-            query.setFirstResult((page - 1) * pageSize);
-            query.setMaxResults(pageSize);
-            return query.getResultList();
-        }
+        CriteriaQuery<T> cq = cb().createQuery(getEntityClass());
+        cq.from(getEntityClass());
+        TypedQuery<T> q = em().createQuery(cq);
+        q.setFirstResult((page - 1) * pageSize);
+        q.setMaxResults(pageSize);
+        return q.getResultList();
     }
 
     public long count() {
-        try (Session session = getSession()) {
-            Query<Long> query = session.createQuery(
-                "SELECT COUNT(*) FROM " + getEntityClass().getSimpleName(), Long.class);
-            return query.getSingleResult();
-        }
+        CriteriaQuery<Long> cq = cb().createQuery(Long.class);
+        cq.select(cb().count(cq.from(getEntityClass())));
+        return em().createQuery(cq).getSingleResult();
     }
 
-    @SuppressWarnings("unchecked")
-    protected List<T> executeQuery(String hql, List<Object> params) {
-        try (Session session = getSession()) {
-            Query<T> query = session.createQuery(hql, getEntityClass());
-            if (params != null) {
-                for (int i = 0; i < params.size(); i++) {
-                    query.setParameter(i, params.get(i));
-                }
-            }
-            return query.getResultList();
+    protected List<T> findWhere(List<Predicate> preds) {
+        CriteriaQuery<T> cq = cb().createQuery(getEntityClass());
+        Root<T> root = cq.from(getEntityClass());
+        if (!preds.isEmpty()) {
+            cq.where(preds.toArray(new Predicate[0]));
         }
+        return em().createQuery(cq).getResultList();
     }
 
-    @SuppressWarnings("unchecked")
-    protected T executeSingleResult(String hql, List<Object> params) {
-        try (Session session = getSession()) {
-            Query<T> query = session.createQuery(hql, getEntityClass());
-            if (params != null) {
-                for (int i = 0; i < params.size(); i++) {
-                    query.setParameter(i, params.get(i));
-                }
-            }
-            return query.setMaxResults(1).uniqueResult();
+    protected TypedQuery<T> findWherePaginated(List<Predicate> preds, int page, int pageSize) {
+        CriteriaQuery<T> cq = cb().createQuery(getEntityClass());
+        Root<T> root = cq.from(getEntityClass());
+        if (!preds.isEmpty()) {
+            cq.where(preds.toArray(new Predicate[0]));
         }
+        TypedQuery<T> q = em().createQuery(cq);
+        q.setFirstResult((page - 1) * pageSize);
+        q.setMaxResults(pageSize);
+        return q;
+    }
+
+    protected long countWhere(List<Predicate> preds) {
+        CriteriaQuery<Long> cq = cb().createQuery(Long.class);
+        Root<T> root = cq.from(getEntityClass());
+        cq.select(cb().count(root));
+        if (!preds.isEmpty()) {
+            cq.where(preds.toArray(new Predicate[0]));
+        }
+        return em().createQuery(cq).getSingleResult();
+    }
+
+    protected <Y> Subquery<Y> subquery(Class<Y> type) {
+        return cb().createQuery(type).subquery(type);
+    }
+
+    public static void closeCurrentEm() {
+        EntityManager em = EM.get();
+        if (em != null && em.isOpen()) {
+            em.close();
+        }
+        EM.remove();
     }
 }

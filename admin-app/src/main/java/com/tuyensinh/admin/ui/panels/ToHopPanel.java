@@ -95,7 +95,7 @@ public class ToHopPanel extends JPanel {
         int row = table.getSelectedRow();
         if (row < 0) return null;
         Integer id = (Integer) model.getValueAt(row, 0);
-        return service.findAllToHop().stream().filter(t -> t.getTohopId().equals(id)).findFirst().orElse(null);
+        return toHopService.findById(id);
     }
 
     private void showAddDialog() {

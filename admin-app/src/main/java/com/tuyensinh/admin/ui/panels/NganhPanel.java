@@ -101,7 +101,7 @@ public class NganhPanel extends JPanel {
         int row = table.getSelectedRow();
         if (row < 0) return null;
         Integer id = (Integer) model.getValueAt(row, 0);
-        return service.findAllNganh().stream().filter(n -> n.getNganhId().equals(id)).findFirst().orElse(null);
+        return service.findNganhById(id);
     }
 
     private void showAddDialog() {

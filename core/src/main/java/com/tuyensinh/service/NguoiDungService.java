@@ -65,4 +65,8 @@ public class NguoiDungService {
     public int getTotalPages(long total, int pageSize) {
         return (int) Math.ceil((double) total / pageSize);
     }
+
+    public void updatePassword(NguoiDung nd, String newPassword) {
+        dao.updatePassword(nd, newPassword);
+    }
 }

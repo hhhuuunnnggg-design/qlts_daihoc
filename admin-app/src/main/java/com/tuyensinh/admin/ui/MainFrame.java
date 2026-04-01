@@ -30,7 +30,7 @@ public class MainFrame extends JFrame {
         mnFile.setFont(new Font("Arial", Font.BOLD, 13));
 
         JMenuItem miLogout = new JMenuItem("Dang xuat");
-        miLogout.setIcon(new ImageIcon(getClass().getResource("/icons/logout.png")));
+        miLogout.setText("Dang xuat");
         miLogout.setAccelerator(KeyStroke.getKeyStroke("ctrl L"));
         miLogout.addActionListener(e -> {
             int confirm = JOptionPane.showConfirmDialog(this,
@@ -123,10 +123,10 @@ public class MainFrame extends JFrame {
         // --- Toolbar ---
         JToolBar toolbar = new JToolBar();
         toolbar.setFloatable(false);
-        toolbar.add(new JButton(new ImageIcon(getClass().getResource("/icons/home.png"))) {{
-            setToolTipText("Trang chu");
-            addActionListener(e -> showPanel("home"));
-        }});
+        JButton btnHome = new JButton("Trang chu");
+        btnHome.setToolTipText("Trang chu");
+        btnHome.addActionListener(e -> showPanel("home"));
+        toolbar.add(btnHome);
         toolbar.addSeparator();
 
         JButton btnND = new JButton("Nguoi dung");
@@ -172,7 +172,7 @@ public class MainFrame extends JFrame {
         contentPanel = new JPanel(cardLayout);
 
         // Add all panels
-        contentPanel.add(new HomePanel(this), "home");
+        contentPanel.add(new HomePanel(), "home");
         contentPanel.add(new NguoiDungPanel(this), "nguoidung");
         contentPanel.add(new ThiSinhPanel(this), "thisinh");
         contentPanel.add(new ThiSinhImportPanel(this), "thisinh_import");

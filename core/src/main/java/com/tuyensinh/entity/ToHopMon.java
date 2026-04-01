@@ -3,11 +3,13 @@ package com.tuyensinh.entity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.*;
 
 @Entity
 @Table(name = "xt_tohop_mon")
+@ToString(exclude = {})
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

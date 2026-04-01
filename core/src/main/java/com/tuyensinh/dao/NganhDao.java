@@ -1,7 +1,13 @@
 package com.tuyensinh.dao;
 
 import com.tuyensinh.entity.Nganh;
-import org.hibernate.Session;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,59 +19,63 @@ public class NganhDao extends BaseDao<Nganh> {
     }
 
     public Optional<Nganh> findByMa(String maNganh) {
-        try (Session session = getSession()) {
-            @SuppressWarnings("unchecked")
-            Nganh n = (Nganh) session.createQuery(
-                "FROM Nganh n WHERE n.maNganh = :ma")
-                .setParameter("ma", maNganh)
-                .setMaxResults(1)
-                .uniqueResult();
-            return Optional.ofNullable(n);
-        }
+        CriteriaBuilder cb = cb();
+        CriteriaQuery<Nganh> cq = cb.createQuery(Nganh.class);
+        Root<Nganh> root = cq.from(Nganh.class);
+        cq.select(root).where(cb.equal(root.get("maNganh"), maNganh));
+        List<Nganh> list = em().createQuery(cq).setMaxResults(1).getResultList();
+        return list.isEmpty() ? Optional.empty() : Optional.of(list.get(0));
     }
 
-    @SuppressWarnings("unchecked")
     public List<Nganh> findActive() {
-        try (Session session = getSession()) {
-            return session.createQuery(
-                "FROM Nganh n WHERE n.isActive = true ORDER BY n.maNganh")
-                .getResultList();
-        }
+        CriteriaBuilder cb = cb();
+        CriteriaQuery<Nganh> cq = cb.createQuery(Nganh.class);
+        Root<Nganh> root = cq.from(Nganh.class);
+        cq.select(root).where(cb.equal(root.get("isActive"), true));
+        cq.orderBy(cb.asc(root.get("maNganh")));
+        return em().createQuery(cq).getResultList();
     }
 
-    @SuppressWarnings("unchecked")
     public List<Nganh> searchByMaOrTen(String keyword) {
-        try (Session session = getSession()) {
-            return session.createQuery(
-                "FROM Nganh n WHERE n.maNganh LIKE :kw OR n.tenNganh LIKE :kw ORDER BY n.maNganh")
-                .setParameter("kw", "%" + keyword + "%")
-                .getResultList();
-        }
+        CriteriaBuilder cb = cb();
+        CriteriaQuery<Nganh> cq = cb.createQuery(Nganh.class);
+        Root<Nganh> root = cq.from(Nganh.class);
+        String kw = "%" + keyword + "%";
+        Predicate p1 = cb.like(root.get("maNganh"), kw);
+        Predicate p2 = cb.like(root.get("tenNganh"), kw);
+        cq.select(root).where(cb.or(p1, p2));
+        cq.orderBy(cb.asc(root.get("maNganh")));
+        return em().createQuery(cq).getResultList();
     }
 
-    @SuppressWarnings("unchecked")
     public List<Nganh> findByPage(int page, int pageSize) {
-        try (Session session = getSession()) {
-            return session.createQuery("FROM Nganh n ORDER BY n.maNganh")
-                .setFirstResult((page - 1) * pageSize)
-                .setMaxResults(pageSize)
-                .getResultList();
-        }
+        CriteriaBuilder cb = cb();
+        CriteriaQuery<Nganh> cq = cb.createQuery(Nganh.class);
+        Root<Nganh> root = cq.from(Nganh.class);
+        cq.select(root).orderBy(cb.asc(root.get("maNganh")));
+        TypedQuery<Nganh> q = em().createQuery(cq);
+        q.setFirstResult((page - 1) * pageSize);
+        q.setMaxResults(pageSize);
+        return q.getResultList();
     }
 
     public long countAll() {
-        try (Session session = getSession()) {
-            return (Long) session.createQuery("SELECT COUNT(*) FROM Nganh").getSingleResult();
-        }
+        return count();
     }
 
-    @SuppressWarnings("unchecked")
     public List<Object[]> thongKeNganh() {
-        try (Session session = getSession()) {
-            return session.createQuery(
-                "SELECT n.maNganh, n.tenNganh, n.chiTieu, n.diemSan, COUNT(np.nganhPhuongthucId) " +
-                "FROM Nganh n LEFT JOIN n.danhSachNganhPhuongThuc np GROUP BY n.nganhId ORDER BY n.maNganh")
-                .getResultList();
-        }
+        CriteriaBuilder cb = cb();
+        CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
+        Root<Nganh> root = cq.from(Nganh.class);
+        Join<Nganh, ?> npt = root.join("danhSachNganhPhuongThuc", JoinType.LEFT);
+        cq.multiselect(
+            root.get("maNganh"),
+            root.get("tenNganh"),
+            root.get("chiTieu"),
+            root.get("diemSan"),
+            cb.count(npt.get("nganhPhuongthucId"))
+        );
+        cq.groupBy(root.get("nganhId")).orderBy(cb.asc(root.get("maNganh")));
+        return em().createQuery(cq).getResultList();
     }
 }

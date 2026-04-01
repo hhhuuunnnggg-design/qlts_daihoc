@@ -3,15 +3,14 @@ package com.tuyensinh.admin.ui.panels;
 import com.tuyensinh.admin.ui.MainFrame;
 import com.tuyensinh.entity.*;
 import com.tuyensinh.service.*;
+import com.tuyensinh.util.PasswordUtil;
 import javax.swing.*;
 import javax.swing.table.*;
 import java.awt.*;
 import java.util.List;
-import java.util.Optional;
 
 public class NguoiDungPanel extends JPanel {
 
-    private MainFrame mainFrame;
     private NguoiDungService service = new NguoiDungService();
     private VaiTroService vaiTroService = new VaiTroService();
 
@@ -26,7 +25,6 @@ public class NguoiDungPanel extends JPanel {
     private final int pageSize = 20;
 
     public NguoiDungPanel(MainFrame mainFrame) {
-        this.mainFrame = mainFrame;
         initUI();
         loadData();
     }
@@ -35,7 +33,6 @@ public class NguoiDungPanel extends JPanel {
         setLayout(new BorderLayout(5, 5));
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // --- Top toolbar ---
         JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.LEFT));
         toolbar.add(new JLabel("Tim kiem:"));
         txtSearch = new JTextField(20);
@@ -79,7 +76,6 @@ public class NguoiDungPanel extends JPanel {
 
         add(toolbar, BorderLayout.NORTH);
 
-        // --- Table ---
         model = new DefaultTableModel(
             new String[]{"ID", "Username", "Ho ten", "Email", "Vai tro", "Trang thai", "Ngay tao"}, 0) {
             @Override
@@ -100,7 +96,6 @@ public class NguoiDungPanel extends JPanel {
         JScrollPane scrollPane = new JScrollPane(table);
         add(scrollPane, BorderLayout.CENTER);
 
-        // --- Bottom: pagination + total ---
         JPanel bottom = new JPanel(new BorderLayout());
         lblTotal = new JLabel("Tong: 0 nguoi dung");
         lblTotal.setFont(new Font("Arial", Font.PLAIN, 12));
@@ -117,18 +112,14 @@ public class NguoiDungPanel extends JPanel {
 
         JButton btnPrev = new JButton("<<");
         btnPrev.addActionListener(e -> {
-            if (currentPage > 1) {
-                spnPage.setValue(--currentPage);
-            }
+            if (currentPage > 1) spnPage.setValue(--currentPage);
         });
         paging.add(btnPrev);
 
         JButton btnNext = new JButton(">>");
         btnNext.addActionListener(e -> {
             int totalPages = getTotalPages();
-            if (currentPage < totalPages) {
-                spnPage.setValue(++currentPage);
-            }
+            if (currentPage < totalPages) spnPage.setValue(++currentPage);
         });
         paging.add(btnNext);
 
@@ -216,10 +207,14 @@ public class NguoiDungPanel extends JPanel {
                 JOptionPane.showMessageDialog(this, "Username va password khong duoc trong!");
                 return;
             }
+            if (vt == null) {
+                JOptionPane.showMessageDialog(this, "Chon vai tro!");
+                return;
+            }
 
             NguoiDung nd = new NguoiDung();
             nd.setUsername(username);
-            nd.setPasswordHash(password);
+            nd.setPasswordHash(PasswordUtil.hashPassword(password));
             nd.setHoTen(hoTen.isEmpty() ? null : hoTen);
             nd.setEmail(email.isEmpty() ? null : email);
             nd.setVaiTro(vt);

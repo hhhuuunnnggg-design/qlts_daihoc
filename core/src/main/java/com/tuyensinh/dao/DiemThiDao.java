@@ -1,8 +1,13 @@
 package com.tuyensinh.dao;
 
 import com.tuyensinh.entity.DiemThi;
-import org.hibernate.Session;
-import java.math.BigDecimal;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,94 +19,118 @@ public class DiemThiDao extends BaseDao<DiemThi> {
     }
 
     public Optional<DiemThi> findByThiSinhAndPhuongThuc(Integer thisinhId, Short phuongthucId, Short namTuyensinh) {
-        try (Session session = getSession()) {
-            @SuppressWarnings("unchecked")
-            DiemThi dt = (DiemThi) session.createQuery(
-                "FROM DiemThi dt WHERE dt.thiSinh.thisinhId = :tsid AND dt.phuongThuc.phuongthucId = :ptid AND dt.namTuyensinh = :nam")
-                .setParameter("tsid", thisinhId)
-                .setParameter("ptid", phuongthucId)
-                .setParameter("nam", namTuyensinh)
-                .setMaxResults(1)
-                .uniqueResult();
-            return Optional.ofNullable(dt);
-        }
+        CriteriaBuilder cb = cb();
+        CriteriaQuery<DiemThi> cq = cb.createQuery(DiemThi.class);
+        Root<DiemThi> root = cq.from(DiemThi.class);
+        Join<DiemThi, ?> thiSinh = root.join("thiSinh");
+        Join<DiemThi, ?> phuongThuc = root.join("phuongThuc");
+        List<Predicate> preds = new ArrayList<>();
+        preds.add(cb.equal(thiSinh.get("thisinhId"), thisinhId));
+        preds.add(cb.equal(phuongThuc.get("phuongthucId"), phuongthucId));
+        preds.add(cb.equal(root.get("namTuyensinh"), namTuyensinh));
+        cq.select(root).where(preds.toArray(new Predicate[0]));
+        List<DiemThi> list = em().createQuery(cq).setMaxResults(1).getResultList();
+        return list.isEmpty() ? Optional.empty() : Optional.of(list.get(0));
     }
 
-    @SuppressWarnings("unchecked")
     public List<DiemThi> findByThiSinhId(Integer thisinhId) {
-        try (Session session = getSession()) {
-            return session.createQuery(
-                "FROM DiemThi dt WHERE dt.thiSinh.thisinhId = :tsid ORDER BY dt.phuongThuc.phuongthucId")
-                .setParameter("tsid", thisinhId)
-                .getResultList();
-        }
+        CriteriaBuilder cb = cb();
+        CriteriaQuery<DiemThi> cq = cb.createQuery(DiemThi.class);
+        Root<DiemThi> root = cq.from(DiemThi.class);
+        Join<DiemThi, ?> thiSinh = root.join("thiSinh");
+        Join<DiemThi, ?> phuongThuc = root.join("phuongThuc");
+        cq.select(root).where(cb.equal(thiSinh.get("thisinhId"), thisinhId));
+        cq.orderBy(cb.asc(phuongThuc.get("phuongthucId")));
+        return em().createQuery(cq).getResultList();
     }
 
-    @SuppressWarnings("unchecked")
     public List<DiemThi> findByPhuongThuc(Short phuongthucId) {
-        try (Session session = getSession()) {
-            return session.createQuery(
-                "FROM DiemThi dt WHERE dt.phuongThuc.phuongthucId = :ptid ORDER BY dt.thiSinh.ten, dt.thiSinh.ho")
-                .setParameter("ptid", phuongthucId)
-                .getResultList();
-        }
+        CriteriaBuilder cb = cb();
+        CriteriaQuery<DiemThi> cq = cb.createQuery(DiemThi.class);
+        Root<DiemThi> root = cq.from(DiemThi.class);
+        Join<DiemThi, ?> thiSinh = root.join("thiSinh");
+        Join<DiemThi, ?> phuongThuc = root.join("phuongThuc");
+        cq.select(root).where(cb.equal(phuongThuc.get("phuongthucId"), phuongthucId));
+        cq.orderBy(cb.asc(thiSinh.get("ten")), cb.asc(thiSinh.get("ho")));
+        return em().createQuery(cq).getResultList();
     }
 
-    @SuppressWarnings("unchecked")
     public List<DiemThi> findByPhuongThucAndPage(Short phuongthucId, int page, int pageSize) {
-        try (Session session = getSession()) {
-            return session.createQuery(
-                "FROM DiemThi dt WHERE dt.phuongThuc.phuongthucId = :ptid ORDER BY dt.thiSinh.ten, dt.thiSinh.ho")
-                .setParameter("ptid", phuongthucId)
-                .setFirstResult((page - 1) * pageSize)
-                .setMaxResults(pageSize)
-                .getResultList();
-        }
+        CriteriaBuilder cb = cb();
+        CriteriaQuery<DiemThi> cq = cb.createQuery(DiemThi.class);
+        Root<DiemThi> root = cq.from(DiemThi.class);
+        Join<DiemThi, ?> thiSinh = root.join("thiSinh");
+        Join<DiemThi, ?> phuongThuc = root.join("phuongThuc");
+        List<Predicate> preds = new ArrayList<>();
+        preds.add(cb.equal(phuongThuc.get("phuongthucId"), phuongthucId));
+        cq.select(root).where(preds.toArray(new Predicate[0]));
+        cq.orderBy(cb.asc(thiSinh.get("ten")), cb.asc(thiSinh.get("ho")));
+        TypedQuery<DiemThi> q = em().createQuery(cq);
+        q.setFirstResult((page - 1) * pageSize);
+        q.setMaxResults(pageSize);
+        return q.getResultList();
     }
 
-    @SuppressWarnings("unchecked")
     public List<Object[]> thongKeDiemByPhuongThucMon(Short phuongthucId, Integer monId) {
-        try (Session session = getSession()) {
-            String hql = "SELECT AVG(dct.diemSudung), MIN(dct.diemSudung), MAX(dct.diemSudung), COUNT(dct) " +
-                         "FROM DiemThi dt JOIN dt.danhSachDiemChiTiet dct " +
-                         "WHERE dt.phuongThuc.phuongthucId = :ptid AND dct.mon.monId = :mid";
-            if (monId != null) {
-                return session.createQuery(hql)
-                    .setParameter("ptid", phuongthucId)
-                    .setParameter("mid", monId)
-                    .getResultList();
-            } else {
-                return session.createQuery(hql.replace("AND dct.mon.monId = :mid", ""))
-                    .setParameter("ptid", phuongthucId)
-                    .getResultList();
-            }
+        CriteriaBuilder cb = cb();
+        CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
+        Root<DiemThi> root = cq.from(DiemThi.class);
+        Join<DiemThi, ?> dct = root.join("danhSachDiemChiTiet");
+        Join<DiemThi, ?> phuongThuc = root.join("phuongThuc");
+        List<javax.persistence.criteria.Predicate> preds = new ArrayList<>();
+        preds.add(cb.equal(phuongThuc.get("phuongthucId"), phuongthucId));
+        if (monId != null) {
+            Join<DiemThi, ?> mon = dct.join("mon");
+            preds.add(cb.equal(mon.get("monId"), monId));
         }
+        cq.multiselect(
+            cb.avg(dct.get("diemSudung")),
+            cb.min(dct.get("diemSudung")),
+            cb.max(dct.get("diemSudung")),
+            cb.count(dct)
+        ).where(preds.toArray(new javax.persistence.criteria.Predicate[0]));
+        return em().createQuery(cq).getResultList();
     }
 
-    @SuppressWarnings("unchecked")
     public List<Object[]> thongKeDiemTheoMon(Short phuongthucId) {
-        try (Session session = getSession()) {
-            return session.createQuery(
-                "SELECT dct.mon.maMon, dct.mon.tenMon, AVG(dct.diemSudung), MIN(dct.diemSudung), MAX(dct.diemSudung), COUNT(dct) " +
-                "FROM DiemThi dt JOIN dt.danhSachDiemChiTiet dct " +
-                "WHERE dt.phuongThuc.phuongthucId = :ptid " +
-                "GROUP BY dct.mon.monId ORDER BY dct.mon.maMon")
-                .setParameter("ptid", phuongthucId)
-                .getResultList();
-        }
+        CriteriaBuilder cb = cb();
+        CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
+        Root<DiemThi> root = cq.from(DiemThi.class);
+        Join<DiemThi, ?> dct = root.join("danhSachDiemChiTiet");
+        Join<DiemThi, ?> phuongThuc = root.join("phuongThuc");
+        Join<DiemThi, ?> mon = dct.join("mon");
+        cq.multiselect(
+            mon.get("maMon"),
+            mon.get("tenMon"),
+            cb.avg(dct.get("diemSudung")),
+            cb.min(dct.get("diemSudung")),
+            cb.max(dct.get("diemSudung")),
+            cb.count(dct)
+        );
+        cq.where(cb.equal(phuongThuc.get("phuongthucId"), phuongthucId));
+        cq.groupBy(mon.get("monId")).orderBy(cb.asc(mon.get("maMon")));
+        return em().createQuery(cq).getResultList();
     }
 
-    @SuppressWarnings("unchecked")
     public List<DiemThi> searchByCccdOrSoBaoDanh(String keyword, Short phuongthucId) {
-        try (Session session = getSession()) {
-            return session.createQuery(
-                "FROM DiemThi dt WHERE (dt.thiSinh.cccd LIKE :kw OR dt.sobaodanh LIKE :kw OR dt.thiSinh.ho LIKE :kw2 OR dt.thiSinh.ten LIKE :kw2) " +
-                "AND (:ptid IS NULL OR dt.phuongThuc.phuongthucId = :ptid) " +
-                "ORDER BY dt.thiSinh.ten, dt.thiSinh.ho")
-                .setParameter("kw", "%" + keyword + "%")
-                .setParameter("kw2", "%" + keyword + "%")
-                .setParameter("ptid", phuongthucId)
-                .getResultList();
+        CriteriaBuilder cb = cb();
+        CriteriaQuery<DiemThi> cq = cb.createQuery(DiemThi.class);
+        Root<DiemThi> root = cq.from(DiemThi.class);
+        Join<DiemThi, ?> thiSinh = root.join("thiSinh");
+        Join<DiemThi, ?> phuongThuc = root.join("phuongThuc");
+        String kw = "%" + keyword + "%";
+        List<Predicate> preds = new ArrayList<>();
+        preds.add(cb.or(
+            cb.like(thiSinh.get("cccd"), kw),
+            cb.like(root.get("sobaodanh"), kw),
+            cb.like(thiSinh.get("ho"), kw),
+            cb.like(thiSinh.get("ten"), kw)
+        ));
+        if (phuongthucId != null) {
+            preds.add(cb.equal(phuongThuc.get("phuongthucId"), phuongthucId));
         }
+        cq.select(root).where(preds.toArray(new Predicate[0]));
+        cq.orderBy(cb.asc(thiSinh.get("ten")), cb.asc(thiSinh.get("ho")));
+        return em().createQuery(cq).getResultList();
     }
 }

@@ -16,6 +16,10 @@ public class ToHopService {
         return dao.findAll();
     }
 
+    public ToHop findById(Integer id) {
+        return dao.findById(id);
+    }
+
     public ToHop save(ToHop entity) {
         return dao.save(entity);
     }

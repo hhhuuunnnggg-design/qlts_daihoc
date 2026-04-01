@@ -2,7 +2,12 @@ package com.tuyensinh.dao;
 
 import com.tuyensinh.entity.ToHop;
 import com.tuyensinh.entity.ToHopMon;
-import org.hibernate.Session;
+import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,58 +19,62 @@ public class ToHopDao extends BaseDao<ToHop> {
     }
 
     public Optional<ToHop> findByMa(String maTohop) {
-        try (Session session = getSession()) {
-            @SuppressWarnings("unchecked")
-            ToHop th = (ToHop) session.createQuery(
-                "FROM ToHop th WHERE th.maTohop = :ma")
-                .setParameter("ma", maTohop)
-                .setMaxResults(1)
-                .uniqueResult();
-            return Optional.ofNullable(th);
-        }
+        CriteriaBuilder cb = cb();
+        CriteriaQuery<ToHop> cq = cb.createQuery(ToHop.class);
+        Root<ToHop> root = cq.from(ToHop.class);
+        cq.select(root).where(cb.equal(root.get("maTohop"), maTohop));
+        List<ToHop> list = em().createQuery(cq).setMaxResults(1).getResultList();
+        return list.isEmpty() ? Optional.empty() : Optional.of(list.get(0));
     }
 
-    @SuppressWarnings("unchecked")
     public List<ToHop> findAll() {
-        try (Session session = getSession()) {
-            return session.createQuery("FROM ToHop th ORDER BY th.maTohop").getResultList();
-        }
+        CriteriaBuilder cb = cb();
+        CriteriaQuery<ToHop> cq = cb.createQuery(ToHop.class);
+        Root<ToHop> root = cq.from(ToHop.class);
+        cq.select(root).orderBy(cb.asc(root.get("maTohop")));
+        return em().createQuery(cq).getResultList();
     }
 
-    @SuppressWarnings("unchecked")
     public List<ToHopMon> findMonByToHopId(Integer tohopId) {
-        try (Session session = getSession()) {
-            return session.createQuery(
-                "FROM ToHopMon tm WHERE tm.toHop.tohopId = :id ORDER BY tm.thuTu")
-                .setParameter("id", tohopId)
-                .getResultList();
-        }
+        CriteriaBuilder cb = cb();
+        CriteriaQuery<ToHopMon> cq = cb.createQuery(ToHopMon.class);
+        Root<ToHopMon> root = cq.from(ToHopMon.class);
+        Join<ToHopMon, ToHop> toHop = root.join("toHop");
+        cq.select(root).where(cb.equal(toHop.get("tohopId"), tohopId));
+        cq.orderBy(cb.asc(root.get("thuTu")));
+        return em().createQuery(cq).getResultList();
     }
 
     public void saveToHopMon(ToHopMon entity) {
-        try (Session session = getSession()) {
-            session.beginTransaction();
-            session.saveOrUpdate(entity);
-            session.getTransaction().commit();
+        EntityManager em = em();
+        em.getTransaction().begin();
+        try {
+            em.unwrap(org.hibernate.Session.class).saveOrUpdate(entity);
+            em.getTransaction().commit();
+        } catch (RuntimeException e) {
+            if (em.getTransaction().isActive()) em.getTransaction().rollback();
+            throw e;
         }
     }
 
-    @SuppressWarnings("unchecked")
     public List<ToHop> searchByMaOrTen(String keyword) {
-        try (Session session = getSession()) {
-            return session.createQuery(
-                "FROM ToHop th WHERE th.maTohop LIKE :kw OR th.tenTohop LIKE :kw ORDER BY th.maTohop")
-                .setParameter("kw", "%" + keyword + "%")
-                .getResultList();
-        }
+        CriteriaBuilder cb = cb();
+        CriteriaQuery<ToHop> cq = cb.createQuery(ToHop.class);
+        Root<ToHop> root = cq.from(ToHop.class);
+        String kw = "%" + keyword + "%";
+        Predicate p1 = cb.like(root.get("maTohop"), kw);
+        Predicate p2 = cb.like(root.get("tenTohop"), kw);
+        cq.select(root).where(cb.or(p1, p2));
+        cq.orderBy(cb.asc(root.get("maTohop")));
+        return em().createQuery(cq).getResultList();
     }
 
-    @SuppressWarnings("unchecked")
     public List<ToHop> findNangKhieuToHop() {
-        try (Session session = getSession()) {
-            return session.createQuery(
-                "FROM ToHop th WHERE th.maTohop LIKE 'NK%' ORDER BY th.maTohop")
-                .getResultList();
-        }
+        CriteriaBuilder cb = cb();
+        CriteriaQuery<ToHop> cq = cb.createQuery(ToHop.class);
+        Root<ToHop> root = cq.from(ToHop.class);
+        cq.select(root).where(cb.like(root.get("maTohop"), "NK%"));
+        cq.orderBy(cb.asc(root.get("maTohop")));
+        return em().createQuery(cq).getResultList();
     }
 }

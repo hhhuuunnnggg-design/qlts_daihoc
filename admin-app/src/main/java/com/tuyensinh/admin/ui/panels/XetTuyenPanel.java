@@ -99,8 +99,8 @@ public class XetTuyenPanel extends JPanel {
                         && nv.getPhuongThuc() != null && nv.getPhuongThuc().getPhuongthucId().equals(pt.getPhuongthucId())) {
 
                         boolean trungTuyen = false;
-                        if (nv.getDiemsxettuyen() != null && nganh.getDiemSan() != null) {
-                            if (nv.getDiemsxettuyen().compareTo(nganh.getDiemSan()) >= 0 && countTrungTuyen < nganh.getChiTieu()) {
+                        if (nv.getDiemXettuyen() != null && nganh.getDiemSan() != null) {
+                            if (nv.getDiemXettuyen().compareTo(nganh.getDiemSan()) >= 0 && countTrungTuyen < nganh.getChiTieu()) {
                                 trungTuyen = true;
                                 countTrungTuyen++;
                             }
@@ -108,7 +108,7 @@ public class XetTuyenPanel extends JPanel {
 
                         String ketQua = trungTuyen ? "TRUNG_TUYEN" : "CHO_XET";
                         publish("TS: " + (nv.getThiSinh() != null ? nv.getThiSinh().getHoVaTen() : "")
-                            + " | Diem: " + (nv.getDiemsxettuyen() != null ? nv.getDiemsxettuyen() : "N/A")
+                            + " | Diem: " + (nv.getDiemXettuyen() != null ? nv.getDiemXettuyen() : "N/A")
                             + " | KQ: " + ketQua + "\n");
 
                         nv.setKetQua(ketQua);

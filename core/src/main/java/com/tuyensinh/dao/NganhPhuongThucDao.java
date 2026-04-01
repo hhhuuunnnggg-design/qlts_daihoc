@@ -1,7 +1,12 @@
 package com.tuyensinh.dao;
 
 import com.tuyensinh.entity.NganhPhuongThuc;
-import org.hibernate.Session;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import java.util.ArrayList;
 import java.util.List;
 
 public class NganhPhuongThucDao extends BaseDao<NganhPhuongThuc> {
@@ -11,45 +16,49 @@ public class NganhPhuongThucDao extends BaseDao<NganhPhuongThuc> {
         return NganhPhuongThuc.class;
     }
 
-    @SuppressWarnings("unchecked")
     public List<NganhPhuongThuc> findByNganhId(Integer nganhId) {
-        try (Session session = getSession()) {
-            return session.createQuery(
-                "FROM NganhPhuongThuc np WHERE np.nganh.nganhId = :nid ORDER BY np.phuongThuc.phuongthucId")
-                .setParameter("nid", nganhId)
-                .getResultList();
-        }
+        CriteriaBuilder cb = cb();
+        CriteriaQuery<NganhPhuongThuc> cq = cb.createQuery(NganhPhuongThuc.class);
+        Root<NganhPhuongThuc> root = cq.from(NganhPhuongThuc.class);
+        Join<NganhPhuongThuc, ?> nganh = root.join("nganh");
+        Join<NganhPhuongThuc, ?> phuongThuc = root.join("phuongThuc");
+        cq.select(root).where(cb.equal(nganh.get("nganhId"), nganhId));
+        cq.orderBy(cb.asc(phuongThuc.get("phuongthucId")));
+        return em().createQuery(cq).getResultList();
     }
 
-    @SuppressWarnings("unchecked")
     public List<NganhPhuongThuc> findByPhuongThucId(Short phuongthucId) {
-        try (Session session = getSession()) {
-            return session.createQuery(
-                "FROM NganhPhuongThuc np WHERE np.phuongThuc.phuongthucId = :ptid ORDER BY np.nganh.maNganh")
-                .setParameter("ptid", phuongthucId)
-                .getResultList();
-        }
+        CriteriaBuilder cb = cb();
+        CriteriaQuery<NganhPhuongThuc> cq = cb.createQuery(NganhPhuongThuc.class);
+        Root<NganhPhuongThuc> root = cq.from(NganhPhuongThuc.class);
+        Join<NganhPhuongThuc, ?> phuongThuc = root.join("phuongThuc");
+        Join<NganhPhuongThuc, ?> nganh = root.join("nganh");
+        cq.select(root).where(cb.equal(phuongThuc.get("phuongthucId"), phuongthucId));
+        cq.orderBy(cb.asc(nganh.get("maNganh")));
+        return em().createQuery(cq).getResultList();
     }
 
     public NganhPhuongThuc findByNganhAndPhuongThuc(Integer nganhId, Short phuongthucId) {
-        try (Session session = getSession()) {
-            @SuppressWarnings("unchecked")
-            NganhPhuongThuc np = (NganhPhuongThuc) session.createQuery(
-                "FROM NganhPhuongThuc np WHERE np.nganh.nganhId = :nid AND np.phuongThuc.phuongthucId = :ptid")
-                .setParameter("nid", nganhId)
-                .setParameter("ptid", phuongthucId)
-                .setMaxResults(1)
-                .uniqueResult();
-            return np;
-        }
+        CriteriaBuilder cb = cb();
+        CriteriaQuery<NganhPhuongThuc> cq = cb.createQuery(NganhPhuongThuc.class);
+        Root<NganhPhuongThuc> root = cq.from(NganhPhuongThuc.class);
+        Join<NganhPhuongThuc, ?> nganh = root.join("nganh");
+        Join<NganhPhuongThuc, ?> phuongThuc = root.join("phuongThuc");
+        List<Predicate> preds = new ArrayList<>();
+        preds.add(cb.equal(nganh.get("nganhId"), nganhId));
+        preds.add(cb.equal(phuongThuc.get("phuongthucId"), phuongthucId));
+        cq.select(root).where(preds.toArray(new Predicate[0]));
+        List<NganhPhuongThuc> list = em().createQuery(cq).setMaxResults(1).getResultList();
+        return list.isEmpty() ? null : list.get(0);
     }
 
-    @SuppressWarnings("unchecked")
     public List<NganhPhuongThuc> findAll() {
-        try (Session session = getSession()) {
-            return session.createQuery(
-                "FROM NganhPhuongThuc np ORDER BY np.nganh.maNganh, np.phuongThuc.phuongthucId")
-                .getResultList();
-        }
+        CriteriaBuilder cb = cb();
+        CriteriaQuery<NganhPhuongThuc> cq = cb.createQuery(NganhPhuongThuc.class);
+        Root<NganhPhuongThuc> root = cq.from(NganhPhuongThuc.class);
+        Join<NganhPhuongThuc, ?> nganh = root.join("nganh");
+        Join<NganhPhuongThuc, ?> phuongThuc = root.join("phuongThuc");
+        cq.select(root).orderBy(cb.asc(nganh.get("maNganh")), cb.asc(phuongThuc.get("phuongthucId")));
+        return em().createQuery(cq).getResultList();
     }
 }
