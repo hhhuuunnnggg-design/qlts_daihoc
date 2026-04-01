@@ -2,177 +2,346 @@ package com.tuyensinh.admin.ui;
 
 import com.tuyensinh.admin.MainApp;
 import com.tuyensinh.admin.ui.panels.*;
+import com.formdev.flatlaf.FlatClientProperties;
 import javax.swing.*;
+import javax.swing.border.*;
 import java.awt.*;
+import java.awt.geom.*;
+import java.awt.event.*;
+import java.util.*;
 
 public class MainFrame extends JFrame {
 
     private JPanel contentPanel;
     private CardLayout cardLayout;
-    private JLabel lblStatus;
+    private JPanel sidebar;
+    private JLabel lblPageTitle;
+    private String currentPage = "home";
+    private final Color sidebarBgTop = new Color(15, 32, 70);
+    private final Color sidebarBgBottom = new Color(30, 64, 144);
+    private final Color navHover = new Color(255, 255, 255, 18);
+    private final Color navActive = new Color(255, 255, 255, 25);
+    private final Color accentBlue = new Color(59, 130, 246);
+    private final Map<String, JComponent> navItems = new LinkedHashMap<>();
 
     public MainFrame() {
         initUI();
     }
 
     private void initUI() {
-        setTitle("Quan ly Tuyen Sinh Dai Hoc 2026 - Admin");
-        setSize(1200, 750);
+        setTitle("Quan ly Tuyen Sinh Dai Hoc 2026");
+        setSize(1280, 800);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
+        setResizable(true);
+        setMinimumSize(new Dimension(1024, 680));
 
-        // --- Menu Bar ---
-        JMenuBar menuBar = new JMenuBar();
-        menuBar.setFont(new Font("Arial", Font.PLAIN, 13));
+        // ===== ROOT: BorderLayout =====
+        setLayout(new BorderLayout());
 
-        // File menu
-        JMenu mnFile = new JMenu("He thong");
-        mnFile.setFont(new Font("Arial", Font.BOLD, 13));
+        // ===== SIDEBAR (Left, fixed 240px) =====
+        sidebar = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                GradientPaint gp = new GradientPaint(0, 0, sidebarBgTop, 0, getHeight(), sidebarBgBottom);
+                g2.setPaint(gp);
+                g2.fillRect(0, 0, getWidth(), getHeight());
+                g2.dispose();
+            }
+        };
+        sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
+        sidebar.setPreferredSize(new Dimension(240, Integer.MAX_VALUE));
+        sidebar.setOpaque(true);
 
-        JMenuItem miLogout = new JMenuItem("Dang xuat");
-        miLogout.setText("Dang xuat");
-        miLogout.setAccelerator(KeyStroke.getKeyStroke("ctrl L"));
-        miLogout.addActionListener(e -> {
-            int confirm = JOptionPane.showConfirmDialog(this,
+        // ---- Sidebar Header ----
+        JPanel sidebarHeader = new JPanel();
+        sidebarHeader.setOpaque(false);
+        sidebarHeader.setLayout(new BoxLayout(sidebarHeader, BoxLayout.Y_AXIS));
+        sidebarHeader.setBorder(new EmptyBorder(20, 20, 16, 20));
+        sidebarHeader.setAlignmentX(Component.LEFT_ALIGNMENT);
+        sidebarHeader.setMaximumSize(new Dimension(240, 90));
+
+        // Logo icon
+        JPanel logoIcon = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                int cx = getWidth() / 2;
+                int cy = getHeight() / 2;
+                // Circle
+                g2.setColor(new Color(255, 255, 255, 30));
+                g2.fillOval(cx - 22, cy - 22, 44, 44);
+                g2.setColor(Color.WHITE);
+                g2.fillOval(cx - 18, cy - 18, 36, 36);
+                // Cap
+                g2.setColor(accentBlue);
+                Path2D.Double cap = new Path2D.Double();
+                cap.moveTo(cx, cy - 10);
+                cap.lineTo(cx + 10, cy);
+                cap.lineTo(cx, cy + 10);
+                cap.lineTo(cx - 10, cy);
+                cap.closePath();
+                g2.fill(cap);
+                g2.fill(new Ellipse2D.Double(cx - 5, cy - 12, 10, 5));
+                g2.setStroke(new BasicStroke(1.5f));
+                g2.setColor(new Color(255, 193, 7));
+                g2.drawLine(cx + 7, cy, cx + 13, cy + 7);
+                g2.dispose();
+            }
+        };
+        logoIcon.setOpaque(false);
+        logoIcon.setMaximumSize(new Dimension(44, 44));
+        logoIcon.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JLabel sidebarTitle = new JLabel("TUYEN SINH");
+        sidebarTitle.setFont(new Font("Segoe UI", Font.BOLD, 15));
+        sidebarTitle.setForeground(Color.WHITE);
+        sidebarTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JLabel sidebarSub = new JLabel("DAI HOC 2026");
+        sidebarSub.setFont(new Font("Segoe UI", Font.BOLD, 11));
+        sidebarSub.setForeground(new Color(180, 200, 255));
+        sidebarSub.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        sidebarHeader.add(logoIcon);
+        sidebarHeader.add(Box.createVerticalStrut(8));
+        sidebarHeader.add(sidebarTitle);
+        sidebarHeader.add(sidebarSub);
+
+        // ---- Divider ----
+        JSeparator sidebarSep = new JSeparator();
+        sidebarSep.setForeground(new Color(255, 255, 255, 30));
+        sidebarSep.setMaximumSize(new Dimension(240, 1));
+        sidebarSep.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        // ---- Nav section labels ----
+        JLabel navLabelMain = makeNavSectionLabel("QUAN LY");
+        JLabel navLabelSys = makeNavSectionLabel("HE THONG");
+
+        // ---- Navigation Items ----
+        // Main nav
+        addNavItem("Trang chu", "home", null);
+        addNavItem("Nguoi dung", "nguoidung", null);
+        addNavItem("Thi sinh", "thisinh", null);
+        addNavSpacer(12);
+        addNavItem("Nganh & To hop", "nganh", null);
+        addNavItem("Diem thi", "diemthi", null);
+        addNavItem("Diem cong", "diemcong", null);
+        addNavSpacer(12);
+        addNavItem("Nguyen vong", "nguyenvong", null);
+        addNavItem("Bang quy doi", "bangquydoi", null);
+
+        // ---- Sidebar bottom: user info + logout ----
+        JPanel sidebarBottom = new JPanel();
+        sidebarBottom.setOpaque(false);
+        sidebarBottom.setLayout(new BoxLayout(sidebarBottom, BoxLayout.Y_AXIS));
+        sidebarBottom.setBorder(new EmptyBorder(0, 12, 16, 12));
+        sidebarBottom.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JSeparator bottomSep = new JSeparator();
+        bottomSep.setForeground(new Color(255, 255, 255, 30));
+        bottomSep.setMaximumSize(new Dimension(216, 1));
+        bottomSep.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        // User info panel
+        JPanel userInfo = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(new Color(255, 255, 255, 15));
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
+                g2.dispose();
+            }
+        };
+        userInfo.setOpaque(false);
+        userInfo.setLayout(new BoxLayout(userInfo, BoxLayout.Y_AXIS));
+        userInfo.setBorder(new EmptyBorder(10, 10, 10, 10));
+        userInfo.setMaximumSize(new Dimension(216, 70));
+        userInfo.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        String userName = MainApp.currentUser != null ? MainApp.currentUser.getUsername() : "Admin";
+        String userRole = MainApp.currentUser != null && MainApp.currentUser.getVaiTro() != null
+            ? MainApp.currentUser.getVaiTro().getTenVaitro() : "Quan tri";
+
+        JLabel userAvatar = new JLabel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                int cx = getWidth() / 2;
+                int cy = getHeight() / 2;
+                g2.setColor(accentBlue);
+                g2.fillOval(cx - 16, cy - 16, 32, 32);
+                g2.setColor(Color.WHITE);
+                g2.setFont(new Font("Segoe UI", Font.BOLD, 13));
+                String initial = userName.length() > 0 ? userName.substring(0, 1).toUpperCase() : "A";
+                FontMetrics fm = g2.getFontMetrics();
+                g2.drawString(initial, cx - fm.stringWidth(initial) / 2, cy + fm.getAscent() / 2 - 2);
+                g2.dispose();
+            }
+        };
+        userAvatar.setMaximumSize(new Dimension(32, 32));
+        userAvatar.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JLabel userNameLbl = new JLabel(userName);
+        userNameLbl.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        userNameLbl.setForeground(Color.WHITE);
+        userNameLbl.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JLabel userRoleLbl = new JLabel(userRole);
+        userRoleLbl.setFont(new Font("Segoe UI", Font.PLAIN, 10));
+        userRoleLbl.setForeground(new Color(180, 200, 240));
+        userRoleLbl.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        userInfo.add(userAvatar);
+        userInfo.add(Box.createVerticalStrut(4));
+        userInfo.add(userNameLbl);
+        userInfo.add(userRoleLbl);
+
+        // Logout button
+        JButton btnLogout = new JButton("Dang xuat");
+        btnLogout.setIconTextGap(6);
+        btnLogout.setHorizontalTextPosition(SwingConstants.CENTER);
+        btnLogout.setAlignmentX(Component.CENTER_ALIGNMENT);
+        btnLogout.setMaximumSize(new Dimension(216, 36));
+        btnLogout.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        btnLogout.setForeground(new Color(220, 180, 180));
+        btnLogout.setFocusPainted(false);
+        btnLogout.setContentAreaFilled(false);
+        btnLogout.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnLogout.addActionListener(e -> {
+            int confirm = JOptionPane.showConfirmDialog(MainFrame.this,
                 "Ban muon dang xuat?", "Xac nhan", JOptionPane.YES_NO_OPTION);
             if (confirm == JOptionPane.YES_OPTION) {
                 MainApp.logout();
             }
         });
 
-        JMenuItem miExit = new JMenuItem("Thoat");
-        miExit.setAccelerator(KeyStroke.getKeyStroke("ctrl Q"));
-        miExit.addActionListener(e -> System.exit(0));
+        sidebarBottom.add(bottomSep);
+        sidebarBottom.add(Box.createVerticalStrut(12));
+        sidebarBottom.add(userInfo);
+        sidebarBottom.add(Box.createVerticalStrut(10));
+        sidebarBottom.add(btnLogout);
 
-        mnFile.add(miLogout);
-        mnFile.addSeparator();
-        mnFile.add(miExit);
+        // ---- Assemble sidebar ----
+        sidebar.add(sidebarHeader);
+        sidebar.add(Box.createVerticalStrut(4));
+        sidebar.add(sidebarSep);
+        sidebar.add(Box.createVerticalStrut(8));
+        sidebar.add(navLabelMain);
+        sidebar.add(Box.createVerticalStrut(4));
+        sidebar.add(navItems.get("home"));
+        sidebar.add(navItems.get("nguoidung"));
+        sidebar.add(navItems.get("thisinh"));
+        sidebar.add(Box.createVerticalStrut(12));
+        sidebar.add(navItems.get("nganh"));
+        sidebar.add(navItems.get("diemthi"));
+        sidebar.add(navItems.get("diemcong"));
+        sidebar.add(Box.createVerticalStrut(12));
+        sidebar.add(navItems.get("nguyenvong"));
+        sidebar.add(navItems.get("bangquydoi"));
+        sidebar.add(Box.createVerticalStrut(8));
+        sidebar.add(navLabelSys);
+        sidebar.add(Box.createVerticalStrut(4));
+        sidebar.add(Box.createVerticalGlue());
+        sidebar.add(sidebarBottom);
 
-        // Management menus
-        JMenu mnNguoiDung = new JMenu("Nguoi dung");
-        mnNguoiDung.setFont(new Font("Arial", Font.BOLD, 13));
-        JMenuItem miQLND = new JMenuItem("Quan ly nguoi dung");
-        miQLND.addActionListener(e -> showPanel("nguoidung"));
-        mnNguoiDung.add(miQLND);
+        // ===== TOP BAR =====
+        JPanel topBar = new JPanel(new BorderLayout());
+        topBar.setBackground(new Color(248, 249, 250));
+        topBar.setBorder(new EmptyBorder(0, 0, 1, 0));
+        topBar.setPreferredSize(new Dimension(Integer.MAX_VALUE, 60));
 
-        JMenu mnThiSinh = new JMenu("Thi sinh");
-        mnThiSinh.setFont(new Font("Arial", Font.BOLD, 13));
-        JMenuItem miQLTS = new JMenuItem("Quan ly thi sinh");
-        miQLTS.addActionListener(e -> showPanel("thisinh"));
-        JMenuItem miImportTS = new JMenuItem("Import thi sinh");
-        miImportTS.addActionListener(e -> showPanel("thisinh_import"));
-        mnThiSinh.add(miQLTS);
-        mnThiSinh.add(miImportTS);
+        // Left: page title
+        JPanel topLeft = new JPanel(new FlowLayout(FlowLayout.LEFT, 16, 0));
+        topLeft.setOpaque(false);
+        topLeft.setBorder(null);
 
-        JMenu mnNganh = new JMenu("Nganh & To hop");
-        mnNganh.setFont(new Font("Arial", Font.BOLD, 13));
-        JMenuItem miQLN = new JMenuItem("Quan ly nganh");
-        miQLN.addActionListener(e -> showPanel("nganh"));
-        JMenuItem miQLTH = new JMenuItem("Quan ly to hop mon");
-        miQLTH.addActionListener(e -> showPanel("tohop"));
-        JMenuItem miQLNTH = new JMenuItem("Nganh - To hop");
-        miQLNTH.addActionListener(e -> showPanel("nganhtohop"));
-        mnNganh.add(miQLN);
-        mnNganh.add(miQLTH);
-        mnNganh.add(miQLNTH);
+        JLabel lblMenuToggle = new JLabel("☰");
+        lblMenuToggle.setFont(new Font("Segoe UI", Font.PLAIN, 18));
+        lblMenuToggle.setForeground(new Color(80, 80, 80));
+        lblMenuToggle.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        lblMenuToggle.setBorder(new EmptyBorder(0, 0, 0, 8));
 
-        JMenu mnDiem = new JMenu("Diem thi");
-        mnDiem.setFont(new Font("Arial", Font.BOLD, 13));
-        JMenuItem miQLDiem = new JMenuItem("Quan ly diem");
-        miQLDiem.addActionListener(e -> showPanel("diemthi"));
-        JMenuItem miImportDiem = new JMenuItem("Import diem");
-        miImportDiem.addActionListener(e -> showPanel("diem_import"));
-        JMenuItem miThongKe = new JMenuItem("Thong ke diem");
-        miThongKe.addActionListener(e -> showPanel("diem_thongke"));
-        mnDiem.add(miQLDiem);
-        mnDiem.add(miImportDiem);
-        mnDiem.add(miThongKe);
+        lblPageTitle = new JLabel("Trang chu");
+        lblPageTitle.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        lblPageTitle.setForeground(new Color(30, 30, 30));
 
-        JMenu mnDiemCong = new JMenu("Diem cong");
-        mnDiemCong.setFont(new Font("Arial", Font.BOLD, 13));
-        JMenuItem miQLDC = new JMenuItem("Quan ly diem cong");
-        miQLDC.addActionListener(e -> showPanel("diemcong"));
-        mnDiemCong.add(miQLDC);
+        topLeft.add(lblMenuToggle);
+        topLeft.add(lblPageTitle);
 
-        JMenu mnNguyenVong = new JMenu("Nguyen vong");
-        mnNguyenVong.setFont(new Font("Arial", Font.BOLD, 13));
-        JMenuItem miQLNV = new JMenuItem("Quan ly nguyen vong");
-        miQLNV.addActionListener(e -> showPanel("nguyenvong"));
-        JMenuItem miXetTuyen = new JMenuItem("Xet tuyen");
-        miXetTuyen.addActionListener(e -> showPanel("xettuyen"));
-        mnNguyenVong.add(miQLNV);
-        mnNguyenVong.add(miXetTuyen);
+        // Right: actions
+        JPanel topRight = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 0));
+        topRight.setOpaque(false);
+        topRight.setBorder(null);
 
-        JMenu mnBangQuyDoi = new JMenu("Bang quy doi");
-        mnBangQuyDoi.setFont(new Font("Arial", Font.BOLD, 13));
-        JMenuItem miBQD = new JMenuItem("Quan ly bang quy doi");
-        miBQD.addActionListener(e -> showPanel("bangquydoi"));
-        mnBangQuyDoi.add(miBQD);
+        JButton btnNotify = new JButton() {
+            {
+                setPreferredSize(new Dimension(36, 36));
+                setFocusPainted(false);
+                setContentAreaFilled(false);
+                setCursor(new Cursor(Cursor.HAND_CURSOR));
+                setToolTipText("Thong bao");
+            }
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(new Color(100, 100, 100));
+                // Bell shape
+                g2.fillOval(8, 12, 20, 18);
+                g2.fill(new Ellipse2D.Double(10, 26, 16, 6));
+                g2.dispose();
+            }
+        };
 
-        menuBar.add(mnFile);
-        menuBar.add(mnNguoiDung);
-        menuBar.add(mnThiSinh);
-        menuBar.add(mnNganh);
-        menuBar.add(mnDiem);
-        menuBar.add(mnDiemCong);
-        menuBar.add(mnNguyenVong);
-        menuBar.add(mnBangQuyDoi);
+        JButton btnProfile = new JButton() {
+            {
+                setPreferredSize(new Dimension(36, 36));
+                setFocusPainted(false);
+                setContentAreaFilled(false);
+                setCursor(new Cursor(Cursor.HAND_CURSOR));
+                setToolTipText(userName);
+            }
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(accentBlue);
+                g2.fillOval(4, 4, 28, 28);
+                g2.setColor(Color.WHITE);
+                g2.setFont(new Font("Segoe UI", Font.BOLD, 12));
+                String initial = userName.length() > 0 ? userName.substring(0, 1).toUpperCase() : "A";
+                FontMetrics fm = g2.getFontMetrics();
+                g2.drawString(initial, 18 - fm.stringWidth(initial) / 2, 22);
+                g2.dispose();
+            }
+        };
 
-        setJMenuBar(menuBar);
+        topRight.add(btnNotify);
+        topRight.add(btnProfile);
+        topRight.setBorder(new EmptyBorder(0, 0, 0, 16));
 
-        // --- Toolbar ---
-        JToolBar toolbar = new JToolBar();
-        toolbar.setFloatable(false);
-        JButton btnHome = new JButton("Trang chu");
-        btnHome.setToolTipText("Trang chu");
-        btnHome.addActionListener(e -> showPanel("home"));
-        toolbar.add(btnHome);
-        toolbar.addSeparator();
+        topBar.add(topLeft, BorderLayout.WEST);
+        topBar.add(topRight, BorderLayout.EAST);
 
-        JButton btnND = new JButton("Nguoi dung");
-        btnND.addActionListener(e -> showPanel("nguoidung"));
-        toolbar.add(btnND);
-
-        JButton btnTS = new JButton("Thi sinh");
-        btnTS.addActionListener(e -> showPanel("thisinh"));
-        toolbar.add(btnTS);
-
-        JButton btnNganh = new JButton("Nganh");
-        btnNganh.addActionListener(e -> showPanel("nganh"));
-        toolbar.add(btnNganh);
-
-        JButton btnDiem = new JButton("Diem");
-        btnDiem.addActionListener(e -> showPanel("diemthi"));
-        toolbar.add(btnDiem);
-
-        JButton btnNV = new JButton("Nguyen Vong");
-        btnNV.addActionListener(e -> showPanel("nguyenvong"));
-        toolbar.add(btnNV);
-
-        JButton btnXet = new JButton("Xet Tuyen");
-        btnXet.addActionListener(e -> showPanel("xettuyen"));
-        toolbar.add(btnXet);
-
-        add(toolbar, BorderLayout.NORTH);
-
-        // --- Status Bar ---
-        JPanel statusBar = new JPanel(new BorderLayout());
-        statusBar.setBorder(BorderFactory.createEtchedBorder());
-        lblStatus = new JLabel("  Ready");
-        lblStatus.setFont(new Font("Arial", Font.PLAIN, 12));
-        JLabel lblUser = new JLabel("  User: " + MainApp.currentUser.getUsername() + " (" + MainApp.currentUser.getVaiTro().getTenVaitro() + ")  ");
-        lblUser.setFont(new Font("Arial", Font.PLAIN, 12));
-        lblUser.setForeground(new Color(0, 102, 204));
-        statusBar.add(lblStatus, BorderLayout.WEST);
-        statusBar.add(lblUser, BorderLayout.EAST);
-        add(statusBar, BorderLayout.SOUTH);
-
-        // --- Content Panel (CardLayout) ---
+        // ===== CONTENT PANEL (CardLayout) =====
         cardLayout = new CardLayout();
         contentPanel = new JPanel(cardLayout);
+        contentPanel.setBackground(new Color(243, 244, 246));
 
         // Add all panels
-        contentPanel.add(new HomePanel(), "home");
+        contentPanel.add(new HomePanel(this), "home");
         contentPanel.add(new NguoiDungPanel(this), "nguoidung");
         contentPanel.add(new ThiSinhPanel(this), "thisinh");
         contentPanel.add(new ThiSinhImportPanel(this), "thisinh_import");
@@ -187,17 +356,193 @@ public class MainFrame extends JFrame {
         contentPanel.add(new XetTuyenPanel(this), "xettuyen");
         contentPanel.add(new BangQuyDoiPanel(this), "bangquydoi");
 
-        add(contentPanel, BorderLayout.CENTER);
+        // ===== WRAP content in a padding container =====
+        JPanel contentWrapper = new JPanel(new BorderLayout());
+        contentWrapper.setOpaque(false);
+        contentWrapper.setBorder(new EmptyBorder(0, 0, 0, 0));
+        contentWrapper.add(contentPanel, BorderLayout.CENTER);
 
+        // ===== MAIN BODY (topBar + content) =====
+        JPanel body = new JPanel(new BorderLayout());
+        body.add(topBar, BorderLayout.NORTH);
+        body.add(contentWrapper, BorderLayout.CENTER);
+
+        // ===== ASSEMBLE =====
+        add(sidebar, BorderLayout.WEST);
+        add(body, BorderLayout.CENTER);
+
+        // Select default
+        setActiveNav("home");
         showPanel("home");
     }
 
+    private JLabel makeNavSectionLabel(String text) {
+        JLabel lbl = new JLabel("  " + text);
+        lbl.setFont(new Font("Segoe UI", Font.BOLD, 10));
+        lbl.setForeground(new Color(255, 255, 255, 60));
+        lbl.setMaximumSize(new Dimension(240, 20));
+        lbl.setAlignmentX(Component.LEFT_ALIGNMENT);
+        return lbl;
+    }
+
+    private void addNavItem(String text, String pageKey, String icon) {
+        JPanel navItem = new JPanel() {
+            private boolean hovered = false;
+            private boolean active = false;
+
+            {
+                setOpaque(false);
+                setMaximumSize(new Dimension(240, 42));
+                setAlignmentX(Component.LEFT_ALIGNMENT);
+                setCursor(new Cursor(Cursor.HAND_CURSOR));
+                setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+                setBorder(new EmptyBorder(0, 16, 0, 16));
+
+                addMouseListener(new java.awt.event.MouseAdapter() {
+                    public void mouseEntered(java.awt.event.MouseEvent e) {
+                        hovered = true;
+                        repaint();
+                    }
+                    public void mouseExited(java.awt.event.MouseEvent e) {
+                        hovered = false;
+                        repaint();
+                    }
+                    public void mouseClicked(java.awt.event.MouseEvent e) {
+                        setActiveNav(pageKey);
+                        showPanel(pageKey);
+                    }
+                });
+            }
+
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                if (active) {
+                    Graphics2D g2 = (Graphics2D) g.create();
+                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                    g2.setColor(new Color(255, 255, 255, 20));
+                    g2.fillRoundRect(0, 4, getWidth(), 34, 6, 6);
+                    // Accent bar on left
+                    g2.setColor(accentBlue);
+                    g2.fillRoundRect(0, 4, 3, 34, 2, 2);
+                    g2.dispose();
+                } else if (hovered) {
+                    Graphics2D g2 = (Graphics2D) g.create();
+                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                    g2.setColor(new Color(255, 255, 255, 12));
+                    g2.fillRoundRect(0, 4, getWidth(), 34, 6, 6);
+                    g2.dispose();
+                }
+            }
+
+            public void setActive(boolean a) {
+                this.active = a;
+                repaint();
+            }
+        };
+
+        // Icon placeholder (colored dot for now)
+        JPanel iconArea = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(new Color(255, 255, 255, 160));
+                g2.fillOval(5, 13, 6, 6);
+                g2.dispose();
+            }
+        };
+        iconArea.setOpaque(false);
+        iconArea.setMaximumSize(new Dimension(16, 42));
+
+        JLabel textLbl = new JLabel(text);
+        textLbl.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        textLbl.setForeground(Color.WHITE);
+        textLbl.setBorder(new EmptyBorder(0, 10, 0, 0));
+
+        navItem.add(iconArea);
+        navItem.add(textLbl);
+        navItems.put(pageKey, navItem);
+    }
+
+    private void addNavSpacer(int height) {
+        navItems.put("__spacer__" + navItems.size(), (JComponent) Box.createVerticalStrut(height));
+    }
+
+    private void setActiveNav(String pageKey) {
+        for (Map.Entry<String, JComponent> e : navItems.entrySet()) {
+            if (e.getValue() instanceof JPanel) {
+                ((JPanel) e.getValue()).putClientProperty("active", e.getKey().equals(pageKey));
+                repaintSidebarNav(e.getValue(), e.getKey().equals(pageKey));
+            }
+        }
+    }
+
+    private void repaintSidebarNav(JComponent comp, boolean active) {
+        if (comp instanceof JPanel) {
+            for (Component c : ((JPanel) comp).getComponents()) {
+                if (c instanceof JPanel) {
+                    ((JPanel) c).repaint();
+                }
+                if (c instanceof JLabel) {
+                    JLabel lbl = (JLabel) c;
+                    if (active) {
+                        lbl.setForeground(Color.WHITE);
+                        lbl.setFont(new Font("Segoe UI", Font.BOLD, 13));
+                    } else {
+                        lbl.setForeground(new Color(220, 225, 235));
+                        lbl.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+                    }
+                }
+            }
+            comp.repaint();
+        }
+    }
+
+    private void repaintSidebar() {
+        sidebar.revalidate();
+        sidebar.repaint();
+    }
+
     public void showPanel(String name) {
+        currentPage = name;
         cardLayout.show(contentPanel, name);
-        lblStatus.setText("  " + name);
+
+        // Update title
+        String title = getPageTitle(name);
+        lblPageTitle.setText(title);
+
+        // Update active nav
+        for (Map.Entry<String, JComponent> e : navItems.entrySet()) {
+            if (e.getValue() instanceof JPanel) {
+                repaintSidebarNav(e.getValue(), e.getKey().equals(name));
+            }
+        }
+        repaintSidebar();
+    }
+
+    private String getPageTitle(String name) {
+        switch (name) {
+            case "home": return "Trang chu";
+            case "nguoidung": return "Quan ly nguoi dung";
+            case "thisinh": return "Quan ly thi sinh";
+            case "thisinh_import": return "Import thi sinh";
+            case "nganh": return "Quan ly nganh";
+            case "tohop": return "Quan ly to hop mon";
+            case "nganhtohop": return "Nganh - To hop";
+            case "diemthi": return "Quan ly diem thi";
+            case "diem_import": return "Import diem";
+            case "diem_thongke": return "Thong ke diem";
+            case "diemcong": return "Quan ly diem cong";
+            case "nguyenvong": return "Quan ly nguyen vong";
+            case "xettuyen": return "Xet tuyen";
+            case "bangquydoi": return "Bang quy doi";
+            default: return name;
+        }
     }
 
     public void setStatus(String msg) {
-        lblStatus.setText("  " + msg);
+        // Future: update status bar
     }
 }
