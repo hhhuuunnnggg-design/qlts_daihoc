@@ -5,14 +5,14 @@ import org.eclipse.jetty.webapp.WebAppContext;
 
 public class JettyLauncher {
     public static void main(String[] args) throws Exception {
-        Server server = new Server(8080);
+        Server server = new Server(8081);
         WebAppContext webapp = new WebAppContext();
         webapp.setContextPath("/");
         webapp.setResourceBase("src/main/webapp");
         webapp.setDescriptor("src/main/webapp/WEB-INF/web.xml");
         server.setHandler(webapp);
         server.start();
-        System.out.println("Server started at http://localhost:8080");
+        System.out.println("Server started at http://localhost:8081");
         server.join();
     }
 }
