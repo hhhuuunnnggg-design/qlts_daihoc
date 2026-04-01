@@ -1,5 +1,6 @@
 package com.tuyensinh.admin;
 
+import com.formdev.flatlaf.FlatLightLaf;
 import com.tuyensinh.admin.ui.*;
 import com.tuyensinh.entity.*;
 import com.tuyensinh.service.*;
@@ -17,7 +18,10 @@ public class MainApp {
         DataSeeder.seedIfNeeded();
 
         try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            FlatLightLaf.setup();
+            UIManager.put("Button.arc", 8);
+            UIManager.put("TextField.arc", 8);
+            UIManager.put("PasswordField.arc", 8);
         } catch (Exception e) {
             e.printStackTrace();
         }

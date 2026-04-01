@@ -22,6 +22,20 @@
             <artifactId>core</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <!-- FlatLaf - Modern Look and Feel -->
+        <dependency>
+            <groupId>com.formdev</groupId>
+            <artifactId>flatlaf</artifactId>
+            <version>3.5.4</version>
+        </dependency>
+
+        <!-- Bootstrap Icons (bundled with FlatLaf extras) -->
+        <dependency>
+            <groupId>com.formdev</groupId>
+            <artifactId>flatlaf-extras</artifactId>
+            <version>3.5.4</version>
+        </dependency>
     </dependencies>
 
     <build>
