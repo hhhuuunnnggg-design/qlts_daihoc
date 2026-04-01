@@ -1,12 +1,13 @@
 package com.tuyensinh.dao;
 
+import com.tuyensinh.dao.InterfaceDao.IDoiTuongUutienDao;
 import com.tuyensinh.entity.DoiTuongUutien;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import java.util.List;
 
-public class DoiTuongUutienDao extends BaseDao<DoiTuongUutien> {
+public class DoiTuongUutienDao extends BaseDao<DoiTuongUutien> implements IDoiTuongUutienDao {
 
     @Override
     protected Class<DoiTuongUutien> getEntityClass() {

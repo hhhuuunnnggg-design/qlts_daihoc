@@ -1,5 +1,6 @@
 package com.tuyensinh.dao;
 
+import com.tuyensinh.dao.InterfaceDao.IPhuongThucDao;
 import com.tuyensinh.entity.PhuongThuc;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -8,7 +9,7 @@ import javax.persistence.criteria.Root;
 import java.util.List;
 import java.util.Optional;
 
-public class PhuongThucDao extends BaseDao<PhuongThuc> {
+public class PhuongThucDao extends BaseDao<PhuongThuc> implements IPhuongThucDao {
 
     @Override
     protected Class<PhuongThuc> getEntityClass() {

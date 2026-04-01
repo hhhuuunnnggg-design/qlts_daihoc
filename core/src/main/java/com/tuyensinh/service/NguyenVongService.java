@@ -2,9 +2,11 @@ package com.tuyensinh.service;
 
 import com.tuyensinh.dao.NguyenVongDao;
 import com.tuyensinh.entity.NguyenVong;
+import com.tuyensinh.service.interfaceService.INguyenVongService;
+
 import java.util.List;
 
-public class NguyenVongService {
+public class NguyenVongService implements INguyenVongService {
 
     private final NguyenVongDao dao = new NguyenVongDao();
 

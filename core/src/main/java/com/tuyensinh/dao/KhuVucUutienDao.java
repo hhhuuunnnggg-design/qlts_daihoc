@@ -1,12 +1,13 @@
 package com.tuyensinh.dao;
 
+import com.tuyensinh.dao.InterfaceDao.IKhuVucUutienDao;
 import com.tuyensinh.entity.KhuVucUutien;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import java.util.List;
 
-public class KhuVucUutienDao extends BaseDao<KhuVucUutien> {
+public class KhuVucUutienDao extends BaseDao<KhuVucUutien> implements IKhuVucUutienDao {
 
     @Override
     protected Class<KhuVucUutien> getEntityClass() {

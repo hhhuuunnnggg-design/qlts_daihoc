@@ -1,5 +1,6 @@
 package com.tuyensinh.dao;
 
+import com.tuyensinh.dao.InterfaceDao.IDiemThiDao;
 import com.tuyensinh.entity.DiemThi;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -11,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class DiemThiDao extends BaseDao<DiemThi> {
+public class DiemThiDao extends BaseDao<DiemThi> implements IDiemThiDao {
 
     @Override
     protected Class<DiemThi> getEntityClass() {
@@ -77,7 +78,7 @@ public class DiemThiDao extends BaseDao<DiemThi> {
         Root<DiemThi> root = cq.from(DiemThi.class);
         Join<DiemThi, ?> dct = root.join("danhSachDiemChiTiet");
         Join<DiemThi, ?> phuongThuc = root.join("phuongThuc");
-        List<javax.persistence.criteria.Predicate> preds = new ArrayList<>();
+        List<Predicate> preds = new ArrayList<>();
         preds.add(cb.equal(phuongThuc.get("phuongthucId"), phuongthucId));
         if (monId != null) {
             Join<DiemThi, ?> mon = dct.join("mon");
@@ -88,7 +89,7 @@ public class DiemThiDao extends BaseDao<DiemThi> {
             cb.min(dct.get("diemSudung")),
             cb.max(dct.get("diemSudung")),
             cb.count(dct)
-        ).where(preds.toArray(new javax.persistence.criteria.Predicate[0]));
+        ).where(preds.toArray(new Predicate[0]));
         return em().createQuery(cq).getResultList();
     }
 

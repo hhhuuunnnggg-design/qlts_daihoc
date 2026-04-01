@@ -2,9 +2,11 @@ package com.tuyensinh.service;
 
 import com.tuyensinh.dao.DoiTuongUutienDao;
 import com.tuyensinh.entity.DoiTuongUutien;
+import com.tuyensinh.service.interfaceService.IDoiTuongService;
+
 import java.util.List;
 
-public class DoiTuongService {
+public class DoiTuongService implements IDoiTuongService {
 
     private final DoiTuongUutienDao dao = new DoiTuongUutienDao();
 

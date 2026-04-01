@@ -1,5 +1,6 @@
 package com.tuyensinh.dao;
 
+import com.tuyensinh.dao.InterfaceDao.IToHopDao;
 import com.tuyensinh.entity.ToHop;
 import com.tuyensinh.entity.ToHopMon;
 import javax.persistence.EntityManager;
@@ -11,7 +12,7 @@ import javax.persistence.criteria.Root;
 import java.util.List;
 import java.util.Optional;
 
-public class ToHopDao extends BaseDao<ToHop> {
+public class ToHopDao extends BaseDao<ToHop> implements IToHopDao {
 
     @Override
     protected Class<ToHop> getEntityClass() {

@@ -1,5 +1,6 @@
 package com.tuyensinh.dao;
 
+import com.tuyensinh.dao.InterfaceDao.IDiemCongDao;
 import com.tuyensinh.entity.DiemCong;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -10,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class DiemCongDao extends BaseDao<DiemCong> {
+public class DiemCongDao extends BaseDao<DiemCong> implements IDiemCongDao {
 
     @Override
     protected Class<DiemCong> getEntityClass() {

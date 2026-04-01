@@ -1,5 +1,6 @@
 package com.tuyensinh.dao;
 
+import com.tuyensinh.dao.InterfaceDao.INganhToHopDao;
 import com.tuyensinh.entity.NganhToHop;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -9,7 +10,7 @@ import javax.persistence.criteria.Root;
 import java.util.List;
 import java.util.Optional;
 
-public class NganhToHopDao extends BaseDao<NganhToHop> {
+public class NganhToHopDao extends BaseDao<NganhToHop> implements INganhToHopDao {
 
     @Override
     protected Class<NganhToHop> getEntityClass() {

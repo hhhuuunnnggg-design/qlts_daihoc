@@ -2,9 +2,11 @@ package com.tuyensinh.service;
 
 import com.tuyensinh.dao.MonDao;
 import com.tuyensinh.entity.Mon;
+import com.tuyensinh.service.interfaceService.IMonService;
+
 import java.util.List;
 
-public class MonService {
+public class MonService implements IMonService {
 
     private final MonDao dao = new MonDao();
 

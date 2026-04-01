@@ -12,7 +12,7 @@ import javax.persistence.criteria.Subquery;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class BaseDao<T> {
+public abstract class BaseDao<T> implements com.tuyensinh.dao.InterfaceDao.IBaseDao<T> {
 
     protected abstract Class<T> getEntityClass();
 

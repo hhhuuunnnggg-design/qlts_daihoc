@@ -4,10 +4,11 @@ import com.tuyensinh.dao.ToHopDao;
 import com.tuyensinh.dao.MonDao;
 import com.tuyensinh.entity.ToHop;
 import com.tuyensinh.entity.ToHopMon;
+import com.tuyensinh.service.interfaceService.IToHopService;
 import com.tuyensinh.entity.Mon;
 import java.util.List;
 
-public class ToHopService {
+public class ToHopService implements IToHopService {
 
     private final ToHopDao dao = new ToHopDao();
     private final MonDao monDao = new MonDao();

@@ -3,9 +3,11 @@ package com.tuyensinh.service;
 import com.tuyensinh.dao.DiemThiDao;
 import com.tuyensinh.entity.DiemThi;
 import com.tuyensinh.entity.DiemThiChiTiet;
+import com.tuyensinh.service.interfaceService.IDiemThiService;
+
 import java.util.List;
 
-public class DiemThiService {
+public class DiemThiService implements IDiemThiService {
 
     private final DiemThiDao dao = new DiemThiDao();
 

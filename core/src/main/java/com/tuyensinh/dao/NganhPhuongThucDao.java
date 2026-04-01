@@ -1,5 +1,6 @@
 package com.tuyensinh.dao;
 
+import com.tuyensinh.dao.InterfaceDao.INganhPhuongThucDao;
 import com.tuyensinh.entity.NganhPhuongThuc;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -9,7 +10,7 @@ import javax.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NganhPhuongThucDao extends BaseDao<NganhPhuongThuc> {
+public class NganhPhuongThucDao extends BaseDao<NganhPhuongThuc> implements INganhPhuongThucDao {
 
     @Override
     protected Class<NganhPhuongThuc> getEntityClass() {

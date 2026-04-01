@@ -2,9 +2,11 @@ package com.tuyensinh.service;
 
 import com.tuyensinh.dao.NganhToHopDao;
 import com.tuyensinh.entity.NganhToHop;
+import com.tuyensinh.service.interfaceService.INganhToHopService;
+
 import java.util.List;
 
-public class NganhToHopService {
+public class NganhToHopService implements INganhToHopService {
 
     private final NganhToHopDao dao = new NganhToHopDao();
 

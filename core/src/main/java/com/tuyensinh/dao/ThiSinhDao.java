@@ -1,5 +1,6 @@
 package com.tuyensinh.dao;
 
+import com.tuyensinh.dao.InterfaceDao.IThiSinhDao;
 import com.tuyensinh.entity.ThiSinh;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -11,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class ThiSinhDao extends BaseDao<ThiSinh> {
+public class ThiSinhDao extends BaseDao<ThiSinh> implements IThiSinhDao {
 
     @Override
     protected Class<ThiSinh> getEntityClass() {

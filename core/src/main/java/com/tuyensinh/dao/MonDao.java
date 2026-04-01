@@ -1,5 +1,6 @@
 package com.tuyensinh.dao;
 
+import com.tuyensinh.dao.InterfaceDao.IMonDao;
 import com.tuyensinh.entity.Mon;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -8,7 +9,7 @@ import javax.persistence.criteria.Root;
 import java.util.List;
 import java.util.Optional;
 
-public class MonDao extends BaseDao<Mon> {
+public class MonDao extends BaseDao<Mon> implements IMonDao {
 
     @Override
     protected Class<Mon> getEntityClass() {

@@ -1,5 +1,6 @@
 package com.tuyensinh.dao;
 
+import com.tuyensinh.dao.InterfaceDao.INganhDao;
 import com.tuyensinh.entity.Nganh;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -11,7 +12,7 @@ import javax.persistence.criteria.Root;
 import java.util.List;
 import java.util.Optional;
 
-public class NganhDao extends BaseDao<Nganh> {
+public class NganhDao extends BaseDao<Nganh> implements INganhDao {
 
     @Override
     protected Class<Nganh> getEntityClass() {

@@ -2,9 +2,11 @@ package com.tuyensinh.service;
 
 import com.tuyensinh.dao.KhuVucUutienDao;
 import com.tuyensinh.entity.KhuVucUutien;
+import com.tuyensinh.service.interfaceService.IKhuVucService;
+
 import java.util.List;
 
-public class KhuVucService {
+public class KhuVucService implements IKhuVucService {
 
     private final KhuVucUutienDao dao = new KhuVucUutienDao();
 

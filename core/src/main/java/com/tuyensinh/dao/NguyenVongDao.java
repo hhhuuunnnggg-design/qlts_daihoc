@@ -1,5 +1,6 @@
 package com.tuyensinh.dao;
 
+import com.tuyensinh.dao.InterfaceDao.INguyenVongDao;
 import com.tuyensinh.entity.NguyenVong;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -10,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class NguyenVongDao extends BaseDao<NguyenVong> {
+public class NguyenVongDao extends BaseDao<NguyenVong> implements INguyenVongDao {
 
     @Override
     protected Class<NguyenVong> getEntityClass() {

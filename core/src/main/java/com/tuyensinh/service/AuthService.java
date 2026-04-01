@@ -2,11 +2,12 @@ package com.tuyensinh.service;
 
 import com.tuyensinh.dao.*;
 import com.tuyensinh.entity.*;
+import com.tuyensinh.service.interfaceService.IAuthService;
 import com.tuyensinh.util.PasswordUtil;
 import java.util.List;
 import java.util.Optional;
 
-public class AuthService {
+public class AuthService implements IAuthService {
 
     private final NguoiDungDao nguoiDungDao = new NguoiDungDao();
 

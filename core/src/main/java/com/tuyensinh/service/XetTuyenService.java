@@ -2,10 +2,12 @@ package com.tuyensinh.service;
 
 import com.tuyensinh.dao.*;
 import com.tuyensinh.entity.*;
+import com.tuyensinh.service.interfaceService.IXetTuyenService;
+
 import java.util.List;
 import java.util.Optional;
 
-public class XetTuyenService {
+public class XetTuyenService implements IXetTuyenService {
 
     private final PhuongThucDao phuongThucDao = new PhuongThucDao();
     private final NganhDao nganhDao = new NganhDao();

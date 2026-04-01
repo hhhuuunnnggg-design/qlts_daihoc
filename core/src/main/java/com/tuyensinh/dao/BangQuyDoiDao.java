@@ -1,5 +1,6 @@
 package com.tuyensinh.dao;
 
+import com.tuyensinh.dao.InterfaceDao.IBangQuyDoiDao;
 import com.tuyensinh.entity.BangQuyDoi;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -11,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class BangQuyDoiDao extends BaseDao<BangQuyDoi> {
+public class BangQuyDoiDao extends BaseDao<BangQuyDoi> implements IBangQuyDoiDao {
 
     @Override
     protected Class<BangQuyDoi> getEntityClass() {

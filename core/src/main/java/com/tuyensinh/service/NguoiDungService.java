@@ -2,10 +2,12 @@ package com.tuyensinh.service;
 
 import com.tuyensinh.dao.*;
 import com.tuyensinh.entity.*;
+import com.tuyensinh.service.interfaceService.INguoiDungService;
+
 import java.util.List;
 import java.util.Optional;
 
-public class NguoiDungService {
+public class NguoiDungService implements INguoiDungService {
 
     private final NguoiDungDao dao = new NguoiDungDao();
 

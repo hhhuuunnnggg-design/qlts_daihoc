@@ -1,5 +1,6 @@
 package com.tuyensinh.dao;
 
+import com.tuyensinh.dao.InterfaceDao.IVaiTroDao;
 import com.tuyensinh.entity.VaiTro;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -7,7 +8,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.List;
 
-public class VaiTroDao extends BaseDao<VaiTro> {
+public class VaiTroDao extends BaseDao<VaiTro> implements IVaiTroDao {
 
     @Override
     protected Class<VaiTro> getEntityClass() {

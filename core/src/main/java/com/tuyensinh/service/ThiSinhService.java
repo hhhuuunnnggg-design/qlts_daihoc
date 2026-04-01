@@ -2,10 +2,12 @@ package com.tuyensinh.service;
 
 import com.tuyensinh.dao.*;
 import com.tuyensinh.entity.*;
+import com.tuyensinh.service.interfaceService.IThiSinhService;
+
 import java.util.List;
 import java.util.Optional;
 
-public class ThiSinhService {
+public class ThiSinhService implements IThiSinhService {
 
     private final ThiSinhDao dao = new ThiSinhDao();
     private final DiemThiDao diemThiDao = new DiemThiDao();

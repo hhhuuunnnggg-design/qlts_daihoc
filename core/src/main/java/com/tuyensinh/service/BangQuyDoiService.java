@@ -2,9 +2,11 @@ package com.tuyensinh.service;
 
 import com.tuyensinh.dao.BangQuyDoiDao;
 import com.tuyensinh.entity.BangQuyDoi;
+import com.tuyensinh.service.interfaceService.IBangQuyDoiService;
+
 import java.util.List;
 
-public class BangQuyDoiService {
+public class BangQuyDoiService implements IBangQuyDoiService {
 
     private final BangQuyDoiDao dao = new BangQuyDoiDao();
 

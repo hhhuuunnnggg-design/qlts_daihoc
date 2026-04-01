@@ -1,5 +1,6 @@
 package com.tuyensinh.dao;
 
+import com.tuyensinh.dao.InterfaceDao.INguoiDungDao;
 import com.tuyensinh.entity.NguoiDung;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
@@ -11,7 +12,7 @@ import javax.persistence.criteria.Root;
 import java.util.List;
 import java.util.Optional;
 
-public class NguoiDungDao extends BaseDao<NguoiDung> {
+public class NguoiDungDao extends BaseDao<NguoiDung> implements INguoiDungDao {
 
     @Override
     protected Class<NguoiDung> getEntityClass() {
@@ -86,17 +87,14 @@ public class NguoiDungDao extends BaseDao<NguoiDung> {
 
     @Override
     public NguoiDung save(NguoiDung nd) {
-        // Kiem tra trung username
         if (findByUsername(nd.getUsername()).isPresent()) {
             throw new RuntimeException("Username '" + nd.getUsername() + "' da ton tai!");
         }
-        // Kiem tra trung email (neu co gia tri)
         if (nd.getEmail() != null && !nd.getEmail().isEmpty()) {
             if (findByEmail(nd.getEmail()).isPresent()) {
                 throw new RuntimeException("Email '" + nd.getEmail() + "' da duoc su dung!");
             }
         }
-        // Kiem tra vai tro hop le
         if (nd.getVaiTro() == null || nd.getVaiTro().getVaitroId() == null) {
             throw new RuntimeException("Vai tro khong hop le!");
         }
@@ -105,7 +103,6 @@ public class NguoiDungDao extends BaseDao<NguoiDung> {
 
     @Override
     public void update(NguoiDung nd) {
-        // Kiem tra trung email (neu co thay doi)
         if (nd.getEmail() != null && !nd.getEmail().isEmpty()) {
             Optional<NguoiDung> existing = findByEmail(nd.getEmail());
             if (existing.isPresent() && !existing.get().getNguoidungId().equals(nd.getNguoidungId())) {

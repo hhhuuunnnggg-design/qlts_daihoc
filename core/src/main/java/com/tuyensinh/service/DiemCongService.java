@@ -2,9 +2,11 @@ package com.tuyensinh.service;
 
 import com.tuyensinh.dao.DiemCongDao;
 import com.tuyensinh.entity.DiemCong;
+import com.tuyensinh.service.interfaceService.IDiemCongService;
+
 import java.util.List;
 
-public class DiemCongService {
+public class DiemCongService implements IDiemCongService {
 
     private final DiemCongDao dao = new DiemCongDao();
 
