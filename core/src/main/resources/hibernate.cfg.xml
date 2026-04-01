@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <!-- Database Connection -->
+        <property name="hibernate.connection.driver_class">com.mysql.cj.jdbc.Driver</property>
+        <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/xettuyen2026?useUnicode=true&amp;characterEncoding=UTF-8&amp;useSSL=false&amp;serverTimezone=Asia/Ho_Chi_Minh</property>
+        <property name="hibernate.connection.username">root</property>
+        <property name="hibernate.connection.password">root</property>
+
+        <!-- Hibernate Settings -->
+        <property name="hibernate.dialect">org.hibernate.dialect.MySQL8Dialect</property>
+        <property name="hibernate.show_sql">true</property>
+        <property name="hibernate.format_sql">true</property>
+        <property name="hibernate.hbm2ddl.auto">validate</property>
+        <property name="hibernate.jdbc.batch_size">25</property>
+        <property name="hibernate.order_inserts">true</property>
+        <property name="hibernate.order_updates">true</property>
+        <property name="hibernate.connection.CharSet">utf8mb4</property>
+        <property name="hibernate.connection.characterEncoding">utf8mb4</property>
+        <property name="hibernate.connection.useUnicode">true</property>
+
+        <!-- Transaction Management -->
+        <property name="hibernate.transaction.factory_class">org.hibernate.transaction.JDBCTransactionFactory</property>
+
+        <!-- Current Session Context -->
+        <property name="hibernate.current_session_context_class">thread</property>
+
+        <!-- Second Level Cache -->
+        <property name="hibernate.cache.use_second_level_cache">false</property>
+        <property name="hibernate.cache.use_query_cache">false</property>
+
+        <!-- Mapping Files will be added via annotated classes -->
+        <mapping class="com.tuyensinh.entity.VaiTro"/>
+        <mapping class="com.tuyensinh.entity.NguoiDung"/>
+        <mapping class="com.tuyensinh.entity.DoiTuongUutien"/>
+        <mapping class="com.tuyensinh.entity.KhuVucUutien"/>
+        <mapping class="com.tuyensinh.entity.ThiSinh"/>
+        <mapping class="com.tuyensinh.entity.PhuongThuc"/>
+        <mapping class="com.tuyensinh.entity.Mon"/>
+        <mapping class="com.tuyensinh.entity.ToHop"/>
+        <mapping class="com.tuyensinh.entity.ToHopMon"/>
+        <mapping class="com.tuyensinh.entity.Nganh"/>
+        <mapping class="com.tuyensinh.entity.NganhPhuongThuc"/>
+        <mapping class="com.tuyensinh.entity.NganhToHop"/>
+        <mapping class="com.tuyensinh.entity.NganhToHopMon"/>
+        <mapping class="com.tuyensinh.entity.DiemThi"/>
+        <mapping class="com.tuyensinh.entity.DiemThiChiTiet"/>
+        <mapping class="com.tuyensinh.entity.BangQuyDoi"/>
+        <mapping class="com.tuyensinh.entity.DiemCong"/>
+        <mapping class="com.tuyensinh.entity.NguyenVong"/>
+    </session-factory>
+</hibernate-configuration>
