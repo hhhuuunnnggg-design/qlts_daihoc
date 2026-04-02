@@ -8,6 +8,9 @@ import javax.swing.*;
 import javax.swing.table.*;
 import java.awt.*;
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class ThiSinhPanel extends JPanel {
@@ -118,7 +121,7 @@ public class ThiSinhPanel extends JPanel {
                 ts.getCccd(),
                 ts.getHo(),
                 ts.getTen(),
-                ts.getNgaySinh() != null ? ts.getNgaySinh().toString() : "",
+                ts.getNgaySinh() != null ? DateUtil.formatDateShort(ts.getNgaySinh()) : "",
                 ts.getGioiTinh(),
                 ts.getDienThoai(),
                 ts.getEmail(),
@@ -165,6 +168,40 @@ public class ThiSinhPanel extends JPanel {
         });
     }
 
+    /**
+     * Chon ngay sinh bang JSpinner (mui ten tang/giam), dinh dang hien thi dd/MM/yy.
+     */
+    private static JSpinner createNgaySinhSpinner(LocalDate initial) {
+        Calendar min = Calendar.getInstance();
+        min.set(1950, Calendar.JANUARY, 1, 0, 0, 0);
+        min.set(Calendar.MILLISECOND, 0);
+        Calendar max = Calendar.getInstance();
+        max.set(Calendar.HOUR_OF_DAY, 23);
+        max.set(Calendar.MINUTE, 59);
+        max.set(Calendar.SECOND, 59);
+        max.set(Calendar.MILLISECOND, 999);
+
+        Date init;
+        if (initial != null) {
+            init = java.sql.Date.valueOf(initial);
+        } else {
+            Calendar c = Calendar.getInstance();
+            c.add(Calendar.YEAR, -18);
+            init = c.getTime();
+        }
+        SpinnerDateModel model = new SpinnerDateModel(init, min.getTime(), max.getTime(), Calendar.DAY_OF_MONTH);
+        JSpinner sp = new JSpinner(model);
+        sp.setEditor(new JSpinner.DateEditor(sp, "dd/MM/yyyy"));
+        Dimension dim = sp.getPreferredSize();
+        sp.setPreferredSize(new Dimension(Math.max(120, dim.width), dim.height));
+        return sp;
+    }
+
+    private static LocalDate localDateFromSpinner(JSpinner sp) {
+        Date date = (Date) sp.getValue();
+        return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+    }
+
     private static void decorateKhuVucCombo(JComboBox<KhuVucUutien> cbo) {
         cbo.setRenderer(new DefaultListCellRenderer() {
             @Override
@@ -188,7 +225,7 @@ public class ThiSinhPanel extends JPanel {
         JTextField txtSbd = new JTextField(20);
         JTextField txtDt = new JTextField(20);
         JTextField txtEmail = new JTextField(20);
-        JTextField txtNs = new JTextField(20);
+        JSpinner spnNs = createNgaySinhSpinner(null);
         JComboBox<String> cboGt = new JComboBox<>(new String[]{"", "Nam", "Nu"});
         JComboBox<DoiTuongUutien> cboDt = new JComboBox<>();
         JComboBox<KhuVucUutien> cboKv = new JComboBox<>();
@@ -204,7 +241,7 @@ public class ThiSinhPanel extends JPanel {
             "So bao danh:", txtSbd,
             "Ho (*):", txtHo,
             "Ten (*):", txtTen,
-            "Ngay sinh (yyyy-MM-dd):", txtNs,
+            "Ngay sinh (dd/MM/yyyy):", spnNs,
             "Gioi tinh:", cboGt,
             "Dien thoai:", txtDt,
             "Email:", txtEmail,
@@ -223,7 +260,7 @@ public class ThiSinhPanel extends JPanel {
             ts.setSobaodanh(txtSbd.getText().trim().isEmpty() ? null : txtSbd.getText().trim());
             ts.setHo(txtHo.getText().trim());
             ts.setTen(txtTen.getText().trim());
-            ts.setNgaySinh(DateUtil.parseDate(txtNs.getText().trim()));
+            ts.setNgaySinh(localDateFromSpinner(spnNs));
             ts.setGioiTinh((String) cboGt.getSelectedItem());
             ts.setDienThoai(txtDt.getText().trim().isEmpty() ? null : txtDt.getText().trim());
             ts.setEmail(txtEmail.getText().trim().isEmpty() ? null : txtEmail.getText().trim());
@@ -250,7 +287,7 @@ public class ThiSinhPanel extends JPanel {
         JTextField txtTen = new JTextField(ts.getTen());
         JTextField txtDt = new JTextField(ts.getDienThoai() != null ? ts.getDienThoai() : "");
         JTextField txtEmail = new JTextField(ts.getEmail() != null ? ts.getEmail() : "");
-        JTextField txtNs = new JTextField(ts.getNgaySinh() != null ? ts.getNgaySinh().toString() : "");
+        JSpinner spnNs = createNgaySinhSpinner(ts.getNgaySinh());
         JComboBox<String> cboGt = new JComboBox<>(new String[]{"", "Nam", "Nu"});
         if (ts.getGioiTinh() != null) cboGt.setSelectedItem(ts.getGioiTinh());
         JComboBox<DoiTuongUutien> cboDt = new JComboBox<>();
@@ -265,7 +302,7 @@ public class ThiSinhPanel extends JPanel {
             "CCCD: " + ts.getCccd() + " (khong doi)",
             "Ho:", txtHo,
             "Ten:", txtTen,
-            "Ngay sinh:", txtNs,
+            "Ngay sinh (dd/MM/yyyy):", spnNs,
             "Gioi tinh:", cboGt,
             "Dien thoai:", txtDt,
             "Email:", txtEmail,
@@ -277,7 +314,7 @@ public class ThiSinhPanel extends JPanel {
         if (result == JOptionPane.OK_OPTION) {
             ts.setHo(txtHo.getText().trim());
             ts.setTen(txtTen.getText().trim());
-            ts.setNgaySinh(DateUtil.parseDate(txtNs.getText().trim()));
+            ts.setNgaySinh(localDateFromSpinner(spnNs));
             ts.setGioiTinh((String) cboGt.getSelectedItem());
             ts.setDienThoai(txtDt.getText().trim().isEmpty() ? null : txtDt.getText().trim());
             ts.setEmail(txtEmail.getText().trim().isEmpty() ? null : txtEmail.getText().trim());
