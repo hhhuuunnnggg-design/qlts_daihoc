@@ -104,3 +104,8 @@ De them trang moi:
 2. Them cau hinh servlet-mapping trong `web.xml`
 3. Tao JSP view trong `WEB-INF/views/`
 4. Them link trong `header.jsp` neu can
+
+
+chạy web   
+cd web-app
+mvn jetty:run
