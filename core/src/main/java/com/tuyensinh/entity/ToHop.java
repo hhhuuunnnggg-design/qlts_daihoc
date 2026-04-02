@@ -10,7 +10,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "xt_tohop")
-@ToString(exclude = {"danhSachToHopMon", "danhSachNganhToHop"})
+@ToString(exclude = {"danhSachToHopMon", "danhSachNganhToHop", "danhSachNganhGoc"})
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

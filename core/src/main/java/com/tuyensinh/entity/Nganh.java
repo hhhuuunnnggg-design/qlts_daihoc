@@ -11,7 +11,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "xt_nganh")
-@ToString(exclude = {"danhSachNganhPhuongThuc", "danhSachNganhToHop", "danhSachNguyenVong"})
+@ToString(exclude = {"toHopGoc", "danhSachNganhPhuongThuc", "danhSachNganhToHop", "danhSachNguyenVong"})
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

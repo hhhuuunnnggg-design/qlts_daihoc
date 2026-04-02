@@ -1,10 +1,15 @@
 package com.tuyensinh.util;
 
-import com.tuyensinh.dao.NguoiDungDao;
-import com.tuyensinh.dao.VaiTroDao;
 import com.tuyensinh.entity.DoiTuongUutien;
 import com.tuyensinh.entity.KhuVucUutien;
+import com.tuyensinh.entity.Mon;
+import com.tuyensinh.entity.Nganh;
+import com.tuyensinh.entity.NganhPhuongThuc;
+import com.tuyensinh.entity.NganhToHop;
 import com.tuyensinh.entity.NguoiDung;
+import com.tuyensinh.entity.PhuongThuc;
+import com.tuyensinh.entity.ToHop;
+import com.tuyensinh.entity.ToHopMon;
 import com.tuyensinh.entity.VaiTro;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -89,6 +94,140 @@ public class DataSeeder {
                 BigDecimal.ZERO,
                 "Không thuộc diện ưu tiên");
 
+        // --- Phương thức tuyển sinh ---
+        getOrCreatePhuongThuc(session, PhuongThuc.THPT,
+                "Xét tuyển theo điểm thi THPT Quốc gia",
+                new BigDecimal("30.00"),
+                true);
+        getOrCreatePhuongThuc(session, PhuongThuc.XTT,
+                "Xét tuyển thẳng theo quy định của trường đại học",
+                new BigDecimal("30.00"),
+                true);
+        getOrCreatePhuongThuc(session, PhuongThuc.VHAT,
+                "Xét tuyển dựa trên chứng chỉ Văn hóa, Anh văn, Tin học",
+                new BigDecimal("30.00"),
+                true);
+        getOrCreatePhuongThuc(session, PhuongThuc.DGNL,
+                "Xét tuyển theo kết quả bài thi đánh giá năng lực",
+                new BigDecimal("100.00"),
+                true);
+        getOrCreatePhuongThuc(session, PhuongThuc.NK,
+                "Xét tuyển theo kết quả học tập bậc THPT (hệ không phân ban)",
+                new BigDecimal("30.00"),
+                false);
+
+        // --- Môn học lớp 12 (phục vụ xét tuyển THPT & NK) ---
+        // Toán
+        getOrCreateMon(session, "TOAN",     "Toán",          Mon.LoaiMon.MON_HOC);
+        // Ngữ văn
+        getOrCreateMon(session, "VAN",      "Ngữ văn",        Mon.LoaiMon.MON_HOC);
+        // Ngoại ngữ
+        getOrCreateMon(session, "NN",       "Ngoại ngữ",      Mon.LoaiMon.MON_HOC);
+        // Vật lý
+        getOrCreateMon(session, "LY",      "Vật lý",         Mon.LoaiMon.MON_HOC);
+        // Hóa học
+        getOrCreateMon(session, "HOA",      "Hóa học",        Mon.LoaiMon.MON_HOC);
+        // Sinh học
+        getOrCreateMon(session, "SINH",     "Sinh học",       Mon.LoaiMon.MON_HOC);
+        // Lịch sử
+        getOrCreateMon(session, "SU",       "Lịch sử",        Mon.LoaiMon.MON_HOC);
+        // Địa lý
+        getOrCreateMon(session, "DIA",      "Địa lý",         Mon.LoaiMon.MON_HOC);
+        // Giáo dục công dân
+        getOrCreateMon(session, "GDCD",     "Giáo dục công dân", Mon.LoaiMon.MON_HOC);
+        // Công nghệ
+        getOrCreateMon(session, "CN",        "Công nghệ",      Mon.LoaiMon.MON_HOC);
+        // Tin học
+        getOrCreateMon(session, "TIN",      "Tin học",        Mon.LoaiMon.MON_HOC);
+        // Nghệ thuật
+        getOrCreateMon(session, "NT",        "Nghệ thuật",     Mon.LoaiMon.MON_HOC);
+        // Thể dục
+        getOrCreateMon(session, "TD",        "Thể dục",        Mon.LoaiMon.MON_HOC);
+        // Tiếng Anh (chứng chỉ)
+        getOrCreateMon(session, "ANH_CHUNG", "Chứng chỉ tiếng Anh",  Mon.LoaiMon.MON_HOC);
+        // Tin học (chứng chỉ)
+        getOrCreateMon(session, "TIN_CHUNG", "Chứng chỉ tin học",     Mon.LoaiMon.MON_HOC);
+
+        // --- Tổ hợp môn xét tuyển THPT (mã theo Bộ GD&ĐT) ---
+        ToHop thA00 = getOrCreateToHop(session, "A00", "Toán - Vật lý - Hóa học");
+        ToHop thA01 = getOrCreateToHop(session, "A01", "Toán - Vật lý - Ngoại ngữ");
+        ToHop thA02 = getOrCreateToHop(session, "A02", "Toán - Vật lý - Sinh học");
+        ToHop thA05 = getOrCreateToHop(session, "A05", "Toán - Ngữ văn - Lịch sử");
+        ToHop thA07 = getOrCreateToHop(session, "A07", "Toán - Địa lý - Giáo dục công dân");
+        ToHop thA14 = getOrCreateToHop(session, "A14", "Toán - Ngữ văn - Giáo dục công dân");
+        ToHop thB00 = getOrCreateToHop(session, "B00", "Toán - Hóa học - Ngữ văn");
+        ToHop thC00 = getOrCreateToHop(session, "C00", "Ngữ văn - Lịch sử - Địa lý");
+        ToHop thC14 = getOrCreateToHop(session, "C14", "Ngữ văn - Giáo dục công dân - Lịch sử");
+        ToHop thD01 = getOrCreateToHop(session, "D01", "Toán - Ngữ văn - Ngoại ngữ");
+        ToHop thD07 = getOrCreateToHop(session, "D07", "Toán - Lịch sử - Giáo dục công dân");
+        ToHop thD08 = getOrCreateToHop(session, "D08", "Toán - Địa lý - Ngoại ngữ");
+
+        ensureToHopMon(session, thA00,  "TOAN", "LY", "HOA");
+        ensureToHopMon(session, thA01,  "TOAN", "LY", "NN");
+        ensureToHopMon(session, thA02,  "TOAN", "LY", "SINH");
+        ensureToHopMon(session, thA05,  "TOAN", "VAN", "SU");
+        ensureToHopMon(session, thA07,  "TOAN", "DIA", "GDCD");
+        ensureToHopMon(session, thA14,  "TOAN", "VAN", "GDCD");
+        ensureToHopMon(session, thB00,  "TOAN", "HOA", "VAN");
+        ensureToHopMon(session, thC00,  "VAN", "SU", "DIA");
+        ensureToHopMon(session, thC14,  "VAN", "GDCD", "SU");
+        ensureToHopMon(session, thD01,  "TOAN", "VAN", "NN");
+        ensureToHopMon(session, thD07,  "TOAN", "SU", "GDCD");
+        ensureToHopMon(session, thD08,  "TOAN", "DIA", "NN");
+
+        // --- Ngành / CTĐT mẫu (chỉ tiêu, điểm sàn, điểm trúng tuyển giả định) ---
+        PhuongThuc ptThpt = findPhuongThucByMa(session, PhuongThuc.THPT);
+        if (ptThpt != null) {
+            Nganh nganhCntt = getOrCreateNganh(session, "7480201",
+                    "Công nghệ thông tin", 400,
+                    new BigDecimal("18.00"), new BigDecimal("25.75"), thA00);
+            Nganh nganhQtkd = getOrCreateNganh(session, "7340101",
+                    "Quản trị kinh doanh", 360,
+                    new BigDecimal("17.50"), new BigDecimal("23.20"), thD01);
+            Nganh nganhKeToan = getOrCreateNganh(session, "7340301",
+                    "Kế toán", 380,
+                    new BigDecimal("17.00"), new BigDecimal("22.80"), thD01);
+            Nganh nganhTcNh = getOrCreateNganh(session, "7340201",
+                    "Tài chính - Ngân hàng", 500,
+                    new BigDecimal("17.50"), new BigDecimal("23.50"), thD01);
+            Nganh nganhNna = getOrCreateNganh(session, "7220201",
+                    "Ngôn ngữ Anh", 253,
+                    new BigDecimal("18.00"), new BigDecimal("26.10"), thD01);
+            Nganh nganhKtpm = getOrCreateNganh(session, "7480103",
+                    "Kỹ thuật phần mềm", 110,
+                    new BigDecimal("18.50"), new BigDecimal("26.40"), thA00);
+            Nganh nganhGdmn = getOrCreateNganh(session, "7140201",
+                    "Giáo dục Mầm non", 200,
+                    new BigDecimal("16.00"), new BigDecimal("21.00"), thC00);
+            Nganh nganhSptoan = getOrCreateNganh(session, "7140209",
+                    "Sư phạm Toán học", 40,
+                    new BigDecimal("17.00"), new BigDecimal("24.50"), thA00);
+
+            ensureNganhToHop(session, nganhCntt, thA00, BigDecimal.ZERO);
+            ensureNganhToHop(session, nganhCntt, thA01, BigDecimal.ZERO);
+            ensureNganhToHop(session, nganhCntt, thD01, BigDecimal.ZERO);
+            ensureNganhToHop(session, nganhQtkd, thD01, BigDecimal.ZERO);
+            ensureNganhToHop(session, nganhQtkd, thA14, BigDecimal.ZERO);
+            ensureNganhToHop(session, nganhKeToan, thD01, BigDecimal.ZERO);
+            ensureNganhToHop(session, nganhTcNh, thD01, BigDecimal.ZERO);
+            ensureNganhToHop(session, nganhNna, thD01, BigDecimal.ZERO);
+            ensureNganhToHop(session, nganhKtpm, thA00, BigDecimal.ZERO);
+            ensureNganhToHop(session, nganhKtpm, thA01, BigDecimal.ZERO);
+            ensureNganhToHop(session, nganhGdmn, thC00, BigDecimal.ZERO);
+            ensureNganhToHop(session, nganhGdmn, thC14, BigDecimal.ZERO);
+            ensureNganhToHop(session, nganhSptoan, thA00, BigDecimal.ZERO);
+            ensureNganhToHop(session, nganhSptoan, thA01, BigDecimal.ZERO);
+
+            ensureNganhPhuongThuc(session, nganhCntt, ptThpt, nganhCntt.getChiTieu());
+            ensureNganhPhuongThuc(session, nganhQtkd, ptThpt, nganhQtkd.getChiTieu());
+            ensureNganhPhuongThuc(session, nganhKeToan, ptThpt, nganhKeToan.getChiTieu());
+            ensureNganhPhuongThuc(session, nganhTcNh, ptThpt, nganhTcNh.getChiTieu());
+            ensureNganhPhuongThuc(session, nganhNna, ptThpt, nganhNna.getChiTieu());
+            ensureNganhPhuongThuc(session, nganhKtpm, ptThpt, nganhKtpm.getChiTieu());
+            ensureNganhPhuongThuc(session, nganhGdmn, ptThpt, nganhGdmn.getChiTieu());
+            ensureNganhPhuongThuc(session, nganhSptoan, ptThpt, nganhSptoan.getChiTieu());
+        }
+
         // --- NguoiDung admin ---
         if (findByUsername(session, "admin") == null) {
             NguoiDung admin = new NguoiDung();
@@ -164,5 +303,159 @@ public class DataSeeder {
         dt.setGhiChu(ghiChu);
         session.persist(dt);
         return dt;
+    }
+
+    private static PhuongThuc getOrCreatePhuongThuc(Session session, String maPhuongthuc,
+            String tenPhuongthuc, BigDecimal thangDiem, boolean isActive) {
+        @SuppressWarnings("unchecked")
+        PhuongThuc existing = (PhuongThuc) session
+            .createQuery("FROM PhuongThuc pt WHERE pt.maPhuongthuc = :ma")
+            .setParameter("ma", maPhuongthuc)
+            .setMaxResults(1)
+            .uniqueResult();
+        if (existing != null) return existing;
+
+        PhuongThuc pt = new PhuongThuc();
+        pt.setMaPhuongthuc(maPhuongthuc);
+        pt.setTenPhuongthuc(tenPhuongthuc);
+        pt.setThangDiem(thangDiem);
+        pt.setIsActive(isActive);
+        session.persist(pt);
+        return pt;
+    }
+
+    private static Mon getOrCreateMon(Session session, String maMon, String tenMon, String loaiMon) {
+        @SuppressWarnings("unchecked")
+        Mon existing = (Mon) session
+            .createQuery("FROM Mon m WHERE m.maMon = :ma")
+            .setParameter("ma", maMon)
+            .setMaxResults(1)
+            .uniqueResult();
+        if (existing != null) return existing;
+
+        Mon m = new Mon();
+        m.setMaMon(maMon);
+        m.setTenMon(tenMon);
+        m.setLoaiMon(loaiMon);
+        session.persist(m);
+        return m;
+    }
+
+    private static ToHop getOrCreateToHop(Session session, String maTohop, String tenTohop) {
+        @SuppressWarnings("unchecked")
+        ToHop existing = (ToHop) session
+            .createQuery("FROM ToHop t WHERE t.maTohop = :ma")
+            .setParameter("ma", maTohop)
+            .setMaxResults(1)
+            .uniqueResult();
+        if (existing != null) return existing;
+
+        ToHop t = new ToHop();
+        t.setMaTohop(maTohop);
+        t.setTenTohop(tenTohop);
+        session.persist(t);
+        session.flush();
+        return t;
+    }
+
+    private static Mon findMonByMa(Session session, String maMon) {
+        @SuppressWarnings("unchecked")
+        Mon mon = (Mon) session
+            .createQuery("FROM Mon m WHERE m.maMon = :ma")
+            .setParameter("ma", maMon)
+            .setMaxResults(1)
+            .uniqueResult();
+        return mon;
+    }
+
+    private static void ensureToHopMon(Session session, ToHop toHop, String... monMaOrdered) {
+        Long count = (Long) session
+            .createQuery("SELECT COUNT(thm.tohopMonId) FROM ToHopMon thm WHERE thm.toHop.tohopId = :tid")
+            .setParameter("tid", toHop.getTohopId())
+            .uniqueResult();
+        if (count != null && count > 0) return;
+
+        short order = 1;
+        for (String ma : monMaOrdered) {
+            Mon mon = findMonByMa(session, ma);
+            if (mon == null) {
+                throw new IllegalStateException("[DataSeeder] Mon khong ton tai: " + ma);
+            }
+            ToHopMon thm = new ToHopMon();
+            thm.setToHop(toHop);
+            thm.setMon(mon);
+            thm.setThuTu(order++);
+            session.persist(thm);
+        }
+    }
+
+    private static PhuongThuc findPhuongThucByMa(Session session, String ma) {
+        @SuppressWarnings("unchecked")
+        PhuongThuc pt = (PhuongThuc) session
+            .createQuery("FROM PhuongThuc p WHERE p.maPhuongthuc = :ma")
+            .setParameter("ma", ma)
+            .setMaxResults(1)
+            .uniqueResult();
+        return pt;
+    }
+
+    private static Nganh getOrCreateNganh(Session session, String maNganh, String tenNganh,
+            Integer chiTieu, BigDecimal diemSan, BigDecimal diemTrungTuyen, ToHop toHopGoc) {
+        @SuppressWarnings("unchecked")
+        Nganh existing = (Nganh) session
+            .createQuery("FROM Nganh n WHERE n.maNganh = :ma")
+            .setParameter("ma", maNganh)
+            .setMaxResults(1)
+            .uniqueResult();
+        if (existing != null) return existing;
+
+        Nganh n = new Nganh();
+        n.setMaNganh(maNganh);
+        n.setTenNganh(tenNganh);
+        n.setChiTieu(chiTieu);
+        n.setDiemSan(diemSan);
+        n.setDiemTrungTuyen(diemTrungTuyen);
+        n.setToHopGoc(toHopGoc);
+        n.setIsActive(true);
+        session.persist(n);
+        session.flush();
+        return n;
+    }
+
+    private static void ensureNganhToHop(Session session, Nganh nganh, ToHop toHop, BigDecimal doLech) {
+        @SuppressWarnings("unchecked")
+        NganhToHop existing = (NganhToHop) session
+            .createQuery("FROM NganhToHop nth WHERE nth.nganh.nganhId = :nid AND nth.toHop.tohopId = :tid")
+            .setParameter("nid", nganh.getNganhId())
+            .setParameter("tid", toHop.getTohopId())
+            .setMaxResults(1)
+            .uniqueResult();
+        if (existing != null) return;
+
+        NganhToHop nth = new NganhToHop();
+        nth.setNganh(nganh);
+        nth.setToHop(toHop);
+        nth.setDoLech(doLech);
+        session.persist(nth);
+    }
+
+    private static void ensureNganhPhuongThuc(Session session, Nganh nganh, PhuongThuc pt, Integer chiTieu) {
+        @SuppressWarnings("unchecked")
+        NganhPhuongThuc existing = (NganhPhuongThuc) session
+            .createQuery("FROM NganhPhuongThuc np WHERE np.nganh.nganhId = :nid "
+                    + "AND np.phuongThuc.phuongthucId = :pid")
+            .setParameter("nid", nganh.getNganhId())
+            .setParameter("pid", pt.getPhuongthucId())
+            .setMaxResults(1)
+            .uniqueResult();
+        if (existing != null) return;
+
+        NganhPhuongThuc np = new NganhPhuongThuc();
+        np.setNganh(nganh);
+        np.setPhuongThuc(pt);
+        np.setChiTieu(chiTieu);
+        np.setSoLuongHienTai(0);
+        np.setIsEnabled(true);
+        session.persist(np);
     }
 }
