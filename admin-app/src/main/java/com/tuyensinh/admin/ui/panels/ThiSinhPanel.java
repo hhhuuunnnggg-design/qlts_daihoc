@@ -149,6 +149,38 @@ public class ThiSinhPanel extends JPanel {
         return service.findById(id);
     }
 
+    private static void decorateDoiTuongCombo(JComboBox<DoiTuongUutien> cbo) {
+        cbo.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+                    boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value == null) {
+                    setText("");
+                } else if (value instanceof DoiTuongUutien) {
+                    setText(((DoiTuongUutien) value).getMaDoituong());
+                }
+                return this;
+            }
+        });
+    }
+
+    private static void decorateKhuVucCombo(JComboBox<KhuVucUutien> cbo) {
+        cbo.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+                    boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value == null) {
+                    setText("");
+                } else if (value instanceof KhuVucUutien) {
+                    setText(((KhuVucUutien) value).getMaKhuvuc());
+                }
+                return this;
+            }
+        });
+    }
+
     private void showAddDialog() {
         JTextField txtCccd = new JTextField(20);
         JTextField txtHo = new JTextField(20);
@@ -164,6 +196,8 @@ public class ThiSinhPanel extends JPanel {
         cboKv.addItem(null);
         for (DoiTuongUutien d : doituongService.findAll()) cboDt.addItem(d);
         for (KhuVucUutien k : khuvucService.findAll()) cboKv.addItem(k);
+        decorateDoiTuongCombo(cboDt);
+        decorateKhuVucCombo(cboKv);
 
         Object[] msg = {
             "CCCD (*):", txtCccd,
@@ -224,6 +258,8 @@ public class ThiSinhPanel extends JPanel {
         cboDt.addItem(null); cboKv.addItem(null);
         for (DoiTuongUutien d : doituongService.findAll()) { cboDt.addItem(d); if (ts.getDoiTuongUutien() != null && d.getDoituongId().equals(ts.getDoiTuongUutien().getDoituongId())) cboDt.setSelectedItem(d); }
         for (KhuVucUutien k : khuvucService.findAll()) { cboKv.addItem(k); if (ts.getKhuVucUutien() != null && k.getKhuvucId().equals(ts.getKhuVucUutien().getKhuvucId())) cboKv.setSelectedItem(k); }
+        decorateDoiTuongCombo(cboDt);
+        decorateKhuVucCombo(cboKv);
 
         Object[] msg = {
             "CCCD: " + ts.getCccd() + " (khong doi)",
