@@ -30,7 +30,7 @@ public class NguyenVongServlet extends BaseServlet {
             ThiSinh thiSinh = thiSinhService.findByNguoiDungId(loggedInUser.getNguoidungId()).orElse(null);
 
             if (thiSinh == null) {
-                setMessage(request, "Khong tim thay thong tin thi sinh.", "warning");
+                setMessage(request, "Không tìm thấy thông tin thí sinh.", "warning");
                 redirect(response, request.getContextPath() + "/profile");
                 return;
             }
@@ -43,7 +43,7 @@ public class NguyenVongServlet extends BaseServlet {
             forward(request, response, getViewPath("nguyenvong"));
 
         } catch (Exception e) {
-            setMessage(request, "Da xay ra loi: " + e.getMessage(), "danger");
+            setMessage(request, "Đã xảy ra lỗi: " + e.getMessage(), "danger");
             redirect(response, request.getContextPath() + "/dashboard");
         }
     }
@@ -72,7 +72,7 @@ public class NguyenVongServlet extends BaseServlet {
             String nguyenvongIdStr = request.getParameter("nguyenvongId");
 
             if (isNullOrEmpty(nguyenvongIdStr)) {
-                setMessage(request, "Khong tim thay nguyen vong can xoa.", "danger");
+                setMessage(request, "Không tìm thấy nguyện vọng cần xóa.", "danger");
                 redirect(response, request.getContextPath() + "/nguyenvong");
                 return;
             }
@@ -90,7 +90,7 @@ public class NguyenVongServlet extends BaseServlet {
             }
 
             if (nguyenVongToDelete == null) {
-                setMessage(request, "Khong tim thay nguyen vong can xoa.", "danger");
+                setMessage(request, "Không tìm thấy nguyện vọng cần xóa.", "danger");
                 redirect(response, request.getContextPath() + "/nguyenvong");
                 return;
             }
@@ -101,13 +101,13 @@ public class NguyenVongServlet extends BaseServlet {
             if (thiSinh != null
                     && nguyenVongToDelete.getThiSinh().getThisinhId().equals(thiSinh.getThisinhId())) {
                 xetTuyenService.deleteNguyenVong(nguyenVongToDelete);
-                setMessage(request, "Xoa nguyen vong thanh cong!", "success");
+                setMessage(request, "Xóa nguyện vọng thành công!", "success");
             } else {
-                setMessage(request, "Ban khong co quyen xoa nguyen vong nay.", "danger");
+                setMessage(request, "Bạn không có quyền xóa nguyện vọng này.", "danger");
             }
 
         } catch (Exception e) {
-            setMessage(request, "Da xay ra loi khi xoa nguyen vong: " + e.getMessage(), "danger");
+            setMessage(request, "Đã xảy ra lỗi khi xóa nguyện vọng: " + e.getMessage(), "danger");
         }
 
         redirect(response, request.getContextPath() + "/nguyenvong");

@@ -33,7 +33,7 @@ public class AddNguyenVongServlet extends BaseServlet {
             ThiSinh thiSinh = thiSinhService.findByNguoiDungId(loggedInUser.getNguoidungId()).orElse(null);
 
             if (thiSinh == null) {
-                setMessage(request, "Khong tim thay thong tin thi sinh.", "warning");
+                setMessage(request, "Không tìm thấy thông tin thí sinh.", "warning");
                 redirect(response, request.getContextPath() + "/profile");
                 return;
             }
@@ -54,7 +54,7 @@ public class AddNguyenVongServlet extends BaseServlet {
             forward(request, response, getViewPath("add-nguyenvong-form"));
 
         } catch (Exception e) {
-            setMessage(request, "Da xay ra loi: " + e.getMessage(), "danger");
+            setMessage(request, "Đã xảy ra lỗi: " + e.getMessage(), "danger");
             redirect(response, request.getContextPath() + "/dashboard");
         }
     }
@@ -72,14 +72,14 @@ public class AddNguyenVongServlet extends BaseServlet {
             ThiSinh thiSinh = thiSinhService.findByNguoiDungId(loggedInUser.getNguoidungId()).orElse(null);
 
             if (thiSinh == null) {
-                setMessage(request, "Khong tim thay thong tin thi sinh.", "danger");
+                setMessage(request, "Không tìm thấy thông tin thí sinh.", "danger");
                 redirect(response, request.getContextPath() + "/add-nguyenvong");
                 return;
             }
 
             List<NguyenVong> existingNguyenVong = xetTuyenService.findNguyenVongByThiSinh(thiSinh.getThisinhId());
             if (existingNguyenVong.size() >= 5) {
-                setMessage(request, "Ban da dang ky toi da 5 nguyen vong.", "warning");
+                setMessage(request, "Bạn đã đăng ký tối đa 5 nguyện vọng.", "warning");
                 redirect(response, request.getContextPath() + "/nguyenvong");
                 return;
             }
@@ -89,7 +89,7 @@ public class AddNguyenVongServlet extends BaseServlet {
             String phuongthucIdStr = request.getParameter("phuongthucId");
 
             if (isNullOrEmpty(nganhIdStr) || isNullOrEmpty(nganhTohopIdStr) || isNullOrEmpty(phuongthucIdStr)) {
-                setMessage(request, "Vui long dien day du thong tin.", "danger");
+                setMessage(request, "Vui lòng điền đầy đủ thông tin.", "danger");
                 redirect(response, request.getContextPath() + "/add-nguyenvong");
                 return;
             }
@@ -107,7 +107,7 @@ public class AddNguyenVongServlet extends BaseServlet {
             }
 
             if (nganh == null) {
-                setMessage(request, "Khong tim thay nganh hoc.", "danger");
+                setMessage(request, "Không tìm thấy ngành học.", "danger");
                 redirect(response, request.getContextPath() + "/add-nguyenvong");
                 return;
             }
@@ -122,7 +122,7 @@ public class AddNguyenVongServlet extends BaseServlet {
             }
 
             if (nganhToHop == null) {
-                setMessage(request, "Khong tim thay to hop mon.", "danger");
+                setMessage(request, "Không tìm thấy tổ hợp môn.", "danger");
                 redirect(response, request.getContextPath() + "/add-nguyenvong");
                 return;
             }
@@ -137,7 +137,7 @@ public class AddNguyenVongServlet extends BaseServlet {
             }
 
             if (phuongThuc == null) {
-                setMessage(request, "Khong tim thay phuong thuc xet tuyen.", "danger");
+                setMessage(request, "Không tìm thấy phương thức xét tuyển.", "danger");
                 redirect(response, request.getContextPath() + "/add-nguyenvong");
                 return;
             }
@@ -146,7 +146,7 @@ public class AddNguyenVongServlet extends BaseServlet {
                 if (existing.getNganh().getNganhId().equals(nganhId) &&
                     existing.getNganhToHop().getNganhTohopId().equals(nganhTohopId) &&
                     existing.getPhuongThuc().getPhuongthucId().equals(phuongthucId)) {
-                    setMessage(request, "Nguyen vong nay da ton tai.", "warning");
+                    setMessage(request, "Nguyện vọng này đã tồn tại.", "warning");
                     redirect(response, request.getContextPath() + "/nguyenvong");
                     return;
                 }
@@ -164,11 +164,11 @@ public class AddNguyenVongServlet extends BaseServlet {
 
             xetTuyenService.saveNguyenVong(nguyenVong);
 
-            setMessage(request, "Dang ky nguyen vong thanh cong!", "success");
+            setMessage(request, "Đăng ký nguyện vọng thành công!", "success");
             redirect(response, request.getContextPath() + "/nguyenvong");
 
         } catch (Exception e) {
-            setMessage(request, "Da xay ra loi khi dang ky nguyen vong: " + e.getMessage(), "danger");
+            setMessage(request, "Đã xảy ra lỗi khi đăng ký nguyện vọng: " + e.getMessage(), "danger");
             redirect(response, request.getContextPath() + "/add-nguyenvong");
         }
     }

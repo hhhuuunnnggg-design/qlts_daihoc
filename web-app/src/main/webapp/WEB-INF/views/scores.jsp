@@ -6,7 +6,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Diem thi - Tuyen Sinh DH 2026</title>
+    <title>Điểm thi - Tuyển sinh ĐH 2026</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <style>
@@ -86,11 +86,11 @@
         <div class="container">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <h2 class="mb-1"><i class="bi bi-clipboard-check me-2"></i>Diem thi</h2>
-                    <p class="mb-0 opacity-75">Quan ly thong tin diem thi tuyen sinh</p>
+                    <h2 class="mb-1"><i class="bi bi-clipboard-check me-2"></i>Điểm thi</h2>
+                    <p class="mb-0 opacity-75">Quản lý thông tin điểm thi tuyển sinh</p>
                 </div>
                 <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#addScoreModal">
-                    <i class="bi bi-plus-circle me-2"></i>Nhap diem moi
+                    <i class="bi bi-plus-circle me-2"></i>Nhập điểm mới
                 </button>
             </div>
         </div>
@@ -108,19 +108,19 @@
 
         <div class="card">
             <div class="card-header">
-                <i class="bi bi-list-ul me-2"></i>Danh sach diem thi
+                <i class="bi bi-list-ul me-2"></i>Danh sách điểm thi
             </div>
             <div class="table-responsive">
                 <table class="table table-hover mb-0">
                     <thead>
                         <tr>
                             <th>STT</th>
-                            <th>Phuong thuc</th>
-                            <th>So bao danh</th>
-                            <th>Nam tuyen sinh</th>
-                            <th>Diem Tong ket</th>
-                            <th>Thang diem</th>
-                            <th>Thao tac</th>
+                            <th>Phương thức</th>
+                            <th>Số báo danh</th>
+                            <th>Năm tuyển sinh</th>
+                            <th>Điểm tổng kết</th>
+                            <th>Thang điểm</th>
+                            <th>Thao tác</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -151,7 +151,7 @@
                                         <td>
                                             <button type="button" class="btn btn-sm btn-outline-primary" 
                                                     onclick="viewScoreDetails(${dt.diemthiId}, '${dt.phuongThuc.tenPhuongthuc}')">
-                                                <i class="bi bi-eye"></i> Chi tiet
+                                                <i class="bi bi-eye"></i> Chi tiết
                                             </button>
                                         </td>
                                     </tr>
@@ -161,8 +161,8 @@
                                 <tr>
                                     <td colspan="7" class="text-center text-muted py-5">
                                         <i class="bi bi-clipboard-x fs-1 d-block mb-3"></i>
-                                        <p class="mb-0">Ban chua co thong tin diem thi nao.</p>
-                                        <p class="small">Nhan nut "Nhap diem moi" de them diem thi.</p>
+                                        <p class="mb-0">Bạn chưa có thông tin điểm thi nào.</p>
+                                        <p class="small">Nhấn nút «Nhập điểm mới» để thêm điểm thi.</p>
                                     </td>
                                 </tr>
                             </c:otherwise>
@@ -177,50 +177,50 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title"><i class="bi bi-plus-circle me-2"></i>Nhap diem thi moi</h5>
+                    <h5 class="modal-title"><i class="bi bi-plus-circle me-2"></i>Nhập điểm thi mới</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <form action="${pageContext.request.contextPath}/scores" method="post">
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label for="phuongthucId" class="form-label">Phuong thuc xet tuyen <span class="text-danger">*</span></label>
+                            <label for="phuongthucId" class="form-label">Phương thức xét tuyển <span class="text-danger">*</span></label>
                             <select class="form-select" id="phuongthucId" name="phuongthucId" required>
-                                <option value="">-- Chon phuong thuc --</option>
+                                <option value="">-- Chọn phương thức --</option>
                                 <c:forEach var="pt" items="${danhSachPhuongThuc}">
                                     <option value="${pt.phuongthucId}">${pt.maPhuongthuc} - ${pt.tenPhuongthuc}</option>
                                 </c:forEach>
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label for="namTuyensinh" class="form-label">Nam tuyen sinh</label>
+                            <label for="namTuyensinh" class="form-label">Năm tuyển sinh</label>
                             <input type="number" class="form-control" id="namTuyensinh" name="namTuyensinh" 
                                    value="2026" required>
                         </div>
                         <div class="mb-3">
-                            <label for="sobaodanh" class="form-label">So bao danh</label>
+                            <label for="sobaodanh" class="form-label">Số báo danh</label>
                             <input type="text" class="form-control" id="sobaodanh" name="sobaodanh">
                         </div>
                         <hr>
-                        <h6 class="mb-3"><i class="bi bi-pencil me-2"></i>Nhap diem theo mon</h6>
+                        <h6 class="mb-3"><i class="bi bi-pencil me-2"></i>Nhập điểm theo môn</h6>
                         <div class="row" id="scoreInputs">
                             <c:forEach var="mon" items="${danhSachMon}">
                                 <div class="col-md-6 mb-3">
                                     <label for="diem_${mon.monId}" class="form-label">${mon.tenMon} (${mon.maMon})</label>
                                     <input type="number" step="0.01" min="0" max="10" 
                                            class="form-control" id="diem_${mon.monId}" 
-                                           name="diem_${mon.monId}" placeholder="Nhap diem">
+                                           name="diem_${mon.monId}" placeholder="Nhập điểm">
                                 </div>
                             </c:forEach>
                         </div>
                         <div class="mb-3">
-                            <label for="ghiChu" class="form-label">Ghi chu</label>
+                            <label for="ghiChu" class="form-label">Ghi chú</label>
                             <textarea class="form-control" id="ghiChu" name="ghiChu" rows="2"></textarea>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Huy</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
                         <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-check2 me-2"></i>Luu diem thi
+                            <i class="bi bi-check2 me-2"></i>Lưu điểm thi
                         </button>
                     </div>
                 </form>
@@ -232,13 +232,13 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="scoreDetailsTitle">Chi tiet diem thi</h5>
+                    <h5 class="modal-title" id="scoreDetailsTitle">Chi tiết điểm thi</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body" id="scoreDetailsBody">
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Dong</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
                 </div>
             </div>
         </div>
@@ -271,21 +271,21 @@
             const data = scoreDetails[id];
             if (!data) return;
 
-            document.getElementById('scoreDetailsTitle').textContent = 'Chi tiet: ' + title;
+            document.getElementById('scoreDetailsTitle').textContent = 'Chi tiết: ' + title;
             
             let html = '<table class="table table-sm">';
-            html += '<tr><td class="fw-semibold" style="width:150px;">Phuong thuc:</td><td>' + data.phuongThuc + '</td></tr>';
-            html += '<tr><td class="fw-semibold">So bao danh:</td><td>' + (data.soBaoDanh || '-') + '</td></tr>';
-            html += '<tr><td class="fw-semibold">Nam tuyen sinh:</td><td>' + data.namTuyenSinh + '</td></tr>';
+            html += '<tr><td class="fw-semibold" style="width:150px;">Phương thức:</td><td>' + data.phuongThuc + '</td></tr>';
+            html += '<tr><td class="fw-semibold">Số báo danh:</td><td>' + (data.soBaoDanh || '-') + '</td></tr>';
+            html += '<tr><td class="fw-semibold">Năm tuyển sinh:</td><td>' + data.namTuyenSinh + '</td></tr>';
             if (data.ghiChu) {
-                html += '<tr><td class="fw-semibold">Ghi chu:</td><td>' + data.ghiChu + '</td></tr>';
+                html += '<tr><td class="fw-semibold">Ghi chú:</td><td>' + data.ghiChu + '</td></tr>';
             }
             html += '</table>';
             
             if (data.chiTiet.length > 0) {
-                html += '<hr><h6>Diem chi tiet theo mon:</h6>';
+                html += '<hr><h6>Điểm chi tiết theo môn:</h6>';
                 html += '<table class="table table-bordered">';
-                html += '<thead class="table-light"><tr><th>Mon</th><th>Ma mon</th><th>Diem goc</th><th>Diem quy doi</th><th>Diem su dung</th></tr></thead>';
+                html += '<thead class="table-light"><tr><th>Môn</th><th>Mã môn</th><th>Điểm gốc</th><th>Điểm quy đổi</th><th>Điểm sử dụng</th></tr></thead>';
                 html += '<tbody>';
                 data.chiTiet.forEach(function(ct) {
                     html += '<tr>';

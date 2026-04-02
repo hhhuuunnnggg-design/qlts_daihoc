@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dang nhap - Tuyen Sinh DH 2026</title>
+    <title>Đăng nhập - Tuyển sinh ĐH 2026</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <style>
@@ -92,9 +92,9 @@
         <div class="card">
             <div class="card-header">
                 <div class="brand mb-2">
-                    <i class="bi bi-mortarboard-fill me-2"></i>TUYEN SINH DH 2026
+                    <i class="bi bi-mortarboard-fill me-2"></i>TUYỂN SINH ĐH 2026
                 </div>
-                <h4 class="text-muted mb-0">Dang nhap he thong</h4>
+                <h4 class="text-muted mb-0">Đăng nhập hệ thống</h4>
             </div>
             <div class="card-body">
                 <c:if test="${not empty sessionScope.message}">
@@ -108,32 +108,32 @@
 
                 <form action="${pageContext.request.contextPath}/login" method="post">
                     <div class="mb-4">
-                        <label for="username" class="form-label">Ten dang nhap</label>
+                        <label for="username" class="form-label">Tên đăng nhập</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="bi bi-person"></i></span>
                             <input type="text" class="form-control" id="username" name="username" 
-                                   placeholder="Nhap ten dang nhap" required autofocus>
+                                   placeholder="Nhập tên đăng nhập" required autofocus>
                         </div>
                     </div>
                     <div class="mb-4">
-                        <label for="password" class="form-label">Mat khau</label>
+                        <label for="password" class="form-label">Mật khẩu</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="bi bi-lock"></i></span>
                             <input type="password" class="form-control" id="password" name="password" 
-                                   placeholder="Nhap mat khau" required>
+                                   placeholder="Nhập mật khẩu" required>
                         </div>
                     </div>
                     <div class="d-grid">
                         <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-box-arrow-in-right me-2"></i>Dang nhap
+                            <i class="bi bi-box-arrow-in-right me-2"></i>Đăng nhập
                         </button>
                     </div>
                 </form>
 
                 <div class="register-link">
                     <p class="text-muted mb-0">
-                        Ban chua co tai khoan? 
-                        <a href="${pageContext.request.contextPath}/register">Dang ky ngay</a>
+                        Bạn chưa có tài khoản?
+                        <a href="${pageContext.request.contextPath}/register">Đăng ký ngay</a>
                     </p>
                 </div>
             </div>

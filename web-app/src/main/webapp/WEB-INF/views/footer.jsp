@@ -2,7 +2,7 @@
         <div class="container text-center">
             <p class="text-muted mb-1">
                 <i class="bi bi-mortarboard me-1"></i>
-                Phan mem Quan ly Tuyen Sinh Dai Hoc 2026
+                Phần mềm quản lý tuyển sinh đại học 2026
             </p>
             <p class="text-secondary small mb-0">
                 Swing + Hibernate 5.4.7 + MySQL 8.0 | Java 11+

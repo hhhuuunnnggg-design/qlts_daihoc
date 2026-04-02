@@ -5,7 +5,7 @@
                              http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
          version="4.0">
 
-    <display-name>Tuyen Sinh Dai Hoc 2026</display-name>
+    <display-name>Tuyển sinh đại học 2026</display-name>
 
     <welcome-file-list>
         <welcome-file>index.jsp</welcome-file>

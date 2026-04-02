@@ -46,7 +46,7 @@ public class ProfileServlet extends BaseServlet {
             forward(request, response, getViewPath("profile"));
 
         } catch (Exception e) {
-            setMessage(request, "Da xay ra loi: " + e.getMessage(), "danger");
+            setMessage(request, "Đã xảy ra lỗi: " + e.getMessage(), "danger");
             redirect(response, request.getContextPath() + "/dashboard");
         }
     }
@@ -74,14 +74,14 @@ public class ProfileServlet extends BaseServlet {
 
             if (isNullOrEmpty(cccd) || isNullOrEmpty(ho) || isNullOrEmpty(ten)
                     || isNullOrEmpty(dienThoai) || isNullOrEmpty(email)) {
-                setMessage(request, "CCCD, Ho, Ten, Dien thoai, Email la bat buoc.", "danger");
+                setMessage(request, "CCCD, họ, tên, điện thoại, email là bắt buộc.", "danger");
                 redirect(response, request.getContextPath() + "/profile");
                 return;
             }
 
             cccd = cccd.trim();
             if (!cccd.matches("[0-9]{9,12}")) {
-                setMessage(request, "So CCCD phai la 9-12 chu so.", "danger");
+                setMessage(request, "Số CCCD phải là 9–12 chữ số.", "danger");
                 redirect(response, request.getContextPath() + "/profile");
                 return;
             }
@@ -90,13 +90,13 @@ public class ProfileServlet extends BaseServlet {
 
             if (optTs.isEmpty()) {
                 if (thiSinhService.findByCccd(cccd).isPresent()) {
-                    setMessage(request, "So CCCD da duoc su dung boi tai khoan khac.", "danger");
+                    setMessage(request, "Số CCCD đã được sử dụng bởi tài khoản khác.", "danger");
                     redirect(response, request.getContextPath() + "/profile");
                     return;
                 }
                 NguoiDung nd = nguoiDungService.findById(loggedInUser.getNguoidungId());
                 if (nd == null) {
-                    setMessage(request, "Khong tim thay tai khoan.", "danger");
+                    setMessage(request, "Không tìm thấy tài khoản.", "danger");
                     redirect(response, request.getContextPath() + "/login");
                     return;
                 }
@@ -106,13 +106,13 @@ public class ProfileServlet extends BaseServlet {
                 applyHoSoFields(ts, ho, ten, ngaySinhStr, gioiTinh, dienThoai, email, noiSinh,
                         doituongIdStr, khuvucIdStr);
                 thiSinhService.save(ts);
-                setMessage(request, "Tao ho so thi sinh thanh cong!", "success");
+                setMessage(request, "Tạo hồ sơ thí sinh thành công!", "success");
             } else {
                 ThiSinh thiSinh = optTs.get();
                 Optional<ThiSinh> trungCccd = thiSinhService.findByCccd(cccd);
                 if (trungCccd.isPresent()
                         && !trungCccd.get().getThisinhId().equals(thiSinh.getThisinhId())) {
-                    setMessage(request, "So CCCD da duoc su dung boi tai khoan khac.", "danger");
+                    setMessage(request, "Số CCCD đã được sử dụng bởi tài khoản khác.", "danger");
                     redirect(response, request.getContextPath() + "/profile");
                     return;
                 }
@@ -120,13 +120,13 @@ public class ProfileServlet extends BaseServlet {
                 applyHoSoFields(thiSinh, ho, ten, ngaySinhStr, gioiTinh, dienThoai, email, noiSinh,
                         doituongIdStr, khuvucIdStr);
                 thiSinhService.update(thiSinh);
-                setMessage(request, "Cap nhat thong tin thanh cong!", "success");
+                setMessage(request, "Cập nhật thông tin thành công!", "success");
             }
 
             redirect(response, request.getContextPath() + "/dashboard");
 
         } catch (Exception e) {
-            setMessage(request, "Da xay ra loi khi cap nhat thong tin: " + e.getMessage(), "danger");
+            setMessage(request, "Đã xảy ra lỗi khi cập nhật thông tin: " + e.getMessage(), "danger");
             redirect(response, request.getContextPath() + "/profile");
         }
     }

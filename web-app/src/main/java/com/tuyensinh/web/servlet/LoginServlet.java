@@ -32,7 +32,7 @@ public class LoginServlet extends BaseServlet {
         String password = request.getParameter("password");
 
         if (isNullOrEmpty(username) || isNullOrEmpty(password)) {
-            setMessage(request, "Vui long nhap day du thong tin dang nhap.", "danger");
+            setMessage(request, "Vui lòng nhập đầy đủ thông tin đăng nhập.", "danger");
             forward(request, response, getViewPath("login"));
             return;
         }
@@ -47,17 +47,17 @@ public class LoginServlet extends BaseServlet {
                 session.setMaxInactiveInterval(30 * 60);
 
                 if (nguoiDung.isAdmin()) {
-                    setMessage(request, "Dang nhap thanh cong! Xin chao admin.", "success");
+                    setMessage(request, "Đăng nhập thành công! Xin chào admin.", "success");
                 } else {
-                    setMessage(request, "Dang nhap thanh cong! Xin chao " + nguoiDung.getHoTen() + ".", "success");
+                    setMessage(request, "Đăng nhập thành công! Xin chào " + nguoiDung.getHoTen() + ".", "success");
                 }
                 redirect(response, request.getContextPath() + "/dashboard");
             } else {
-                setMessage(request, "Ten dang nhap hoac mat khau khong dung.", "danger");
+                setMessage(request, "Tên đăng nhập hoặc mật khẩu không đúng.", "danger");
                 forward(request, response, getViewPath("login"));
             }
         } catch (Exception e) {
-            setMessage(request, "Da xay ra loi trong qua trinh dang nhap: " + e.getMessage(), "danger");
+            setMessage(request, "Đã xảy ra lỗi trong quá trình đăng nhập: " + e.getMessage(), "danger");
             forward(request, response, getViewPath("login"));
         }
     }

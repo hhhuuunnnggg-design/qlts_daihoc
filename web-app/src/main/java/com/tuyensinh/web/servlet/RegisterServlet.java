@@ -44,7 +44,7 @@ public class RegisterServlet extends BaseServlet {
 
             forward(request, response, getViewPath("register"));
         } catch (Exception e) {
-            setMessage(request, "Da xay ra loi: " + e.getMessage(), "danger");
+            setMessage(request, "Đã xảy ra lỗi: " + e.getMessage(), "danger");
             forward(request, response, getViewPath("register"));
         }
     }
@@ -68,26 +68,26 @@ public class RegisterServlet extends BaseServlet {
 
         if (isNullOrEmpty(username) || isNullOrEmpty(password) || isNullOrEmpty(confirmPassword) ||
             isNullOrEmpty(ho) || isNullOrEmpty(ten) || isNullOrEmpty(cccd)) {
-            setMessage(request, "Vui long nhap day du thong tin bat buoc.", "danger");
+            setMessage(request, "Vui lòng nhập đầy đủ thông tin bắt buộc.", "danger");
             redirectToRegister(request, response);
             return;
         }
 
         if (!password.equals(confirmPassword)) {
-            setMessage(request, "Mat khau xac nhan khong khop.", "danger");
+            setMessage(request, "Mật khẩu xác nhận không khớp.", "danger");
             redirectToRegister(request, response);
             return;
         }
 
         if (password.length() < 6) {
-            setMessage(request, "Mat khau phai co it nhat 6 ky tu.", "danger");
+            setMessage(request, "Mật khẩu phải có ít nhất 6 ký tự.", "danger");
             redirectToRegister(request, response);
             return;
         }
 
         try {
             if (thiSinhService.findByCccd(cccd).isPresent()) {
-                setMessage(request, "So CCCD da duoc dang ky.", "danger");
+                setMessage(request, "Số CCCD đã được đăng ký.", "danger");
                 redirectToRegister(request, response);
                 return;
             }
@@ -134,11 +134,11 @@ public class RegisterServlet extends BaseServlet {
             session.setAttribute("nguoidung", savedNguoiDung);
             session.setMaxInactiveInterval(30 * 60);
 
-            setMessage(request, "Dang ky thanh cong! Xin chao " + ho + " " + ten + ".", "success");
+            setMessage(request, "Đăng ký thành công! Xin chào " + ho + " " + ten + ".", "success");
             redirect(response, request.getContextPath() + "/dashboard");
 
         } catch (Exception e) {
-            setMessage(request, "Da xay ra loi trong qua trinh dang ky: " + e.getMessage(), "danger");
+            setMessage(request, "Đã xảy ra lỗi trong quá trình đăng ký: " + e.getMessage(), "danger");
             redirectToRegister(request, response);
         }
     }

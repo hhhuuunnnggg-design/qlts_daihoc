@@ -36,7 +36,7 @@ public class ScoresServlet extends BaseServlet {
             ThiSinh thiSinh = thiSinhService.findByNguoiDungId(loggedInUser.getNguoidungId()).orElse(null);
 
             if (thiSinh == null) {
-                setMessage(request, "Khong tim thay thong tin thi sinh.", "warning");
+                setMessage(request, "Không tìm thấy thông tin thí sinh.", "warning");
                 redirect(response, request.getContextPath() + "/profile");
                 return;
             }
@@ -53,7 +53,7 @@ public class ScoresServlet extends BaseServlet {
             forward(request, response, getViewPath("scores"));
 
         } catch (Exception e) {
-            setMessage(request, "Da xay ra loi: " + e.getMessage(), "danger");
+            setMessage(request, "Đã xảy ra lỗi: " + e.getMessage(), "danger");
             redirect(response, request.getContextPath() + "/dashboard");
         }
     }
@@ -71,7 +71,7 @@ public class ScoresServlet extends BaseServlet {
             ThiSinh thiSinh = thiSinhService.findByNguoiDungId(loggedInUser.getNguoidungId()).orElse(null);
 
             if (thiSinh == null) {
-                setMessage(request, "Khong tim thay thong tin thi sinh.", "danger");
+                setMessage(request, "Không tìm thấy thông tin thí sinh.", "danger");
                 redirect(response, request.getContextPath() + "/scores");
                 return;
             }
@@ -82,7 +82,7 @@ public class ScoresServlet extends BaseServlet {
             String ghiChu = request.getParameter("ghiChu");
 
             if (isNullOrEmpty(phuongthucIdStr)) {
-                setMessage(request, "Vui long chon phuong thuc xet tuyen.", "danger");
+                setMessage(request, "Vui lòng chọn phương thức xét tuyển.", "danger");
                 redirect(response, request.getContextPath() + "/scores");
                 return;
             }
@@ -144,11 +144,11 @@ public class ScoresServlet extends BaseServlet {
 
             xetTuyenService.updateDiemThi(savedDiemThi);
 
-            setMessage(request, "Luu diem thi thanh cong!", "success");
+            setMessage(request, "Lưu điểm thi thành công!", "success");
             redirect(response, request.getContextPath() + "/scores");
 
         } catch (Exception e) {
-            setMessage(request, "Da xay ra loi khi luu diem thi: " + e.getMessage(), "danger");
+            setMessage(request, "Đã xảy ra lỗi khi lưu điểm thi: " + e.getMessage(), "danger");
             redirect(response, request.getContextPath() + "/scores");
         }
     }

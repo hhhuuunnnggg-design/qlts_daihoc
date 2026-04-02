@@ -30,7 +30,7 @@ public class DashboardServlet extends BaseServlet {
             ThiSinh thiSinh = thiSinhService.findByNguoiDungId(loggedInUser.getNguoidungId()).orElse(null);
 
             if (thiSinh == null) {
-                setMessage(request, "Khong tim thay thong tin thi sinh.", "warning");
+                setMessage(request, "Không tìm thấy thông tin thí sinh.", "warning");
                 redirect(response, request.getContextPath() + "/profile");
                 return;
             }
@@ -57,7 +57,7 @@ public class DashboardServlet extends BaseServlet {
             forward(request, response, getViewPath("dashboard"));
 
         } catch (Exception e) {
-            setMessage(request, "Da xay ra loi: " + e.getMessage(), "danger");
+            setMessage(request, "Đã xảy ra lỗi: " + e.getMessage(), "danger");
             forward(request, response, getViewPath("dashboard"));
         }
     }

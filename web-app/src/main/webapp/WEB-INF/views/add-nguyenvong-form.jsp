@@ -6,7 +6,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Them Nguyen Vong - Tuyen Sinh DH 2026</title>
+    <title>Thêm nguyện vọng - Tuyển sinh ĐH 2026</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <style>
@@ -102,8 +102,8 @@
 
     <div class="page-header">
         <div class="container">
-            <h2 class="mb-1"><i class="bi bi-plus-square me-2"></i>Them nguyen vong</h2>
-            <p class="mb-0 opacity-75">Dang ky nguyen vong xet tuyen moi</p>
+            <h2 class="mb-1"><i class="bi bi-plus-square me-2"></i>Thêm nguyện vọng</h2>
+            <p class="mb-0 opacity-75">Đăng ký nguyện vọng xét tuyển mới</p>
         </div>
     </div>
 
@@ -121,12 +121,12 @@
             <div class="d-flex align-items-start">
                 <i class="bi bi-info-circle-fill fs-4 me-3 mt-1"></i>
                 <div>
-                    <h5 class="mb-2">Huong dan dang ky nguyen vong</h5>
+                    <h5 class="mb-2">Hướng dẫn đăng ký nguyện vọng</h5>
                     <ul class="mb-0">
-                        <li>Chon nganh hoc ban muon xet tuyen</li>
-                        <li>Chon to hop mon thi phu hop voi nganh</li>
-                        <li>Chon phuong thuc xet tuyen (toi da 5 nguyen vong)</li>
-                        <li>Nguyen vong se tu dong duoc sap xep theo thu tu uu tien</li>
+                        <li>Chọn ngành học bạn muốn xét tuyển</li>
+                        <li>Chọn tổ hợp môn thi phù hợp với ngành</li>
+                        <li>Chọn phương thức xét tuyển (tối đa 5 nguyện vọng)</li>
+                        <li>Nguyện vọng sẽ tự động được sắp xếp theo thứ tự ưu tiên</li>
                     </ul>
                 </div>
             </div>
@@ -137,17 +137,17 @@
                 <div class="col-lg-8">
                     <div class="card mb-4">
                         <div class="card-header">
-                            <i class="bi bi-pencil me-2"></i>Thong tin nguyen vong
+                            <i class="bi bi-pencil me-2"></i>Thông tin nguyện vọng
                         </div>
                         <div class="card-body">
                             <div class="form-section">
                                 <div class="form-section-title">
-                                    <i class="bi bi-building me-2"></i>Chon nganh hoc
+                                    <i class="bi bi-building me-2"></i>Chọn ngành học
                                 </div>
                                 <div class="mb-3">
-                                    <label for="nganhId" class="form-label">Nganh hoc <span class="text-danger">*</span></label>
+                                    <label for="nganhId" class="form-label">Ngành học <span class="text-danger">*</span></label>
                                     <select class="form-select" id="nganhId" name="nganhId" required>
-                                        <option value="">-- Chon nganh hoc --</option>
+                                        <option value="">-- Chọn ngành học --</option>
                                         <c:forEach var="nganh" items="${danhSachNganh}">
                                             <option value="${nganh.nganhId}">
                                                 ${nganh.maNganh} - ${nganh.tenNganh}
@@ -158,16 +158,16 @@
                                 <div id="nganhInfo" class="slot-info d-none">
                                     <div class="row">
                                         <div class="col-md-4">
-                                            <div class="text-muted small">Chi tieu</div>
+                                            <div class="text-muted small">Chỉ tiêu</div>
                                             <div class="fw-bold" id="chiTieu">-</div>
                                         </div>
                                         <div class="col-md-4">
-                                            <div class="text-muted small">Diem san</div>
+                                            <div class="text-muted small">Điểm sàn</div>
                                             <div class="fw-bold" id="diemSan">-</div>
                                         </div>
                                         <div class="col-md-4">
-                                            <div class="text-muted small">Trang thai</div>
-                                            <div class="fw-bold slot-available" id="slotStatus">Dang mo</div>
+                                            <div class="text-muted small">Trạng thái</div>
+                                            <div class="fw-bold slot-available" id="slotStatus">Đang mở</div>
                                         </div>
                                     </div>
                                 </div>
@@ -175,23 +175,23 @@
 
                             <div class="form-section">
                                 <div class="form-section-title">
-                                    <i class="bi bi-journal-text me-2"></i>Chon to hop mon
+                                    <i class="bi bi-journal-text me-2"></i>Chọn tổ hợp môn
                                 </div>
                                 <div class="mb-3">
-                                    <label for="nganhTohopId" class="form-label">To hop mon <span class="text-danger">*</span></label>
+                                    <label for="nganhTohopId" class="form-label">Tổ hợp môn <span class="text-danger">*</span></label>
                                     <select class="form-select" id="nganhTohopId" name="nganhTohopId" required disabled>
-                                        <option value="">-- Vui long chon nganh hoc truoc --</option>
+                                        <option value="">-- Vui lòng chọn ngành học trước --</option>
                                     </select>
-                                    <small class="text-muted">Chon nganh hoc truoc de hien thi danh sach to hop mon</small>
+                                    <small class="text-muted">Chọn ngành học trước để hiển thị danh sách tổ hợp môn</small>
                                 </div>
                                 <div id="toHopInfo" class="slot-info d-none">
                                     <div class="row">
                                         <div class="col-md-6">
-                                            <div class="text-muted small">Ma to hop</div>
+                                            <div class="text-muted small">Mã tổ hợp</div>
                                             <div class="fw-bold" id="toHopMa">-</div>
                                         </div>
                                         <div class="col-md-6">
-                                            <div class="text-muted small">Ten to hop</div>
+                                            <div class="text-muted small">Tên tổ hợp</div>
                                             <div class="fw-bold" id="toHopTen">-</div>
                                         </div>
                                     </div>
@@ -200,15 +200,15 @@
 
                             <div class="form-section">
                                 <div class="form-section-title">
-                                    <i class="bi bi-check2-square me-2"></i>Chon phuong thuc xet tuyen
+                                    <i class="bi bi-check2-square me-2"></i>Chọn phương thức xét tuyển
                                 </div>
                                 <div class="mb-3">
-                                    <label for="phuongthucId" class="form-label">Phuong thuc <span class="text-danger">*</span></label>
+                                    <label for="phuongthucId" class="form-label">Phương thức <span class="text-danger">*</span></label>
                                     <select class="form-select" id="phuongthucId" name="phuongthucId" required>
-                                        <option value="">-- Chon phuong thuc --</option>
+                                        <option value="">-- Chọn phương thức --</option>
                                         <c:forEach var="pt" items="${danhSachPhuongThuc}">
                                             <option value="${pt.phuongthucId}">
-                                                ${pt.maPhuongthuc} - ${pt.tenPhuongthuc} (thang diem: ${pt.thangDiem})
+                                                ${pt.maPhuongthuc} - ${pt.tenPhuongthuc} (thang điểm: ${pt.thangDiem})
                                             </option>
                                         </c:forEach>
                                     </select>
@@ -221,11 +221,11 @@
                 <div class="col-lg-4">
                     <div class="card mb-4">
                         <div class="card-header">
-                            <i class="bi bi-list-ol me-2"></i>Nguyen vong hien tai
+                            <i class="bi bi-list-ol me-2"></i>Nguyện vọng hiện tại
                         </div>
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center mb-3">
-                                <span>So nguyen vong:</span>
+                                <span>Số nguyện vọng:</span>
                                 <span class="badge bg-primary fs-6">${soNguyenVongHienTai} / 5</span>
                             </div>
                             <div class="progress mb-3" style="height: 10px;">
@@ -236,13 +236,13 @@
                                 <c:when test="${soNguyenVongHienTai >= 5}">
                                     <div class="alert alert-warning mb-0">
                                         <i class="bi bi-exclamation-triangle me-2"></i>
-                                        Ban da het slot dang ky nguyen vong.
+                                        Bạn đã hết suất đăng ký nguyện vọng.
                                     </div>
                                 </c:when>
                                 <c:otherwise>
                                     <div class="slot-available">
                                         <i class="bi bi-check-circle me-2"></i>
-                                        Ban con co the dang ky them ${5 - soNguyenVongHienTai} nguyen vong
+                                        Bạn còn có thể đăng ký thêm ${5 - soNguyenVongHienTai} nguyện vọng
                                     </div>
                                 </c:otherwise>
                             </c:choose>
@@ -251,23 +251,23 @@
 
                     <div class="card mb-4">
                         <div class="card-header">
-                            <i class="bi bi-exclamation-circle me-2"></i>Luu y
+                            <i class="bi bi-exclamation-circle me-2"></i>Lưu ý
                         </div>
                         <div class="card-body">
                             <ul class="mb-0 small">
-                                <li>Nguyen vong 1 co do uu tien cao nhat</li>
-                                <li>Neu trung tuyen nguyen vong 1, cac nguyen vong sau se khong duoc xet</li>
-                                <li>Diem xet tuyen phu thuoc vao phuong thuc va to hop mon ban chon</li>
+                                <li>Nguyện vọng 1 có độ ưu tiên cao nhất</li>
+                                <li>Nếu trúng tuyển nguyện vọng 1, các nguyện vọng sau sẽ không được xét</li>
+                                <li>Điểm xét tuyển phụ thuộc vào phương thức và tổ hợp môn bạn chọn</li>
                             </ul>
                         </div>
                     </div>
 
                     <div class="d-grid gap-2">
                         <button type="submit" class="btn btn-primary" ${soNguyenVongHienTai >= 5 ? 'disabled' : ''}>
-                            <i class="bi bi-check2 me-2"></i>Dang ky nguyen vong
+                            <i class="bi bi-check2 me-2"></i>Đăng ký nguyện vọng
                         </button>
                         <a href="${pageContext.request.contextPath}/nguyenvong" class="btn btn-secondary">
-                            <i class="bi bi-arrow-left me-2"></i>Quay lai
+                            <i class="bi bi-arrow-left me-2"></i>Quay lại
                         </a>
                     </div>
                 </div>
@@ -305,11 +305,11 @@
             const nganhInfo = document.getElementById('nganhInfo');
             const toHopInfo = document.getElementById('toHopInfo');
 
-            toHopSelect.innerHTML = '<option value="">-- Dang tai --</option>';
+            toHopSelect.innerHTML = '<option value="">-- Đang tải --</option>';
             toHopInfo.classList.add('d-none');
 
             if (nganhId && nganhToHopData[nganhId]) {
-                toHopSelect.innerHTML = '<option value="">-- Chon to hop mon --</option>';
+                toHopSelect.innerHTML = '<option value="">-- Chọn tổ hợp môn --</option>';
                 nganhToHopData[nganhId].forEach(function(item) {
                     toHopSelect.innerHTML += '<option value="' + item.id + '">' + item.ma + ' - ' + item.ten + '</option>';
                 });
@@ -317,10 +317,10 @@
 
                 const info = nganhInfoData[nganhId];
                 document.getElementById('chiTieu').textContent = info.chiTieu;
-                document.getElementById('diemSan').textContent = info.diemSan ? info.diemSan.toFixed(2) : 'Khong co';
+                document.getElementById('diemSan').textContent = info.diemSan ? info.diemSan.toFixed(2) : 'Không có';
                 nganhInfo.classList.remove('d-none');
             } else {
-                toHopSelect.innerHTML = '<option value="">-- Vui long chon nganh hoc truoc --</option>';
+                toHopSelect.innerHTML = '<option value="">-- Vui lòng chọn ngành học trước --</option>';
                 toHopSelect.disabled = true;
                 nganhInfo.classList.add('d-none');
             }

@@ -15,7 +15,7 @@ public class LogoutServlet extends BaseServlet {
         if (session != null) {
             session.invalidate();
         }
-        setMessage(request, "Ban da dang xuat thanh cong.", "success");
+        setMessage(request, "Bạn đã đăng xuất thành công.", "success");
         redirect(response, request.getContextPath() + "/login");
     }
 

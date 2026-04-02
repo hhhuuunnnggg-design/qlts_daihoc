@@ -6,7 +6,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trang chu - Tuyen Sinh DH 2026</title>
+    <title>Trang chủ - Tuyển sinh ĐH 2026</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <style>
@@ -116,12 +116,12 @@
         <div class="container">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <h2 class="mb-1"><i class="bi bi-house-door me-2"></i>Xin chao, ${thiSinh.ho} ${thiSinh.ten}!</h2>
-                    <p class="mb-0 opacity-75">Chao mung ban den voi he thong tuyen sinh dai hoc 2026</p>
+                    <h2 class="mb-1"><i class="bi bi-house-door me-2"></i>Xin chào, ${thiSinh.ho} ${thiSinh.ten}!</h2>
+                    <p class="mb-0 opacity-75">Chào mừng bạn đến với hệ thống tuyển sinh đại học 2026</p>
                 </div>
                 <div class="text-end">
-                    <small class="opacity-75">So bao danh:</small>
-                    <h5 class="mb-0">${thiSinh.sobaodanh != null ? thiSinh.sobaodanh : 'Chua cap'}</h5>
+                    <small class="opacity-75">Số báo danh:</small>
+                    <h5 class="mb-0">${thiSinh.sobaodanh != null ? thiSinh.sobaodanh : 'Chưa cấp'}</h5>
                 </div>
             </div>
         </div>
@@ -144,7 +144,7 @@
                         <i class="bi bi-list-ol"></i>
                     </div>
                     <div class="stat-number">${soLuongNguyenVong}</div>
-                    <div class="stat-label">Nguyen vong dang ky</div>
+                    <div class="stat-label">Nguyện vọng đăng ký</div>
                 </div>
             </div>
             <div class="col-md-4">
@@ -153,7 +153,7 @@
                         <i class="bi bi-clipboard-check"></i>
                     </div>
                     <div class="stat-number">${soLuongDiemThi}</div>
-                    <div class="stat-label">Bang diem thi</div>
+                    <div class="stat-label">Bảng điểm thi</div>
                 </div>
             </div>
             <div class="col-md-4">
@@ -162,7 +162,7 @@
                         <i class="bi bi-check-circle"></i>
                     </div>
                     <div class="stat-number">${soTrungTuyen}</div>
-                    <div class="stat-label">Nguyen vong trung tuyen</div>
+                    <div class="stat-label">Nguyện vọng trúng tuyển</div>
                 </div>
             </div>
         </div>
@@ -171,25 +171,25 @@
             <div class="col-md-3">
                 <a href="${pageContext.request.contextPath}/profile" class="quick-action-btn bg-white">
                     <div class="icon text-primary"><i class="bi bi-person-gear"></i></div>
-                    <div class="label">Cap nhat ho so</div>
+                    <div class="label">Cập nhật hồ sơ</div>
                 </a>
             </div>
             <div class="col-md-3">
                 <a href="${pageContext.request.contextPath}/scores" class="quick-action-btn bg-white">
                     <div class="icon text-success"><i class="bi bi-plus-circle"></i></div>
-                    <div class="label">Nhap diem thi</div>
+                    <div class="label">Nhập điểm thi</div>
                 </a>
             </div>
             <div class="col-md-3">
                 <a href="${pageContext.request.contextPath}/add-nguyenvong" class="quick-action-btn bg-white">
                     <div class="icon text-warning"><i class="bi bi-plus-square"></i></div>
-                    <div class="label">Dang ky nguyen vong</div>
+                    <div class="label">Đăng ký nguyện vọng</div>
                 </a>
             </div>
             <div class="col-md-3">
                 <a href="${pageContext.request.contextPath}/nguyenvong" class="quick-action-btn bg-white">
                     <div class="icon text-info"><i class="bi bi-list-check"></i></div>
-                    <div class="label">Quan ly nguyen vong</div>
+                    <div class="label">Quản lý nguyện vọng</div>
                 </a>
             </div>
         </div>
@@ -198,9 +198,9 @@
             <div class="col-lg-8">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <span><i class="bi bi-list-ol me-2"></i>Nguyen vong gan nhat</span>
+                        <span><i class="bi bi-list-ol me-2"></i>Nguyện vọng gần nhất</span>
                         <a href="${pageContext.request.contextPath}/nguyenvong" class="btn btn-sm btn-outline-primary">
-                            Xem tat ca <i class="bi bi-arrow-right ms-1"></i>
+                            Xem tất cả <i class="bi bi-arrow-right ms-1"></i>
                         </a>
                     </div>
                     <div class="table-responsive">
@@ -208,11 +208,11 @@
                             <thead>
                                 <tr>
                                     <th>STT</th>
-                                    <th>Ma nganh</th>
-                                    <th>Ten nganh</th>
-                                    <th>Phuong thuc</th>
-                                    <th>Diem xet tuyen</th>
-                                    <th>Ket qua</th>
+                                    <th>Mã ngành</th>
+                                    <th>Tên ngành</th>
+                                    <th>Phương thức</th>
+                                    <th>Điểm xét tuyển</th>
+                                    <th>Kết quả</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -236,13 +236,13 @@
                                                     <td>
                                                         <c:choose>
                                                             <c:when test="${nv.ketQua == 'TRUNG_TUYEN'}">
-                                                                <span class="badge badge-success">Trung tuyen</span>
+                                                                <span class="badge badge-success">Trúng tuyển</span>
                                                             </c:when>
                                                             <c:when test="${nv.ketQua == 'TRUOT'}">
-                                                                <span class="badge badge-danger">Truot</span>
+                                                                <span class="badge badge-danger">Trượt</span>
                                                             </c:when>
                                                             <c:when test="${nv.ketQua == 'CHO_XET'}">
-                                                                <span class="badge badge-pending">Cho xet</span>
+                                                                <span class="badge badge-pending">Chờ xét</span>
                                                             </c:when>
                                                             <c:otherwise>
                                                                 <span class="badge badge-info">${nv.ketQua}</span>
@@ -257,10 +257,10 @@
                                         <tr>
                                             <td colspan="6" class="text-center text-muted py-4">
                                                 <i class="bi bi-inbox fs-4 d-block mb-2"></i>
-                                                Ban chua dang ky nguyen vong nao.
+                                                Bạn chưa đăng ký nguyện vọng nào.
                                                 <br>
                                                 <a href="${pageContext.request.contextPath}/add-nguyenvong" class="btn btn-sm btn-primary mt-2">
-                                                    <i class="bi bi-plus-circle me-1"></i>Dang ky nguyen vong
+                                                    <i class="bi bi-plus-circle me-1"></i>Đăng ký nguyện vọng
                                                 </a>
                                             </td>
                                         </tr>
@@ -275,7 +275,7 @@
             <div class="col-lg-4">
                 <div class="card">
                     <div class="card-header">
-                        <i class="bi bi-person-badge me-2"></i>Thong tin ca nhan
+                        <i class="bi bi-person-badge me-2"></i>Thông tin cá nhân
                     </div>
                     <div class="card-body">
                         <table class="table table-sm mb-0">
@@ -284,17 +284,17 @@
                                 <td class="fw-semibold">${thiSinh.cccd}</td>
                             </tr>
                             <tr>
-                                <td class="text-muted">Ngay sinh:</td>
+                                <td class="text-muted">Ngày sinh:</td>
                                 <td>
                                     ${not empty thiSinh.ngaySinhDisplay ? thiSinh.ngaySinhDisplay : '-'}
                                 </td>
                             </tr>
                             <tr>
-                                <td class="text-muted">Gioi tinh:</td>
+                                <td class="text-muted">Giới tính:</td>
                                 <td>${thiSinh.gioiTinh}</td>
                             </tr>
                             <tr>
-                                <td class="text-muted">Dien thoai:</td>
+                                <td class="text-muted">Điện thoại:</td>
                                 <td>${thiSinh.dienThoai}</td>
                             </tr>
                             <tr>
@@ -302,13 +302,13 @@
                                 <td>${thiSinh.email}</td>
                             </tr>
                             <tr>
-                                <td class="text-muted">Noi sinh:</td>
+                                <td class="text-muted">Nơi sinh:</td>
                                 <td>${thiSinh.noiSinh}</td>
                             </tr>
                         </table>
                         <div class="mt-3">
                             <a href="${pageContext.request.contextPath}/profile" class="btn btn-outline-primary btn-sm w-100">
-                                <i class="bi bi-pencil-square me-1"></i>Chinh sua thong tin
+                                <i class="bi bi-pencil-square me-1"></i>Chỉnh sửa thông tin
                             </a>
                         </div>
                     </div>

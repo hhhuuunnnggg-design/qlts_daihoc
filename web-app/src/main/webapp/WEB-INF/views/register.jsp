@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dang ky - Tuyen Sinh DH 2026</title>
+    <title>Đăng ký - Tuyển sinh ĐH 2026</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <style>
@@ -107,8 +107,8 @@
                 <div class="col-lg-8">
                     <div class="card">
                         <div class="card-header">
-                            <h3><i class="bi bi-person-plus me-2"></i>Dang ky tai khoan</h3>
-                            <p>Dang ky de tham gia xet tuyen dai hoc 2026</p>
+                            <h3><i class="bi bi-person-plus me-2"></i>Đăng ký tài khoản</h3>
+                            <p>Đăng ký để tham gia xét tuyển đại học 2026</p>
                         </div>
                         <div class="card-body">
                             <c:if test="${not empty sessionScope.message}">
@@ -123,19 +123,19 @@
                             <form action="${pageContext.request.contextPath}/register" method="post" id="registerForm">
                                 <div class="form-section">
                                     <div class="form-section-title">
-                                        <i class="bi bi-key me-2"></i>Thong tin dang nhap
+                                        <i class="bi bi-key me-2"></i>Thông tin đăng nhập
                                     </div>
                                     <div class="row">
                                         <div class="col-md-4 mb-3">
-                                            <label for="username" class="form-label">Ten dang nhap <span class="text-danger">*</span></label>
+                                            <label for="username" class="form-label">Tên đăng nhập <span class="text-danger">*</span></label>
                                             <input type="text" class="form-control" id="username" name="username" required>
                                         </div>
                                         <div class="col-md-4 mb-3">
-                                            <label for="password" class="form-label">Mat khau <span class="text-danger">*</span></label>
+                                            <label for="password" class="form-label">Mật khẩu <span class="text-danger">*</span></label>
                                             <input type="password" class="form-control" id="password" name="password" required minlength="6">
                                         </div>
                                         <div class="col-md-4 mb-3">
-                                            <label for="confirmPassword" class="form-label">Xac nhan mat khau <span class="text-danger">*</span></label>
+                                            <label for="confirmPassword" class="form-label">Xác nhận mật khẩu <span class="text-danger">*</span></label>
                                             <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
                                         </div>
                                     </div>
@@ -143,31 +143,31 @@
 
                                 <div class="form-section">
                                     <div class="form-section-title">
-                                        <i class="bi bi-person me-2"></i>Thong tin ca nhan
+                                        <i class="bi bi-person me-2"></i>Thông tin cá nhân
                                     </div>
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
-                                            <label for="ho" class="form-label">Ho <span class="text-danger">*</span></label>
+                                            <label for="ho" class="form-label">Họ <span class="text-danger">*</span></label>
                                             <input type="text" class="form-control" id="ho" name="ho" required>
                                         </div>
                                         <div class="col-md-6 mb-3">
-                                            <label for="ten" class="form-label">Ten <span class="text-danger">*</span></label>
+                                            <label for="ten" class="form-label">Tên <span class="text-danger">*</span></label>
                                             <input type="text" class="form-control" id="ten" name="ten" required>
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
-                                            <label for="cccd" class="form-label">So CCCD <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control" id="cccd" name="cccd" required pattern="[0-9]{9,12}" title=" CCCD phai la so, 9-12 chu so">
+                                            <label for="cccd" class="form-label">Số CCCD <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="cccd" name="cccd" required pattern="[0-9]{9,12}" title="CCCD phải là số, 9–12 chữ số">
                                         </div>
                                         <div class="col-md-6 mb-3">
-                                            <label for="ngaySinh" class="form-label">Ngay sinh <span class="text-danger">*</span></label>
+                                            <label for="ngaySinh" class="form-label">Ngày sinh <span class="text-danger">*</span></label>
                                             <input type="date" class="form-control" id="ngaySinh" name="ngaySinh" required>
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">Gioi tinh <span class="text-danger">*</span></label>
+                                            <label class="form-label">Giới tính <span class="text-danger">*</span></label>
                                             <div>
                                                 <div class="form-check form-check-inline">
                                                     <input class="form-check-input" type="radio" name="gioiTinh" id="gioiTinhNam" value="Nam" checked>
@@ -175,12 +175,12 @@
                                                 </div>
                                                 <div class="form-check form-check-inline">
                                                     <input class="form-check-input" type="radio" name="gioiTinh" id="gioiTinhNu" value="Nu">
-                                                    <label class="form-check-label" for="gioiTinhNu">Nu</label>
+                                                    <label class="form-check-label" for="gioiTinhNu">Nữ</label>
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="col-md-6 mb-3">
-                                            <label for="noiSinh" class="form-label">Noi sinh</label>
+                                            <label for="noiSinh" class="form-label">Nơi sinh</label>
                                             <input type="text" class="form-control" id="noiSinh" name="noiSinh">
                                         </div>
                                     </div>
@@ -188,11 +188,11 @@
 
                                 <div class="form-section">
                                     <div class="form-section-title">
-                                        <i class="bi bi-telephone me-2"></i>Thong tin lien he
+                                        <i class="bi bi-telephone me-2"></i>Thông tin liên hệ
                                     </div>
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
-                                            <label for="dienThoai" class="form-label">Dien thoai <span class="text-danger">*</span></label>
+                                            <label for="dienThoai" class="form-label">Điện thoại <span class="text-danger">*</span></label>
                                             <input type="tel" class="form-control" id="dienThoai" name="dienThoai" required pattern="[0-9]{10,11}">
                                         </div>
                                         <div class="col-md-6 mb-3">
@@ -204,22 +204,22 @@
 
                                 <div class="form-section">
                                     <div class="form-section-title">
-                                        <i class="bi bi-star me-2"></i>Uu tien xet tuyen
+                                        <i class="bi bi-star me-2"></i>Ưu tiên xét tuyển
                                     </div>
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
-                                            <label for="doituongId" class="form-label">Doi tuong uu tien</label>
+                                            <label for="doituongId" class="form-label">Đối tượng ưu tiên</label>
                                             <select class="form-select" id="doituongId" name="doituongId">
-                                                <option value="">-- Chon doi tuong --</option>
+                                                <option value="">-- Chọn đối tượng --</option>
                                                 <c:forEach var="dt" items="${danhSachDoiTuong}">
                                                     <option value="${dt.doituongId}">${dt.maDoituong} - ${dt.tenDoituong}</option>
                                                 </c:forEach>
                                             </select>
                                         </div>
                                         <div class="col-md-6 mb-3">
-                                            <label for="khuvucId" class="form-label">Khu vuc uu tien</label>
+                                            <label for="khuvucId" class="form-label">Khu vực ưu tiên</label>
                                             <select class="form-select" id="khuvucId" name="khuvucId">
-                                                <option value="">-- Chon khu vuc --</option>
+                                                <option value="">-- Chọn khu vực --</option>
                                                 <c:forEach var="kv" items="${danhSachKhuVuc}">
                                                     <option value="${kv.khuvucId}">${kv.maKhuvuc} - ${kv.tenKhuvuc}</option>
                                                 </c:forEach>
@@ -230,17 +230,17 @@
 
                                 <div class="d-flex justify-content-between mt-4">
                                     <a href="${pageContext.request.contextPath}/login" class="btn btn-secondary">
-                                        <i class="bi bi-arrow-left me-2"></i>Quay lai
+                                        <i class="bi bi-arrow-left me-2"></i>Quay lại
                                     </a>
                                     <button type="submit" class="btn btn-primary">
-                                        <i class="bi bi-check2 me-2"></i>Dang ky
+                                        <i class="bi bi-check2 me-2"></i>Đăng ký
                                     </button>
                                 </div>
                             </form>
 
                             <div class="login-link">
                                 <p class="text-muted mb-0">
-                                    Da co tai khoan? <a href="${pageContext.request.contextPath}/login">Dang nhap ngay</a>
+                                    Đã có tài khoản? <a href="${pageContext.request.contextPath}/login">Đăng nhập ngay</a>
                                 </p>
                             </div>
                         </div>
@@ -258,13 +258,13 @@
             
             if (password !== confirmPassword) {
                 e.preventDefault();
-                alert('Mat khau xac nhan khong khop!');
+                alert('Mật khẩu xác nhận không khớp!');
                 return false;
             }
             
             if (password.length < 6) {
                 e.preventDefault();
-                alert('Mat khau phai co it nhat 6 ky tu!');
+                alert('Mật khẩu phải có ít nhất 6 ký tự!');
                 return false;
             }
             

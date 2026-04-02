@@ -6,7 +6,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ho so ca nhan - Tuyen Sinh DH 2026</title>
+    <title>Hồ sơ cá nhân - Tuyển sinh ĐH 2026</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <style>
@@ -91,8 +91,8 @@
 
     <div class="page-header">
         <div class="container">
-            <h2 class="mb-1"><i class="bi bi-person-badge me-2"></i>Ho so ca nhan</h2>
-            <p class="mb-0 opacity-75">Xem va cap nhat thong tin ca nhan cua ban</p>
+            <h2 class="mb-1"><i class="bi bi-person-badge me-2"></i>Hồ sơ cá nhân</h2>
+            <p class="mb-0 opacity-75">Xem và cập nhật thông tin cá nhân của bạn</p>
         </div>
     </div>
 
@@ -111,55 +111,55 @@
                 <div class="col-lg-8">
                     <div class="card mb-4">
                         <div class="card-header">
-                            <i class="bi bi-person me-2"></i>Thong tin ca nhan
+                            <i class="bi bi-person me-2"></i>Thông tin cá nhân
                         </div>
                         <div class="card-body">
                             <div class="form-section">
                                 <div class="form-section-title">
-                                    <i class="bi bi-credit-card me-2"></i>Thong tin dinh danh
+                                    <i class="bi bi-credit-card me-2"></i>Thông tin định danh
                                 </div>
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="cccd" class="form-label">So CCCD <span class="text-danger">*</span></label>
+                                        <label for="cccd" class="form-label">Số CCCD <span class="text-danger">*</span></label>
                                         <input type="text" class="form-control" id="cccd" name="cccd"
                                                value="${thiSinh.cccd}"
                                                required pattern="[0-9]{9,12}" maxlength="12"
-                                               title="CCCD: 9-12 chu so">
-                                        <small class="text-muted">Nhap va co the chinh sua khi can (khong trung voi thi sinh khac).</small>
+                                               title="CCCD: 9–12 chữ số">
+                                        <small class="text-muted">Nhập và có thể chỉnh sửa khi cần (không trùng với thí sinh khác).</small>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label for="sobaodanh" class="form-label">So bao danh</label>
+                                        <label for="sobaodanh" class="form-label">Số báo danh</label>
                                         <input type="text" class="form-control" id="sobaodanh" 
-                                               value="${thiSinh.sobaodanh != null ? thiSinh.sobaodanh : 'Chua cap'}" readonly>
-                                        <small class="text-muted">Duoc cap tu dong khi duyet ho so</small>
+                                               value="${thiSinh.sobaodanh != null ? thiSinh.sobaodanh : 'Chưa cấp'}" readonly>
+                                        <small class="text-muted">Được cấp tự động khi duyệt hồ sơ</small>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="form-section">
                                 <div class="form-section-title">
-                                    <i class="bi bi-person me-2"></i>Thong tin ca nhan
+                                    <i class="bi bi-person me-2"></i>Thông tin cá nhân
                                 </div>
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="ho" class="form-label">Ho <span class="text-danger">*</span></label>
+                                        <label for="ho" class="form-label">Họ <span class="text-danger">*</span></label>
                                         <input type="text" class="form-control" id="ho" name="ho"
                                                value="${thiSinh.ho}" required>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label for="ten" class="form-label">Ten <span class="text-danger">*</span></label>
+                                        <label for="ten" class="form-label">Tên <span class="text-danger">*</span></label>
                                         <input type="text" class="form-control" id="ten" name="ten"
                                                value="${thiSinh.ten}" required>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="ngaySinh" class="form-label">Ngay sinh</label>
+                                        <label for="ngaySinh" class="form-label">Ngày sinh</label>
                                         <input type="date" class="form-control" id="ngaySinh" name="ngaySinh" 
                                                value="${thiSinh.ngaySinh}">
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Gioi tinh</label>
+                                        <label class="form-label">Giới tính</label>
                                         <div>
                                             <div class="form-check form-check-inline">
                                                 <input class="form-check-input" type="radio" name="gioiTinh" 
@@ -171,14 +171,14 @@
                                                 <input class="form-check-input" type="radio" name="gioiTinh" 
                                                        id="gioiTinhNu" value="Nu" 
                                                        ${thiSinh.gioiTinh == 'Nu' ? 'checked' : ''}>
-                                                <label class="form-check-label" for="gioiTinhNu">Nu</label>
+                                                <label class="form-check-label" for="gioiTinhNu">Nữ</label>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-12 mb-3">
-                                        <label for="noiSinh" class="form-label">Noi sinh</label>
+                                        <label for="noiSinh" class="form-label">Nơi sinh</label>
                                         <input type="text" class="form-control" id="noiSinh" name="noiSinh" 
                                                value="${thiSinh.noiSinh}">
                                     </div>
@@ -191,11 +191,11 @@
                 <div class="col-lg-4">
                     <div class="card mb-4">
                         <div class="card-header">
-                            <i class="bi bi-telephone me-2"></i>Thong tin lien he
+                            <i class="bi bi-telephone me-2"></i>Thông tin liên hệ
                         </div>
                         <div class="card-body">
                             <div class="mb-3">
-                                <label for="dienThoai" class="form-label">Dien thoai <span class="text-danger">*</span></label>
+                                <label for="dienThoai" class="form-label">Điện thoại <span class="text-danger">*</span></label>
                                 <input type="tel" class="form-control" id="dienThoai" name="dienThoai" 
                                        value="${thiSinh.dienThoai}" required>
                             </div>
@@ -209,13 +209,13 @@
 
                     <div class="card mb-4">
                         <div class="card-header">
-                            <i class="bi bi-star me-2"></i>Uu tien xet tuyen
+                            <i class="bi bi-star me-2"></i>Ưu tiên xét tuyển
                         </div>
                         <div class="card-body">
                             <div class="mb-3">
-                                <label for="doituongId" class="form-label">Doi tuong uu tien</label>
+                                <label for="doituongId" class="form-label">Đối tượng ưu tiên</label>
                                 <select class="form-select" id="doituongId" name="doituongId">
-                                    <option value="">-- Chon doi tuong --</option>
+                                    <option value="">-- Chọn đối tượng --</option>
                                     <c:forEach var="dt" items="${danhSachDoiTuong}">
                                         <option value="${dt.doituongId}" 
                                                 ${thiSinh.doiTuongUutien != null && thiSinh.doiTuongUutien.doituongId == dt.doituongId ? 'selected' : ''}>
@@ -225,9 +225,9 @@
                                 </select>
                             </div>
                             <div class="mb-3">
-                                <label for="khuvucId" class="form-label">Khu vuc uu tien</label>
+                                <label for="khuvucId" class="form-label">Khu vực ưu tiên</label>
                                 <select class="form-select" id="khuvucId" name="khuvucId">
-                                    <option value="">-- Chon khu vuc --</option>
+                                    <option value="">-- Chọn khu vực --</option>
                                     <c:forEach var="kv" items="${danhSachKhuVuc}">
                                         <option value="${kv.khuvucId}" 
                                                 ${thiSinh.khuVucUutien != null && thiSinh.khuVucUutien.khuvucId == kv.khuvucId ? 'selected' : ''}>
@@ -241,10 +241,10 @@
 
                     <div class="d-grid gap-2">
                         <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-check2 me-2"></i>Luu thay doi
+                            <i class="bi bi-check2 me-2"></i>Lưu thay đổi
                         </button>
                         <a href="${pageContext.request.contextPath}/dashboard" class="btn btn-secondary">
-                            <i class="bi bi-arrow-left me-2"></i>Quay lai
+                            <i class="bi bi-arrow-left me-2"></i>Quay lại
                         </a>
                     </div>
                 </div>

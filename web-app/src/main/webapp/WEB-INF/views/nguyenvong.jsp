@@ -6,7 +6,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nguyen vong - Tuyen Sinh DH 2026</title>
+    <title>Nguyện vọng - Tuyển sinh ĐH 2026</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <style>
@@ -91,11 +91,11 @@
         <div class="container">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <h2 class="mb-1"><i class="bi bi-list-ol me-2"></i>Nguyen vong xet tuyen</h2>
-                    <p class="mb-0 opacity-75">Quan ly danh sach nguyen vong dang ky</p>
+                    <h2 class="mb-1"><i class="bi bi-list-ol me-2"></i>Nguyện vọng xét tuyển</h2>
+                    <p class="mb-0 opacity-75">Quản lý danh sách nguyện vọng đăng ký</p>
                 </div>
                 <a href="${pageContext.request.contextPath}/add-nguyenvong" class="btn btn-light">
-                    <i class="bi bi-plus-circle me-2"></i>Them nguyen vong
+                    <i class="bi bi-plus-circle me-2"></i>Thêm nguyện vọng
                 </a>
             </div>
         </div>
@@ -113,28 +113,28 @@
 
         <div class="alert alert-info mb-4">
             <i class="bi bi-info-circle me-2"></i>
-            <strong>Luu y:</strong> Ban co the dang ky toi da <strong>5 nguyen vong</strong>. 
-            Cac nguyen vong se duoc sap xep theo thu tu uu tien, nguyen vong 1 la uu tien cao nhat.
+            <strong>Lưu ý:</strong> Bạn có thể đăng ký tối đa <strong>5 nguyện vọng</strong>.
+            Các nguyện vọng sẽ được sắp xếp theo thứ tự ưu tiên; nguyện vọng 1 là ưu tiên cao nhất.
         </div>
 
         <div class="card">
             <div class="card-header">
-                <i class="bi bi-list-ul me-2"></i>Danh sach nguyen vong
+                <i class="bi bi-list-ul me-2"></i>Danh sách nguyện vọng
                 <span class="badge bg-primary ms-2">${danhSachNguyenVong.size()} / 5</span>
             </div>
             <div class="table-responsive">
                 <table class="table table-hover mb-0">
                     <thead>
                         <tr>
-                            <th style="width: 60px;">Thu tu</th>
-                            <th>Ma nganh</th>
-                            <th>Ten nganh</th>
-                            <th>To hop</th>
-                            <th>Phuong thuc</th>
-                            <th>Diem xet tuyen</th>
-                            <th>Diem san</th>
-                            <th>Ket qua</th>
-                            <th style="width: 100px;">Thao tac</th>
+                            <th style="width: 60px;">Thứ tự</th>
+                            <th>Mã ngành</th>
+                            <th>Tên ngành</th>
+                            <th>Tổ hợp</th>
+                            <th>Phương thức</th>
+                            <th>Điểm xét tuyển</th>
+                            <th>Điểm sàn</th>
+                            <th>Kết quả</th>
+                            <th style="width: 100px;">Thao tác</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -183,22 +183,22 @@
                                             <c:choose>
                                                 <c:when test="${nv.ketQua == 'TRUNG_TUYEN'}">
                                                     <span class="badge badge-trung-tuyen">
-                                                        <i class="bi bi-check-circle me-1"></i>Trung tuyen
+                                                        <i class="bi bi-check-circle me-1"></i>Trúng tuyển
                                                     </span>
                                                 </c:when>
                                                 <c:when test="${nv.ketQua == 'TRUOT'}">
                                                     <span class="badge badge-truot">
-                                                        <i class="bi bi-x-circle me-1"></i>Truot
+                                                        <i class="bi bi-x-circle me-1"></i>Trượt
                                                     </span>
                                                 </c:when>
                                                 <c:when test="${nv.ketQua == 'CHO_XET'}">
                                                     <span class="badge badge-cho-xet">
-                                                        <i class="bi bi-clock me-1"></i>Cho xet
+                                                        <i class="bi bi-clock me-1"></i>Chờ xét
                                                     </span>
                                                 </c:when>
                                                 <c:when test="${nv.ketQua == 'PHOI_DU_KIEN'}">
                                                     <span class="badge badge-phoi-du-kien">
-                                                        <i class="bi bi-question-circle me-1"></i>Phoi du kien
+                                                        <i class="bi bi-question-circle me-1"></i>Phối dự kiến
                                                     </span>
                                                 </c:when>
                                                 <c:otherwise>
@@ -208,7 +208,7 @@
                                         </td>
                                         <td>
                                             <form action="${pageContext.request.contextPath}/nguyenvong" method="post" 
-                                                  onsubmit="return confirm('Ban co chac chan muon xoa nguyen vong nay?')">
+                                                  onsubmit="return confirm('Bạn có chắc chắn muốn xóa nguyện vọng này?')">
                                                 <input type="hidden" name="action" value="delete">
                                                 <input type="hidden" name="nguyenvongId" value="${nv.nguyenvongId}">
                                                 <button type="submit" class="btn btn-danger">
@@ -223,10 +223,10 @@
                                 <tr>
                                     <td colspan="9" class="text-center text-muted py-5">
                                         <i class="bi bi-inbox fs-1 d-block mb-3"></i>
-                                        <p class="mb-0">Ban chua dang ky nguyen vong nao.</p>
-                                        <p class="small">Nhan nut "Them nguyen vong" de bat dau.</p>
+                                        <p class="mb-0">Bạn chưa đăng ký nguyện vọng nào.</p>
+                                        <p class="small">Nhấn nút «Thêm nguyện vọng» để bắt đầu.</p>
                                         <a href="${pageContext.request.contextPath}/add-nguyenvong" class="btn btn-primary mt-2">
-                                            <i class="bi bi-plus-circle me-2"></i>Them nguyen vong
+                                            <i class="bi bi-plus-circle me-2"></i>Thêm nguyện vọng
                                         </a>
                                     </td>
                                 </tr>
