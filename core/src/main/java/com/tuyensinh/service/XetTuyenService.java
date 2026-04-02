@@ -4,8 +4,13 @@ import com.tuyensinh.dao.*;
 import com.tuyensinh.entity.*;
 import com.tuyensinh.service.interfaceService.IXetTuyenService;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 public class XetTuyenService implements IXetTuyenService {
 
@@ -118,6 +123,65 @@ public class XetTuyenService implements IXetTuyenService {
 
     public List<NganhToHop> findAllNganhToHop() {
         return nganhToHopDao.findAll();
+    }
+
+    @Override
+    public void syncNganhToHopForNganh(Integer nganhId, List<Map.Entry<Integer, BigDecimal>> links) {
+        if (links == null) {
+            links = new ArrayList<>();
+        }
+        Nganh nganh = nganhDao.findById(nganhId);
+        if (nganh == null) {
+            throw new IllegalArgumentException("Khong tim thay nganh id=" + nganhId);
+        }
+
+        List<NganhToHop> existing = nganhToHopDao.findByNganhId(nganhId);
+        Set<Integer> newTohopIds = new HashSet<>();
+        for (Map.Entry<Integer, BigDecimal> e : links) {
+            if (e.getKey() != null) {
+                newTohopIds.add(e.getKey());
+            }
+        }
+
+        List<NganhToHop> toRemove = new ArrayList<>();
+        for (NganhToHop old : existing) {
+            if (!newTohopIds.contains(old.getToHop().getTohopId())) {
+                toRemove.add(old);
+            }
+        }
+        for (NganhToHop old : toRemove) {
+            nganhToHopDao.delete(old);
+        }
+
+        for (Map.Entry<Integer, BigDecimal> e : links) {
+            if (e.getKey() == null) {
+                continue;
+            }
+            BigDecimal dl = e.getValue() != null ? e.getValue() : BigDecimal.ZERO;
+            Optional<NganhToHop> opt = nganhToHopDao.findByNganhAndToHop(nganhId, e.getKey());
+            if (opt.isPresent()) {
+                NganhToHop nt = opt.get();
+                nt.setDoLech(dl);
+                nganhToHopDao.update(nt);
+            } else {
+                NganhToHop nt = new NganhToHop();
+                nt.setNganh(nganhDao.findById(nganhId));
+                nt.setToHop(toHopDao.findById(e.getKey()));
+                nt.setDoLech(dl);
+                nganhToHopDao.save(nt);
+            }
+        }
+
+        Nganh toUpdate = nganhDao.findById(nganhId);
+        ToHop goc = null;
+        for (Map.Entry<Integer, BigDecimal> e : links) {
+            if (e.getKey() != null) {
+                goc = toHopDao.findById(e.getKey());
+                break;
+            }
+        }
+        toUpdate.setToHopGoc(goc);
+        nganhDao.update(toUpdate);
     }
 
     // --- Diem Thi ---

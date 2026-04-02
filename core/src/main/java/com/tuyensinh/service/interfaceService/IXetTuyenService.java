@@ -1,7 +1,9 @@
 package com.tuyensinh.service.interfaceService;
 
 import com.tuyensinh.entity.*;
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface IXetTuyenService {
@@ -38,6 +40,12 @@ public interface IXetTuyenService {
     NganhToHop saveNganhToHop(NganhToHop nt);
     void deleteNganhToHop(NganhToHop nt);
     List<NganhToHop> findAllNganhToHop();
+
+    /**
+     * Dong bo cac lien ket nganh–to hop: xoa lien ket khong con trong danh sach,
+     * them/cap nhat do lech. Dong dau tien (neu co) duoc gan lam to hop goc ({@link Nganh#setToHopGoc}).
+     */
+    void syncNganhToHopForNganh(Integer nganhId, List<Map.Entry<Integer, BigDecimal>> links);
 
     // Diem Thi
     List<DiemThi> findDiemThiByThiSinh(Integer thisinhId);
