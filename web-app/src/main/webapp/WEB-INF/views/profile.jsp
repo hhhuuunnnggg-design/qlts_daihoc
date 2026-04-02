@@ -120,10 +120,12 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="cccd" class="form-label">So CCCD</label>
-                                        <input type="text" class="form-control" id="cccd" name="cccd" 
-                                               value="${thiSinh.cccd}" readonly>
-                                        <small class="text-muted">Khong the thay doi</small>
+                                        <label for="cccd" class="form-label">So CCCD <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="cccd" name="cccd"
+                                               value="${thiSinh.cccd}"
+                                               required pattern="[0-9]{9,12}" maxlength="12"
+                                               title="CCCD: 9-12 chu so">
+                                        <small class="text-muted">Nhap va co the chinh sua khi can (khong trung voi thi sinh khac).</small>
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label for="sobaodanh" class="form-label">So bao danh</label>
@@ -141,12 +143,12 @@
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label for="ho" class="form-label">Ho <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="ho" name="ho" 
+                                        <input type="text" class="form-control" id="ho" name="ho"
                                                value="${thiSinh.ho}" required>
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label for="ten" class="form-label">Ten <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="ten" name="ten" 
+                                        <input type="text" class="form-control" id="ten" name="ten"
                                                value="${thiSinh.ten}" required>
                                     </div>
                                 </div>

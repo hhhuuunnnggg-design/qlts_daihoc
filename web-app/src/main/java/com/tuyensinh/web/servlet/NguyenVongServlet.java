@@ -27,7 +27,7 @@ public class NguyenVongServlet extends BaseServlet {
         }
 
         try {
-            ThiSinh thiSinh = thiSinhService.findById(loggedInUser.getNguoidungId());
+            ThiSinh thiSinh = thiSinhService.findByNguoiDungId(loggedInUser.getNguoidungId()).orElse(null);
 
             if (thiSinh == null) {
                 setMessage(request, "Khong tim thay thong tin thi sinh.", "warning");
@@ -96,9 +96,10 @@ public class NguyenVongServlet extends BaseServlet {
             }
 
             NguoiDung loggedInUser = getLoggedInUser(request);
-            ThiSinh thiSinh = thiSinhService.findById(loggedInUser.getNguoidungId());
+            ThiSinh thiSinh = thiSinhService.findByNguoiDungId(loggedInUser.getNguoidungId()).orElse(null);
 
-            if (nguyenVongToDelete.getThiSinh().getThisinhId().equals(thiSinh.getThisinhId())) {
+            if (thiSinh != null
+                    && nguyenVongToDelete.getThiSinh().getThisinhId().equals(thiSinh.getThisinhId())) {
                 xetTuyenService.deleteNguyenVong(nguyenVongToDelete);
                 setMessage(request, "Xoa nguyen vong thanh cong!", "success");
             } else {

@@ -79,4 +79,9 @@ public class ThiSinh {
     public String getHoVaTen() {
         return (ho != null ? ho : "") + " " + (ten != null ? ten : "");
     }
+
+    /** Tra ve chuoi ngay sinh dang dd/MM/yyyy, tien cho hien thi tren JSP. */
+    public String getNgaySinhDisplay() {
+        return com.tuyensinh.util.DateUtil.formatDate(ngaySinh);
+    }
 }

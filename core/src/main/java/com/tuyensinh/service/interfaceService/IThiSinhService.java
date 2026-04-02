@@ -19,6 +19,9 @@ public interface IThiSinhService {
 
     Optional<ThiSinh> findBySoBaoDanh(String sobaodanh);
 
+    /** Thi sinh gan voi tai khoan dang nhap (1-1 qua nguoidung_id). */
+    Optional<ThiSinh> findByNguoiDungId(Integer nguoidungId);
+
     ThiSinh save(ThiSinh ts);
 
     void update(ThiSinh ts);

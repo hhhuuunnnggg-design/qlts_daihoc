@@ -36,6 +36,15 @@ public class ThiSinhService implements IThiSinhService {
         return dao.findBySoBaoDanh(sobaodanh);
     }
 
+    @Override
+    public Optional<ThiSinh> findByNguoiDungId(Integer nguoidungId) {
+        if (nguoidungId == null) {
+            return Optional.empty();
+        }
+        List<ThiSinh> list = dao.findByNguoiDungId(nguoidungId);
+        return list.isEmpty() ? Optional.empty() : Optional.of(list.get(0));
+    }
+
     public ThiSinh save(ThiSinh ts) {
         return dao.save(ts);
     }

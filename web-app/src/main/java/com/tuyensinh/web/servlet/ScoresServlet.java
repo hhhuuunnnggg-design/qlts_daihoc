@@ -33,7 +33,7 @@ public class ScoresServlet extends BaseServlet {
         }
 
         try {
-            ThiSinh thiSinh = thiSinhService.findById(loggedInUser.getNguoidungId());
+            ThiSinh thiSinh = thiSinhService.findByNguoiDungId(loggedInUser.getNguoidungId()).orElse(null);
 
             if (thiSinh == null) {
                 setMessage(request, "Khong tim thay thong tin thi sinh.", "warning");
@@ -68,7 +68,7 @@ public class ScoresServlet extends BaseServlet {
         }
 
         try {
-            ThiSinh thiSinh = thiSinhService.findById(loggedInUser.getNguoidungId());
+            ThiSinh thiSinh = thiSinhService.findByNguoiDungId(loggedInUser.getNguoidungId()).orElse(null);
 
             if (thiSinh == null) {
                 setMessage(request, "Khong tim thay thong tin thi sinh.", "danger");

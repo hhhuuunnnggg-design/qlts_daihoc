@@ -286,9 +286,7 @@
                             <tr>
                                 <td class="text-muted">Ngay sinh:</td>
                                 <td>
-                                    <c:if test="${thiSinh.ngaySinh != null}">
-                                        <fmt:formatDate value="${thiSinh.ngaySinh}" pattern="dd/MM/yyyy"/>
-                                    </c:if>
+                                    ${not empty thiSinh.ngaySinhDisplay ? thiSinh.ngaySinhDisplay : '-'}
                                 </td>
                             </tr>
                             <tr>
