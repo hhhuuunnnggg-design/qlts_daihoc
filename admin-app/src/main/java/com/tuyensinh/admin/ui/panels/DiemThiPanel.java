@@ -64,6 +64,7 @@ public class DiemThiPanel extends BaseCrudPanel<DiemThi> {
             phuongThucFilter.addItem(pt);
         }
         phuongThucFilter.addActionListener(e -> loadData());
+        configurePhuongThucCombo(phuongThucFilter);
         toolbar.add(phuongThucFilter);
 
         toolbar.add(new JLabel("  Tim kiem:"));
@@ -146,6 +147,7 @@ public class DiemThiPanel extends BaseCrudPanel<DiemThi> {
         JTextField txtCccd = new JTextField(20);
         JComboBox<PhuongThuc> cboPt = new JComboBox<>();
         for (PhuongThuc pt : phuongThucDao.findAll()) cboPt.addItem(pt);
+        configurePhuongThucCombo(cboPt);
 
         JSpinner spnNam = new JSpinner(new SpinnerNumberModel(2026, 2020, 2030, 1));
         JTextField txtGhiChu = new JTextField(20);
@@ -217,5 +219,24 @@ public class DiemThiPanel extends BaseCrudPanel<DiemThi> {
         } catch (Exception ex) {
             showError(this, ex.getMessage());
         }
+    }
+
+    /** Hien thi ten phuong thuc thay vi toString() day du trong JComboBox. */
+    private static void configurePhuongThucCombo(JComboBox<PhuongThuc> combo) {
+        combo.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+                    boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value == null) {
+                    setText("(Tat ca)");
+                } else if (value instanceof PhuongThuc) {
+                    PhuongThuc pt = (PhuongThuc) value;
+                    String t = pt.getTenPhuongthuc();
+                    setText(t != null && !t.isEmpty() ? t : pt.getMaPhuongthuc());
+                }
+                return this;
+            }
+        });
     }
 }

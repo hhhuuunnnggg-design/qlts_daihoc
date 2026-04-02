@@ -6,6 +6,7 @@ import com.tuyensinh.entity.*;
 import com.tuyensinh.service.*;
 import javax.swing.*;
 import java.awt.*;
+import java.math.BigDecimal;
 
 /**
  * Refactored: extends BaseCrudPanel, uses TableFactory + parse helpers.
@@ -116,6 +117,8 @@ public class DiemCongPanel extends BaseCrudPanel<DiemCong> {
         JComboBox<PhuongThuc> cboPt = new JComboBox<>();
         for (NganhToHop nt : nganhToHopService.findAll()) cboNt.addItem(nt);
         for (PhuongThuc pt : phuongThucDao.findAll()) cboPt.addItem(pt);
+        configureNganhToHopCombo(cboNt);
+        configurePhuongThucCombo(cboPt);
 
         JTextField txtDiemCC = new JTextField("0", 20);
         JTextField txtDiemUT = new JTextField("0", 20);
@@ -188,5 +191,47 @@ public class DiemCongPanel extends BaseCrudPanel<DiemCong> {
         } catch (Exception ex) {
             showError(this, ex.getMessage());
         }
+    }
+
+    /** Hien thi ma nganh, ten nganh, ma to hop (khong dung toString day du). */
+    private static void configureNganhToHopCombo(JComboBox<NganhToHop> combo) {
+        combo.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+                    boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value instanceof NganhToHop) {
+                    NganhToHop nt = (NganhToHop) value;
+                    Nganh n = nt.getNganh();
+                    ToHop th = nt.getToHop();
+                    String maNganh = n != null && n.getMaNganh() != null ? n.getMaNganh() : "?";
+                    String tenNganh = n != null && n.getTenNganh() != null ? n.getTenNganh() : "";
+                    String maTh = th != null && th.getMaTohop() != null ? th.getMaTohop() : "?";
+                    String tenTh = th != null && th.getTenTohop() != null ? th.getTenTohop() : "";
+                    String doLech = nt != null && nt.getDoLech() != null ? nt.getDoLech().toString() : "";
+                    setText(maNganh + " | " + tenNganh + " | " + maTh + " | " + tenTh + " | " + doLech);
+                }
+                return this;
+            }
+        });
+    }
+
+    /** Hien thi ten phuong thuc va thang diem. */
+    private static void configurePhuongThucCombo(JComboBox<PhuongThuc> combo) {
+        combo.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+                    boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value instanceof PhuongThuc) {
+                    PhuongThuc pt = (PhuongThuc) value;
+                    String ten = pt.getTenPhuongthuc() != null ? pt.getTenPhuongthuc() : pt.getMaPhuongthuc();
+                    BigDecimal thang = pt.getThangDiem();
+                    String thangStr = thang != null ? thang.stripTrailingZeros().toPlainString() : "";
+                    setText(ten + " — " + thangStr);
+                }
+                return this;
+            }
+        });
     }
 }
