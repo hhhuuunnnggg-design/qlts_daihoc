@@ -3,6 +3,7 @@ com/tuyensinh/entity/DiemCong.class
 com/tuyensinh/dao/VaiTroDao.class
 com/tuyensinh/entity/BangQuyDoi.class
 com/tuyensinh/service/interfaceService/IThiSinhService.class
+com/tuyensinh/service/XetTuyenEngine$DotXetTuyenResult.class
 com/tuyensinh/service/interfaceService/IDiemThiService.class
 com/tuyensinh/util/DateUtil.class
 com/tuyensinh/util/DataSeeder.class
@@ -46,6 +47,7 @@ com/tuyensinh/dao/InterfaceDao/IThiSinhDao.class
 com/tuyensinh/service/interfaceService/IDoiTuongService.class
 com/tuyensinh/service/NganhToHopService.class
 com/tuyensinh/service/interfaceService/IDiemCongService.class
+com/tuyensinh/service/TinhDiemService$KetQuaDiem.class
 com/tuyensinh/entity/ThiSinh.class
 com/tuyensinh/dao/InterfaceDao/IToHopDao.class
 com/tuyensinh/service/VaiTroService.class
@@ -53,11 +55,14 @@ com/tuyensinh/entity/KhuVucUutien.class
 com/tuyensinh/entity/Mon.class
 com/tuyensinh/dao/InterfaceDao/INguoiDungDao.class
 com/tuyensinh/service/ToHopService.class
+com/tuyensinh/service/TinhDiemService.class
 com/tuyensinh/dao/InterfaceDao/IDiemCongDao.class
+com/tuyensinh/service/XetTuyenEngine$KetQuaXetTuyen.class
 com/tuyensinh/service/KhuVucService.class
 com/tuyensinh/entity/NganhPhuongThuc.class
 com/tuyensinh/dao/InterfaceDao/IPhuongThucDao.class
 com/tuyensinh/service/AuthService.class
+com/tuyensinh/service/XetTuyenEngine.class
 com/tuyensinh/entity/NganhToHop.class
 com/tuyensinh/dao/DiemThiDao.class
 com/tuyensinh/dao/InterfaceDao/INganhToHopDao.class

@@ -175,10 +175,10 @@ public class ThiSinhPanel extends JPanel {
         Calendar min = Calendar.getInstance();
         min.set(1950, Calendar.JANUARY, 1, 0, 0, 0);
         min.set(Calendar.MILLISECOND, 0);
+        // Khong dung "hom nay" lam max: du lieu sai (VD ngay sinh 2026) se lam vo SpinnerDateModel
+        // (bat buoc start <= value <= end).
         Calendar max = Calendar.getInstance();
-        max.set(Calendar.HOUR_OF_DAY, 23);
-        max.set(Calendar.MINUTE, 59);
-        max.set(Calendar.SECOND, 59);
+        max.set(2040, Calendar.DECEMBER, 31, 23, 59, 59);
         max.set(Calendar.MILLISECOND, 999);
 
         Date init;
@@ -188,6 +188,14 @@ public class ThiSinhPanel extends JPanel {
             Calendar c = Calendar.getInstance();
             c.add(Calendar.YEAR, -18);
             init = c.getTime();
+        }
+        long tMin = min.getTimeInMillis();
+        long tMax = max.getTimeInMillis();
+        long tInit = init.getTime();
+        if (tInit < tMin) {
+            init = min.getTime();
+        } else if (tInit > tMax) {
+            init = max.getTime();
         }
         SpinnerDateModel model = new SpinnerDateModel(init, min.getTime(), max.getTime(), Calendar.DAY_OF_MONTH);
         JSpinner sp = new JSpinner(model);

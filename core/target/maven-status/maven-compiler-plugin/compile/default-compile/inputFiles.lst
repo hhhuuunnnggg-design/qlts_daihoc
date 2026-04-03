@@ -6,6 +6,7 @@
 /home/hung/Desktop/clone_1/TuyenSinhDaiHoc_2026/core/src/main/java/com/tuyensinh/dao/InterfaceDao/IPhuongThucDao.java
 /home/hung/Desktop/clone_1/TuyenSinhDaiHoc_2026/core/src/main/java/com/tuyensinh/util/HibernateUtil.java
 /home/hung/Desktop/clone_1/TuyenSinhDaiHoc_2026/core/src/main/java/com/tuyensinh/dao/ThiSinhDao.java
+/home/hung/Desktop/clone_1/TuyenSinhDaiHoc_2026/core/src/main/java/com/tuyensinh/service/TinhDiemService.java
 /home/hung/Desktop/clone_1/TuyenSinhDaiHoc_2026/core/src/main/java/com/tuyensinh/dao/InterfaceDao/IDoiTuongUutienDao.java
 /home/hung/Desktop/clone_1/TuyenSinhDaiHoc_2026/core/src/main/java/com/tuyensinh/service/interfaceService/INguyenVongService.java
 /home/hung/Desktop/clone_1/TuyenSinhDaiHoc_2026/core/src/main/java/com/tuyensinh/dao/InterfaceDao/IThiSinhDao.java
@@ -52,6 +53,7 @@
 /home/hung/Desktop/clone_1/TuyenSinhDaiHoc_2026/core/src/main/java/com/tuyensinh/dao/KhuVucUutienDao.java
 /home/hung/Desktop/clone_1/TuyenSinhDaiHoc_2026/core/src/main/java/com/tuyensinh/service/XetTuyenService.java
 /home/hung/Desktop/clone_1/TuyenSinhDaiHoc_2026/core/src/main/java/com/tuyensinh/entity/NguyenVong.java
+/home/hung/Desktop/clone_1/TuyenSinhDaiHoc_2026/core/src/main/java/com/tuyensinh/service/XetTuyenEngine.java
 /home/hung/Desktop/clone_1/TuyenSinhDaiHoc_2026/core/src/main/java/com/tuyensinh/service/interfaceService/IMonService.java
 /home/hung/Desktop/clone_1/TuyenSinhDaiHoc_2026/core/src/main/java/com/tuyensinh/entity/ToHop.java
 /home/hung/Desktop/clone_1/TuyenSinhDaiHoc_2026/core/src/main/java/com/tuyensinh/service/NguyenVongService.java

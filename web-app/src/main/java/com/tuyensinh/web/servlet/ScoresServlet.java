@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ScoresServlet extends BaseServlet {
@@ -122,6 +123,9 @@ public class ScoresServlet extends BaseServlet {
             diemThi.setGhiChu(ghiChu);
 
             DiemThi savedDiemThi = xetTuyenService.saveDiemThi(diemThi);
+            if (savedDiemThi.getDanhSachDiemChiTiet() == null) {
+                savedDiemThi.setDanhSachDiemChiTiet(new ArrayList<>());
+            }
 
             List<Mon> danhSachMon = monService.findAll();
             for (Mon mon : danhSachMon) {

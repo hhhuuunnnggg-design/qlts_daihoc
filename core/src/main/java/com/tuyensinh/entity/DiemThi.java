@@ -9,6 +9,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -46,5 +47,5 @@ public class DiemThi {
     private LocalDateTime importedAt;
 
     @OneToMany(mappedBy = "diemThi", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<DiemThiChiTiet> danhSachDiemChiTiet;
+    private List<DiemThiChiTiet> danhSachDiemChiTiet = new ArrayList<>();
 }

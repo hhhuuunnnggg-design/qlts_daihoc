@@ -7,6 +7,7 @@ import com.tuyensinh.service.*;
 import javax.swing.*;
 import java.awt.*;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 /**
  * Refactored: extends BaseCrudPanel, uses TableFactory + parse helpers.
@@ -138,19 +139,31 @@ public class DiemCongPanel extends BaseCrudPanel<DiemCong> {
         var optTs = thiSinhService.findByCccd(cccd);
         if (optTs.isEmpty()) { showMessage(this, "Khong tim thay thi sinh!"); return; }
 
+        ThiSinh ts = optTs.get();
+
+        // Auto-fill diem uu tien tu KhuVuc + DoiTuong
+        BigDecimal diemUuTienAuto = tinhDiemUuTien(ts);
+        if (diemUuTienAuto.compareTo(BigDecimal.ZERO) > 0) {
+            txtDiemUT.setText(diemUuTienAuto.setScale(2, RoundingMode.HALF_UP).toPlainString());
+            String kv = ts.getKhuVucUutien() != null ? ts.getKhuVucUutien().getTenKhuvuc() + " (" + ts.getKhuVucUutien().getMucDiem() + ")" : "Khong co";
+            String dt = ts.getDoiTuongUutien() != null ? ts.getDoiTuongUutien().getTenDoituong() + " (" + ts.getDoiTuongUutien().getMucDiem() + ")" : "Khong co";
+            showMessage(this, "Diem uu tien tu dong: " + diemUuTienAuto.setScale(2, RoundingMode.HALF_UP).toPlainString()
+                + "\n(Khu vuc: " + kv + " | Doi tuong: " + dt + ")");
+        }
+
         NganhToHop nt = (NganhToHop) cboNt.getSelectedItem();
         PhuongThuc pt = (PhuongThuc) cboPt.getSelectedItem();
         if (nt == null || pt == null) { showMessage(this, "Chon day du thong tin!"); return; }
 
         DiemCong dc = new DiemCong();
-        dc.setThiSinh(optTs.get());
+        dc.setThiSinh(ts);
         dc.setNganhToHop(nt);
         dc.setPhuongThuc(pt);
         dc.setDiemChungchi(parseBigDecimal(txtDiemCC.getText()));
         dc.setDiemUutienXt(parseBigDecimal(txtDiemUT.getText()));
 
-        java.math.BigDecimal cc = dc.getDiemChungchi() != null ? dc.getDiemChungchi() : java.math.BigDecimal.ZERO;
-        java.math.BigDecimal ut = dc.getDiemUutienXt() != null ? dc.getDiemUutienXt() : java.math.BigDecimal.ZERO;
+        BigDecimal cc = dc.getDiemChungchi() != null ? dc.getDiemChungchi() : BigDecimal.ZERO;
+        BigDecimal ut = dc.getDiemUutienXt() != null ? dc.getDiemUutienXt() : BigDecimal.ZERO;
         dc.setDiemTong(cc.add(ut));
 
         try {
@@ -160,6 +173,17 @@ public class DiemCongPanel extends BaseCrudPanel<DiemCong> {
         } catch (Exception ex) {
             showError(this, ex.getMessage());
         }
+    }
+
+    private static BigDecimal tinhDiemUuTien(ThiSinh ts) {
+        BigDecimal tong = BigDecimal.ZERO;
+        if (ts.getKhuVucUutien() != null && ts.getKhuVucUutien().getMucDiem() != null) {
+            tong = tong.add(ts.getKhuVucUutien().getMucDiem());
+        }
+        if (ts.getDoiTuongUutien() != null && ts.getDoiTuongUutien().getMucDiem() != null) {
+            tong = tong.add(ts.getDoiTuongUutien().getMucDiem());
+        }
+        return tong;
     }
 
     @Override
@@ -180,8 +204,8 @@ public class DiemCongPanel extends BaseCrudPanel<DiemCong> {
         dc.setDiemChungchi(parseBigDecimal(txtDiemCC.getText()));
         dc.setDiemUutienXt(parseBigDecimal(txtDiemUT.getText()));
 
-        java.math.BigDecimal cc = dc.getDiemChungchi() != null ? dc.getDiemChungchi() : java.math.BigDecimal.ZERO;
-        java.math.BigDecimal ut = dc.getDiemUutienXt() != null ? dc.getDiemUutienXt() : java.math.BigDecimal.ZERO;
+        BigDecimal cc = dc.getDiemChungchi() != null ? dc.getDiemChungchi() : BigDecimal.ZERO;
+        BigDecimal ut = dc.getDiemUutienXt() != null ? dc.getDiemUutienXt() : BigDecimal.ZERO;
         dc.setDiemTong(cc.add(ut));
 
         try {
