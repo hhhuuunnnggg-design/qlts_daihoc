@@ -95,85 +95,82 @@ public class DataSeeder {
                 "Không thuộc diện ưu tiên");
 
         // --- Phương thức tuyển sinh ---
-        getOrCreatePhuongThuc(session, PhuongThuc.THPT,
-                "Xét tuyển theo điểm thi THPT Quốc gia",
-                new BigDecimal("30.00"),
-                true);
         getOrCreatePhuongThuc(session, PhuongThuc.XTT,
-                "Xét tuyển thẳng theo quy định của trường đại học",
+                "Xét tuyển thẳng",
                 new BigDecimal("30.00"),
                 true);
-        getOrCreatePhuongThuc(session, PhuongThuc.VHAT,
-                "Xét tuyển dựa trên chứng chỉ Văn hóa, Anh văn, Tin học",
+
+        getOrCreatePhuongThuc(session, PhuongThuc.THPT,
+                "Xét tuyển theo điểm thi THPT",
                 new BigDecimal("30.00"),
                 true);
+
+        getOrCreatePhuongThuc(session, PhuongThuc.VSAT,
+                "Xét tuyển theo điểm thi V-SAT",
+                new BigDecimal("30.00"),
+                true);
+
         getOrCreatePhuongThuc(session, PhuongThuc.DGNL,
                 "Xét tuyển theo kết quả bài thi đánh giá năng lực",
-                new BigDecimal("100.00"),
-                true);
-        getOrCreatePhuongThuc(session, PhuongThuc.NK,
-                "Xét tuyển theo kết quả học tập bậc THPT (hệ không phân ban)",
                 new BigDecimal("30.00"),
-                false);
+                true);
+
+        getOrCreatePhuongThuc(session, PhuongThuc.NK,
+                "Xét tuyển theo điểm thi năng khiếu",
+                new BigDecimal("30.00"),
+                true);
 
         // --- Môn học lớp 12 (phục vụ xét tuyển THPT & NK) ---
-        // Toán
-        getOrCreateMon(session, "TOAN",     "Toán",          Mon.LoaiMon.MON_HOC);
-        // Ngữ văn
-        getOrCreateMon(session, "VAN",      "Ngữ văn",        Mon.LoaiMon.MON_HOC);
-        // Ngoại ngữ
-        getOrCreateMon(session, "NN",       "Ngoại ngữ",      Mon.LoaiMon.MON_HOC);
-        // Vật lý
-        getOrCreateMon(session, "LY",      "Vật lý",         Mon.LoaiMon.MON_HOC);
-        // Hóa học
-        getOrCreateMon(session, "HOA",      "Hóa học",        Mon.LoaiMon.MON_HOC);
-        // Sinh học
-        getOrCreateMon(session, "SINH",     "Sinh học",       Mon.LoaiMon.MON_HOC);
-        // Lịch sử
-        getOrCreateMon(session, "SU",       "Lịch sử",        Mon.LoaiMon.MON_HOC);
-        // Địa lý
-        getOrCreateMon(session, "DIA",      "Địa lý",         Mon.LoaiMon.MON_HOC);
-        // Giáo dục công dân
-        getOrCreateMon(session, "GDCD",     "Giáo dục công dân", Mon.LoaiMon.MON_HOC);
-        // Công nghệ
-        getOrCreateMon(session, "CN",        "Công nghệ",      Mon.LoaiMon.MON_HOC);
-        // Tin học
-        getOrCreateMon(session, "TIN",      "Tin học",        Mon.LoaiMon.MON_HOC);
-        // Nghệ thuật
-        getOrCreateMon(session, "NT",        "Nghệ thuật",     Mon.LoaiMon.MON_HOC);
-        // Thể dục
-        getOrCreateMon(session, "TD",        "Thể dục",        Mon.LoaiMon.MON_HOC);
-        // Tiếng Anh (chứng chỉ)
-        getOrCreateMon(session, "ANH_CHUNG", "Chứng chỉ tiếng Anh",  Mon.LoaiMon.MON_HOC);
-        // Tin học (chứng chỉ)
-        getOrCreateMon(session, "TIN_CHUNG", "Chứng chỉ tin học",     Mon.LoaiMon.MON_HOC);
+        // --- Môn học ---
+        getOrCreateMon(session, "TO",   "Toán", Mon.LoaiMon.MON_HOC);
+        getOrCreateMon(session, "VA",   "Ngữ văn", Mon.LoaiMon.MON_HOC);
+        getOrCreateMon(session, "LI",   "Vật lý", Mon.LoaiMon.MON_HOC);
+        getOrCreateMon(session, "HO",   "Hóa học", Mon.LoaiMon.MON_HOC);
+        getOrCreateMon(session, "SI",   "Sinh học", Mon.LoaiMon.MON_HOC);
+        getOrCreateMon(session, "SU",   "Lịch sử", Mon.LoaiMon.MON_HOC);
+        getOrCreateMon(session, "DI",   "Địa lý", Mon.LoaiMon.MON_HOC);
+        getOrCreateMon(session, "N1",   "Ngoại ngữ", Mon.LoaiMon.MON_HOC);
 
-        // --- Tổ hợp môn xét tuyển THPT (mã theo Bộ GD&ĐT) ---
+        getOrCreateMon(session, "TI",   "Tin học", Mon.LoaiMon.MON_HOC);
+        getOrCreateMon(session, "KTPL", "Giáo dục kinh tế và pháp luật", Mon.LoaiMon.MON_HOC);
+        getOrCreateMon(session, "CNCN", "Công nghệ công nghiệp", Mon.LoaiMon.MON_HOC);
+        getOrCreateMon(session, "CNNN", "Công nghệ nông nghiệp", Mon.LoaiMon.MON_HOC);
+
+        getOrCreateMon(session, "NL1", "Đánh giá năng lực", Mon.LoaiMon.DANH_GIA_NANG_LUC);
+
+        getOrCreateMon(session, "NK1", "Năng khiếu 1", Mon.LoaiMon.NANG_KHIEU);
+        getOrCreateMon(session, "NK2", "Năng khiếu 2", Mon.LoaiMon.NANG_KHIEU);
+        getOrCreateMon(session, "NK3", "Năng khiếu 3", Mon.LoaiMon.NANG_KHIEU);
+        getOrCreateMon(session, "NK4", "Năng khiếu 4", Mon.LoaiMon.NANG_KHIEU);
+        getOrCreateMon(session, "NK5", "Năng khiếu 5", Mon.LoaiMon.NANG_KHIEU);
+        getOrCreateMon(session, "NK6", "Năng khiếu 6", Mon.LoaiMon.NANG_KHIEU);
+
+        // --- Tổ hợp môn xét tuyển ---
         ToHop thA00 = getOrCreateToHop(session, "A00", "Toán - Vật lý - Hóa học");
         ToHop thA01 = getOrCreateToHop(session, "A01", "Toán - Vật lý - Ngoại ngữ");
         ToHop thA02 = getOrCreateToHop(session, "A02", "Toán - Vật lý - Sinh học");
         ToHop thA05 = getOrCreateToHop(session, "A05", "Toán - Ngữ văn - Lịch sử");
-        ToHop thA07 = getOrCreateToHop(session, "A07", "Toán - Địa lý - Giáo dục công dân");
-        ToHop thA14 = getOrCreateToHop(session, "A14", "Toán - Ngữ văn - Giáo dục công dân");
+        ToHop thA07 = getOrCreateToHop(session, "A07", "Toán - Địa lý - KTPL");
+        ToHop thA14 = getOrCreateToHop(session, "A14", "Toán - Ngữ văn - KTPL");
         ToHop thB00 = getOrCreateToHop(session, "B00", "Toán - Hóa học - Ngữ văn");
         ToHop thC00 = getOrCreateToHop(session, "C00", "Ngữ văn - Lịch sử - Địa lý");
-        ToHop thC14 = getOrCreateToHop(session, "C14", "Ngữ văn - Giáo dục công dân - Lịch sử");
+        ToHop thC14 = getOrCreateToHop(session, "C14", "Ngữ văn - KTPL - Lịch sử");
         ToHop thD01 = getOrCreateToHop(session, "D01", "Toán - Ngữ văn - Ngoại ngữ");
-        ToHop thD07 = getOrCreateToHop(session, "D07", "Toán - Lịch sử - Giáo dục công dân");
+        ToHop thD07 = getOrCreateToHop(session, "D07", "Toán - Lịch sử - KTPL");
         ToHop thD08 = getOrCreateToHop(session, "D08", "Toán - Địa lý - Ngoại ngữ");
 
-        ensureToHopMon(session, thA00,  "TOAN", "LY", "HOA");
-        ensureToHopMon(session, thA01,  "TOAN", "LY", "NN");
-        ensureToHopMon(session, thA02,  "TOAN", "LY", "SINH");
-        ensureToHopMon(session, thA05,  "TOAN", "VAN", "SU");
-        ensureToHopMon(session, thA07,  "TOAN", "DIA", "GDCD");
-        ensureToHopMon(session, thA14,  "TOAN", "VAN", "GDCD");
-        ensureToHopMon(session, thB00,  "TOAN", "HOA", "VAN");
-        ensureToHopMon(session, thC00,  "VAN", "SU", "DIA");
-        ensureToHopMon(session, thC14,  "VAN", "GDCD", "SU");
-        ensureToHopMon(session, thD01,  "TOAN", "VAN", "NN");
-        ensureToHopMon(session, thD07,  "TOAN", "SU", "GDCD");
-        ensureToHopMon(session, thD08,  "TOAN", "DIA", "NN");
+        ensureToHopMon(session, thA00, "TO", "LI", "HO");
+        ensureToHopMon(session, thA01, "TO", "LI", "N1");
+        ensureToHopMon(session, thA02, "TO", "LI", "SI");
+        ensureToHopMon(session, thA05, "TO", "VA", "SU");
+        ensureToHopMon(session, thA07, "TO", "DI", "KTPL");
+        ensureToHopMon(session, thA14, "TO", "VA", "KTPL");
+        ensureToHopMon(session, thB00, "TO", "HO", "VA");
+        ensureToHopMon(session, thC00, "VA", "SU", "DI");
+        ensureToHopMon(session, thC14, "VA", "KTPL", "SU");
+        ensureToHopMon(session, thD01, "TO", "VA", "N1");
+        ensureToHopMon(session, thD07, "TO", "SU", "KTPL");
+        ensureToHopMon(session, thD08, "TO", "DI", "N1");
 
         // --- Ngành / CTĐT mẫu (chỉ tiêu, điểm sàn, điểm trúng tuyển giả định) ---
         PhuongThuc ptThpt = findPhuongThucByMa(session, PhuongThuc.THPT);

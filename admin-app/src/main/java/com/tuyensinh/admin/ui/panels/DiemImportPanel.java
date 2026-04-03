@@ -83,12 +83,12 @@ public class DiemImportPanel extends JPanel {
         JTextArea taTemplate = new JTextArea(
             "sobaodanh,phuongthuc,TO,LI,HO,SI,VA,SU,DI,N1,NL1,NK1,NK2\n" +
             "TS0001,XTT,25.50,24.00,23.75,22.00,24.25,23.00,22.50,23.00,25.00,22.00,24.00\n" +
-            "TS0001,VHAT,24.00,23.50,22.00,21.00,23.00,22.50,22.00,22.50,24.00,,\n" +
+            "TS0001,VSAT,24.00,23.50,22.00,21.00,23.00,22.50,22.00,22.50,24.00,,\n" +
             "TS0001,DGNL,780.0,750.0,,720.0,,680.0,,,\n" +
             "TS0001,THPT,8.50,8.25,7.75,8.00,8.00,7.50,7.25,8.50,,\n" +
             "TS0001,NK,7.50,8.00,,,,,,,,\n\n" +
             "Dien gia tri trong: diem so thuc hoac de trong neu khong co\n" +
-            "Phuong thuc: XTT | VHAT | DGNL | THPT | NK\n" +
+            "Phuong thuc: XTT | VSAT | DGNL | THPT | NK\n" +
             "File CSV phan cach bang dau phay (,)"
         );
         taTemplate.setFont(new Font("Monospaced", Font.PLAIN, 12));
@@ -133,7 +133,8 @@ public class DiemImportPanel extends JPanel {
         }
 
         PhuongThuc pt = (PhuongThuc) cboPhuongThuc.getSelectedItem();
-        Short nam = (Short) spnNam.getValue();
+        Integer namInt = (Integer) spnNam.getValue();
+        Short nam = namInt.shortValue();
 
         btnImport.setEnabled(false);
         btnSelect.setEnabled(false);

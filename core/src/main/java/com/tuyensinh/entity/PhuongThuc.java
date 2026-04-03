@@ -41,7 +41,7 @@ public class PhuongThuc {
     private List<NganhPhuongThuc> danhSachNganhPhuongThuc;
 
     public static final String XTT  = "XTT";
-    public static final String VHAT = "VHAT";
+    public static final String VSAT = "VSAT";
     public static final String DGNL = "DGNL";
     public static final String THPT = "THPT";
     public static final String NK   = "NK";

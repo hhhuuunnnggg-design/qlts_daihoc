@@ -115,7 +115,7 @@ CREATE TABLE xt_thisinh (
 -- ----------------------------------------------------------
 -- Phuong thuc:
 --   1. XTT  = Xet tuyen thang
---   2. VHAT = Xet diem VHAT (danh gia hoc ba / transcript)
+--   2. VSAT = Xet diem VSAT (danh gia hoc ba / transcript)
 --   3. DGNL = Xet diem dau ra nang luc (aptitude test)
 --   4. THPT = Xet diem thi THPT
 --   5. NK   = Xet diem nang khieu
@@ -389,8 +389,8 @@ CREATE TABLE xt_nguyenvong (
         FOREIGN KEY (nganh_id) REFERENCES xt_nganh(nganh_id)
         ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT fk_nv_nt
-        FOREIGN KEY (nganh_tohop_id, nganh_id) REFERENCES xt_nganh_tohop(nganh_tohop_id, nganh_id)
-        ON DELETE CASCADE ON UPDATE CASCADE,
+        FOREIGN KEY (nganh_tohop_id) REFERENCES xt_nganh_tohop(nganh_tohop_id)
+            ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT fk_nv_pt
         FOREIGN KEY (phuongthuc_id) REFERENCES xt_phuongthuc(phuongthuc_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -414,13 +414,12 @@ INSERT INTO xt_nguoidung (username, password_hash, ho_ten, email, vaitro_id, is_
 
 -- Phuong thuc xet tuyen (5 cot diem)
 INSERT INTO xt_phuongthuc (ma_phuongthuc, ten_phuongthuc, thang_diem) VALUES
-('XTT',  'Xet tuyen thang',  30.00),
-('VHAT', 'Xet diem VHAT',    30.00),
-('DGNL', 'Xet diem DGNL',    30.00),
-('THPT', 'Xet diem THPT',    30.00),
-('NK',   'Xet diem Nang Khieu', 30.00);
+('XTT',  'Xet tuyen thang', 30.00),
+('THPT', 'Xet diem THPT',   30.00),
+('VSAT', 'Xet diem V-SAT',  30.00),
+('DGNL', 'Xet diem DGNL',   30.00),
+('NK',   'Xet diem Nang khieu', 30.00);
 
--- Mon hoc
 INSERT INTO xt_mon (ma_mon, ten_mon, loai_mon) VALUES
 -- Cac mon hoc thong thuong
 ('TO',   'Toan',                          'MON_HOC'),
@@ -433,20 +432,17 @@ INSERT INTO xt_mon (ma_mon, ten_mon, loai_mon) VALUES
 ('N1',   'Ngoai ngu',                     'MON_HOC'),
 ('TI',   'Tin hoc',                       'MON_HOC'),
 ('KTPL', 'Giao duc kinh te va phap luat', 'MON_HOC'),
-('CNCN', 'Cong nghe cong nghiep',          'MON_HOC'),
-('CNNN', 'Cong nghe nong nghiep',          'MON_HOC'),
-('GDCD', 'Giao duc cong dan',              'MON_HOC'),
+('CNCN', 'Cong nghe cong nghiep',         'MON_HOC'),
+('CNNN', 'Cong nghe nong nghiep',         'MON_HOC'),
 -- Danh gia nang luc (DGNL)
-('NL1',  'Danh gia nang luc - Tong hop',  'DANH_GIA_NANG_LUC'),
-('NL2',  'Danh gia nang luc - Toan hoc',  'DANH_GIA_NANG_LUC'),
-('NL3',  'Danh gia nang luc - Nghe thuat', 'DANH_GIA_NANG_LUC'),
+('NL1',  'Danh gia nang luc',             'DANH_GIA_NANG_LUC'),
 -- Nang khieu (NK) - 1-2: Mam non, 3-4: My thuat, 5-6: Am nhac
-('NK1',  'Nang khieu 1 - Giao duc Mam non',  'NANG_KHIEU'),
-('NK2',  'Nang khieu 2 - Giao duc Mam non',  'NANG_KHIEU'),
-('NK3',  'Nang khieu 3 - My thuat',          'NANG_KHIEU'),
-('NK4',  'Nang khieu 4 - My thuat',          'NANG_KHIEU'),
-('NK5',  'Nang khieu 5 - Am nhac',           'NANG_KHIEU'),
-('NK6',  'Nang khieu 6 - Am nhac',           'NANG_KHIEU');
+('NK1',  'Nang khieu 1',                  'NANG_KHIEU'),
+('NK2',  'Nang khieu 2',                  'NANG_KHIEU'),
+('NK3',  'Nang khieu 3',                  'NANG_KHIEU'),
+('NK4',  'Nang khieu 4',                  'NANG_KHIEU'),
+('NK5',  'Nang khieu 5',                  'NANG_KHIEU'),
+('NK6',  'Nang khieu 6',                  'NANG_KHIEU');
 
 -- To hop mon
 INSERT INTO xt_tohop (ma_tohop, ten_tohop) VALUES
@@ -454,50 +450,259 @@ INSERT INTO xt_tohop (ma_tohop, ten_tohop) VALUES
 ('A01', 'Toan - Li - Ngoai ngu'),
 ('A02', 'Toan - Li - Sinh hoc'),
 ('A05', 'Toan - Ngu van - Lich su'),
-('A07', 'Toan - Dia ly - GDCD'),
-('A14', 'Toan - Ngu van - GDCD'),
+('A07', 'Toan - Dia ly - KTPL'),
+('A14', 'Toan - Ngu van - KTPL'),
 ('B00', 'Toan - Hoa - Ngu van'),
 ('C00', 'Ngu van - Lich su - Dia ly'),
-('C14', 'Ngu van - GDCD - Lich su'),
+('C14', 'Ngu van - KTPL - Lich su'),
 ('D01', 'Toan - Ngu van - Ngoai ngu'),
-('D07', 'Toan - Lich su - GDCD'),
+('D07', 'Toan - Lich su - KTPL'),
 ('D08', 'Toan - Dia ly - Ngoai ngu'),
-('NK_MN',  'Nang khieu Mam non (NK1-NK2)'),
-('NK_MT',  'Nang khieu My thuat (NK3-NK4)'),
-('NK_AN',  'Nang khieu Am nhac (NK5-NK6)');
+('NK_MN', 'Nang khieu Mam non'),
+('NK_MT', 'Nang khieu My thuat'),
+('NK_AN', 'Nang khieu Am nhac');
 
--- Chi tiet to hop mon
-INSERT INTO xt_tohop_mon (tohop_id, mon_id, thu_tu) VALUES
--- A00: Toan, Li, Hoa
-(1, 1, 1), (1, 2, 2), (1, 3, 3),
--- A01: Toan, Li, N1
-(2, 1, 1), (2, 2, 2), (2, 8, 3),
--- A02: Toan, Li, Sinh
-(3, 1, 1), (3, 2, 2), (3, 4, 3),
--- A05: Toan, Van, Su
-(4, 1, 1), (4, 5, 2), (4, 6, 3),
--- A07: Toan, Dia ly, GDCD
-(5, 1, 1), (5, 7, 2), (5, 13, 3),
--- A14: Toan, Van, GDCD
-(6, 1, 1), (6, 5, 2), (6, 13, 3),
--- B00: Toan, Hoa, Van
-(7, 1, 1), (7, 3, 2), (7, 5, 3),
--- C00: Van, Su, Dia
-(8, 5, 1), (8, 6, 2), (8, 7, 3),
--- C14: Van, GDCD, Su
-(9, 5, 1), (9, 13, 2), (9, 6, 3),
--- D01: Toan, Van, N1
-(10, 1, 1), (10, 5, 2), (10, 8, 3),
--- D07: Toan, Su, GDCD
-(11, 1, 1), (11, 6, 2), (11, 13, 3),
--- D08: Toan, Dia, N1
-(12, 1, 1), (12, 7, 2), (12, 8, 3),
--- NK_MN: NK1, NK2
-(13, 17, 1), (13, 18, 2),
--- NK_MT: NK3, NK4
-(14, 19, 1), (14, 20, 2),
--- NK_AN: NK5, NK6
-(15, 21, 1), (15, 22, 2);
+-- ============================================================
+-- CHI TIET TO HOP MON (seed an toan, khong dung id cung)
+-- ============================================================
+-- A00 = TO, LI, HO
+INSERT INTO xt_tohop_mon (tohop_id, mon_id, thu_tu)
+SELECT t.tohop_id, m.mon_id, 1
+FROM xt_tohop t JOIN xt_mon m
+WHERE t.ma_tohop = 'A00' AND m.ma_mon = 'TO';
+
+INSERT INTO xt_tohop_mon (tohop_id, mon_id, thu_tu)
+SELECT t.tohop_id, m.mon_id, 2
+FROM xt_tohop t JOIN xt_mon m
+WHERE t.ma_tohop = 'A00' AND m.ma_mon = 'LI';
+
+INSERT INTO xt_tohop_mon (tohop_id, mon_id, thu_tu)
+SELECT t.tohop_id, m.mon_id, 3
+FROM xt_tohop t JOIN xt_mon m
+WHERE t.ma_tohop = 'A00' AND m.ma_mon = 'HO';
+
+
+-- A01 = TO, LI, N1
+INSERT INTO xt_tohop_mon (tohop_id, mon_id, thu_tu)
+SELECT t.tohop_id, m.mon_id, 1
+FROM xt_tohop t JOIN xt_mon m
+WHERE t.ma_tohop = 'A01' AND m.ma_mon = 'TO';
+
+INSERT INTO xt_tohop_mon (tohop_id, mon_id, thu_tu)
+SELECT t.tohop_id, m.mon_id, 2
+FROM xt_tohop t JOIN xt_mon m
+WHERE t.ma_tohop = 'A01' AND m.ma_mon = 'LI';
+
+INSERT INTO xt_tohop_mon (tohop_id, mon_id, thu_tu)
+SELECT t.tohop_id, m.mon_id, 3
+FROM xt_tohop t JOIN xt_mon m
+WHERE t.ma_tohop = 'A01' AND m.ma_mon = 'N1';
+
+
+-- A02 = TO, LI, SI
+INSERT INTO xt_tohop_mon (tohop_id, mon_id, thu_tu)
+SELECT t.tohop_id, m.mon_id, 1
+FROM xt_tohop t JOIN xt_mon m
+WHERE t.ma_tohop = 'A02' AND m.ma_mon = 'TO';
+
+INSERT INTO xt_tohop_mon (tohop_id, mon_id, thu_tu)
+SELECT t.tohop_id, m.mon_id, 2
+FROM xt_tohop t JOIN xt_mon m
+WHERE t.ma_tohop = 'A02' AND m.ma_mon = 'LI';
+
+INSERT INTO xt_tohop_mon (tohop_id, mon_id, thu_tu)
+SELECT t.tohop_id, m.mon_id, 3
+FROM xt_tohop t JOIN xt_mon m
+WHERE t.ma_tohop = 'A02' AND m.ma_mon = 'SI';
+
+
+-- A05 = TO, VA, SU
+INSERT INTO xt_tohop_mon (tohop_id, mon_id, thu_tu)
+SELECT t.tohop_id, m.mon_id, 1
+FROM xt_tohop t JOIN xt_mon m
+WHERE t.ma_tohop = 'A05' AND m.ma_mon = 'TO';
+
+INSERT INTO xt_tohop_mon (tohop_id, mon_id, thu_tu)
+SELECT t.tohop_id, m.mon_id, 2
+FROM xt_tohop t JOIN xt_mon m
+WHERE t.ma_tohop = 'A05' AND m.ma_mon = 'VA';
+
+INSERT INTO xt_tohop_mon (tohop_id, mon_id, thu_tu)
+SELECT t.tohop_id, m.mon_id, 3
+FROM xt_tohop t JOIN xt_mon m
+WHERE t.ma_tohop = 'A05' AND m.ma_mon = 'SU';
+
+
+-- A07 = TO, DI, KTPL
+INSERT INTO xt_tohop_mon (tohop_id, mon_id, thu_tu)
+SELECT t.tohop_id, m.mon_id, 1
+FROM xt_tohop t JOIN xt_mon m
+WHERE t.ma_tohop = 'A07' AND m.ma_mon = 'TO';
+
+INSERT INTO xt_tohop_mon (tohop_id, mon_id, thu_tu)
+SELECT t.tohop_id, m.mon_id, 2
+FROM xt_tohop t JOIN xt_mon m
+WHERE t.ma_tohop = 'A07' AND m.ma_mon = 'DI';
+
+INSERT INTO xt_tohop_mon (tohop_id, mon_id, thu_tu)
+SELECT t.tohop_id, m.mon_id, 3
+FROM xt_tohop t JOIN xt_mon m
+WHERE t.ma_tohop = 'A07' AND m.ma_mon = 'KTPL';
+
+
+-- A14 = TO, VA, KTPL
+INSERT INTO xt_tohop_mon (tohop_id, mon_id, thu_tu)
+SELECT t.tohop_id, m.mon_id, 1
+FROM xt_tohop t JOIN xt_mon m
+WHERE t.ma_tohop = 'A14' AND m.ma_mon = 'TO';
+
+INSERT INTO xt_tohop_mon (tohop_id, mon_id, thu_tu)
+SELECT t.tohop_id, m.mon_id, 2
+FROM xt_tohop t JOIN xt_mon m
+WHERE t.ma_tohop = 'A14' AND m.ma_mon = 'VA';
+
+INSERT INTO xt_tohop_mon (tohop_id, mon_id, thu_tu)
+SELECT t.tohop_id, m.mon_id, 3
+FROM xt_tohop t JOIN xt_mon m
+WHERE t.ma_tohop = 'A14' AND m.ma_mon = 'KTPL';
+
+
+-- B00 = TO, HO, VA
+INSERT INTO xt_tohop_mon (tohop_id, mon_id, thu_tu)
+SELECT t.tohop_id, m.mon_id, 1
+FROM xt_tohop t JOIN xt_mon m
+WHERE t.ma_tohop = 'B00' AND m.ma_mon = 'TO';
+
+INSERT INTO xt_tohop_mon (tohop_id, mon_id, thu_tu)
+SELECT t.tohop_id, m.mon_id, 2
+FROM xt_tohop t JOIN xt_mon m
+WHERE t.ma_tohop = 'B00' AND m.ma_mon = 'HO';
+
+INSERT INTO xt_tohop_mon (tohop_id, mon_id, thu_tu)
+SELECT t.tohop_id, m.mon_id, 3
+FROM xt_tohop t JOIN xt_mon m
+WHERE t.ma_tohop = 'B00' AND m.ma_mon = 'VA';
+
+
+-- C00 = VA, SU, DI
+INSERT INTO xt_tohop_mon (tohop_id, mon_id, thu_tu)
+SELECT t.tohop_id, m.mon_id, 1
+FROM xt_tohop t JOIN xt_mon m
+WHERE t.ma_tohop = 'C00' AND m.ma_mon = 'VA';
+
+INSERT INTO xt_tohop_mon (tohop_id, mon_id, thu_tu)
+SELECT t.tohop_id, m.mon_id, 2
+FROM xt_tohop t JOIN xt_mon m
+WHERE t.ma_tohop = 'C00' AND m.ma_mon = 'SU';
+
+INSERT INTO xt_tohop_mon (tohop_id, mon_id, thu_tu)
+SELECT t.tohop_id, m.mon_id, 3
+FROM xt_tohop t JOIN xt_mon m
+WHERE t.ma_tohop = 'C00' AND m.ma_mon = 'DI';
+
+
+-- C14 = VA, KTPL, SU
+INSERT INTO xt_tohop_mon (tohop_id, mon_id, thu_tu)
+SELECT t.tohop_id, m.mon_id, 1
+FROM xt_tohop t JOIN xt_mon m
+WHERE t.ma_tohop = 'C14' AND m.ma_mon = 'VA';
+
+INSERT INTO xt_tohop_mon (tohop_id, mon_id, thu_tu)
+SELECT t.tohop_id, m.mon_id, 2
+FROM xt_tohop t JOIN xt_mon m
+WHERE t.ma_tohop = 'C14' AND m.ma_mon = 'KTPL';
+
+INSERT INTO xt_tohop_mon (tohop_id, mon_id, thu_tu)
+SELECT t.tohop_id, m.mon_id, 3
+FROM xt_tohop t JOIN xt_mon m
+WHERE t.ma_tohop = 'C14' AND m.ma_mon = 'SU';
+
+
+-- D01 = TO, VA, N1
+INSERT INTO xt_tohop_mon (tohop_id, mon_id, thu_tu)
+SELECT t.tohop_id, m.mon_id, 1
+FROM xt_tohop t JOIN xt_mon m
+WHERE t.ma_tohop = 'D01' AND m.ma_mon = 'TO';
+
+INSERT INTO xt_tohop_mon (tohop_id, mon_id, thu_tu)
+SELECT t.tohop_id, m.mon_id, 2
+FROM xt_tohop t JOIN xt_mon m
+WHERE t.ma_tohop = 'D01' AND m.ma_mon = 'VA';
+
+INSERT INTO xt_tohop_mon (tohop_id, mon_id, thu_tu)
+SELECT t.tohop_id, m.mon_id, 3
+FROM xt_tohop t JOIN xt_mon m
+WHERE t.ma_tohop = 'D01' AND m.ma_mon = 'N1';
+
+
+-- D07 = TO, SU, KTPL
+INSERT INTO xt_tohop_mon (tohop_id, mon_id, thu_tu)
+SELECT t.tohop_id, m.mon_id, 1
+FROM xt_tohop t JOIN xt_mon m
+WHERE t.ma_tohop = 'D07' AND m.ma_mon = 'TO';
+
+INSERT INTO xt_tohop_mon (tohop_id, mon_id, thu_tu)
+SELECT t.tohop_id, m.mon_id, 2
+FROM xt_tohop t JOIN xt_mon m
+WHERE t.ma_tohop = 'D07' AND m.ma_mon = 'SU';
+
+INSERT INTO xt_tohop_mon (tohop_id, mon_id, thu_tu)
+SELECT t.tohop_id, m.mon_id, 3
+FROM xt_tohop t JOIN xt_mon m
+WHERE t.ma_tohop = 'D07' AND m.ma_mon = 'KTPL';
+
+
+-- D08 = TO, DI, N1
+INSERT INTO xt_tohop_mon (tohop_id, mon_id, thu_tu)
+SELECT t.tohop_id, m.mon_id, 1
+FROM xt_tohop t JOIN xt_mon m
+WHERE t.ma_tohop = 'D08' AND m.ma_mon = 'TO';
+
+INSERT INTO xt_tohop_mon (tohop_id, mon_id, thu_tu)
+SELECT t.tohop_id, m.mon_id, 2
+FROM xt_tohop t JOIN xt_mon m
+WHERE t.ma_tohop = 'D08' AND m.ma_mon = 'DI';
+
+INSERT INTO xt_tohop_mon (tohop_id, mon_id, thu_tu)
+SELECT t.tohop_id, m.mon_id, 3
+FROM xt_tohop t JOIN xt_mon m
+WHERE t.ma_tohop = 'D08' AND m.ma_mon = 'N1';
+
+
+-- NK_MN = NK1, NK2
+INSERT INTO xt_tohop_mon (tohop_id, mon_id, thu_tu)
+SELECT t.tohop_id, m.mon_id, 1
+FROM xt_tohop t JOIN xt_mon m
+WHERE t.ma_tohop = 'NK_MN' AND m.ma_mon = 'NK1';
+
+INSERT INTO xt_tohop_mon (tohop_id, mon_id, thu_tu)
+SELECT t.tohop_id, m.mon_id, 2
+FROM xt_tohop t JOIN xt_mon m
+WHERE t.ma_tohop = 'NK_MN' AND m.ma_mon = 'NK2';
+
+
+-- NK_MT = NK3, NK4
+INSERT INTO xt_tohop_mon (tohop_id, mon_id, thu_tu)
+SELECT t.tohop_id, m.mon_id, 1
+FROM xt_tohop t JOIN xt_mon m
+WHERE t.ma_tohop = 'NK_MT' AND m.ma_mon = 'NK3';
+
+INSERT INTO xt_tohop_mon (tohop_id, mon_id, thu_tu)
+SELECT t.tohop_id, m.mon_id, 2
+FROM xt_tohop t JOIN xt_mon m
+WHERE t.ma_tohop = 'NK_MT' AND m.ma_mon = 'NK4';
+
+
+-- NK_AN = NK5, NK6
+INSERT INTO xt_tohop_mon (tohop_id, mon_id, thu_tu)
+SELECT t.tohop_id, m.mon_id, 1
+FROM xt_tohop t JOIN xt_mon m
+WHERE t.ma_tohop = 'NK_AN' AND m.ma_mon = 'NK5';
+
+INSERT INTO xt_tohop_mon (tohop_id, mon_id, thu_tu)
+SELECT t.tohop_id, m.mon_id, 2
+FROM xt_tohop t JOIN xt_mon m
+WHERE t.ma_tohop = 'NK_AN' AND m.ma_mon = 'NK6';
 
 -- Nganh tuyen sinh
 INSERT INTO xt_nganh (ma_nganh, ten_nganh, chi_tieu, diem_san) VALUES
@@ -514,74 +719,190 @@ INSERT INTO xt_nganh (ma_nganh, ten_nganh, chi_tieu, diem_san) VALUES
 ('MN',    'Giao duc Mam non',             80,  15.00),
 ('GDCD',  'Giao duc cong dan',            60,  16.50);
 
--- Nganh - Phuong thuc
-INSERT INTO xt_nganh_phuongthuc (nganh_id, phuongthuc_id, chi_tieu, is_enabled) VALUES
--- CNTT
-(1, 1, 30, 1), (1, 2, 50, 1), (1, 3, 60, 1), (1, 4, 50, 1), (1, 5, 10, 1),
--- KT
-(2, 1, 20, 1), (2, 2, 50, 1), (2, 3, 60, 1), (2, 4, 50, 1), (2, 5, 0, 1),
--- QTKD
-(3, 1, 20, 1), (3, 2, 40, 1), (3, 3, 50, 1), (3, 4, 40, 1), (3, 5, 0, 1),
--- NN
-(4, 1, 15, 1), (4, 2, 25, 1), (4, 3, 30, 1), (4, 4, 30, 1), (4, 5, 0, 1),
--- TCCN
-(5, 1, 20, 1), (5, 2, 30, 1), (5, 3, 40, 1), (5, 4, 30, 1), (5, 5, 0, 1),
--- TNNN
-(6, 1, 20, 1), (6, 2, 30, 1), (6, 3, 30, 1), (6, 4, 20, 1), (6, 5, 0, 1),
--- SP
-(7, 1, 10, 1), (7, 2, 20, 1), (7, 3, 30, 1), (7, 4, 20, 1), (7, 5, 0, 1),
--- SPV
-(8, 1, 10, 1), (8, 2, 20, 1), (8, 3, 30, 1), (8, 4, 20, 1), (8, 5, 0, 1),
--- MT
-(9, 1, 10, 1), (9, 2, 10, 1), (9, 3, 10, 1), (9, 4, 10, 1), (9, 5, 20, 1),
--- AN
-(10, 1, 10, 1), (10, 2, 10, 1), (10, 3, 10, 1), (10, 4, 10, 1), (10, 5, 10, 1),
--- MN
-(11, 1, 10, 1), (11, 2, 20, 1), (11, 3, 20, 1), (11, 4, 20, 1), (11, 5, 10, 1),
--- GDCD
-(12, 1, 10, 1), (12, 2, 15, 1), (12, 3, 15, 1), (12, 4, 20, 1), (12, 5, 0, 1);
+-- ============================================================
+-- NGANH - PHUONG THUC
+-- Seed an toan, khong dung nganh_id / phuongthuc_id cung
+-- Phuong thuc chuan: XTT, THPT, VSAT, DGNL, NK
+-- ============================================================
+
+INSERT INTO xt_nganh_phuongthuc (nganh_id, phuongthuc_id, chi_tieu, is_enabled)
+SELECT n.nganh_id, p.phuongthuc_id, s.chi_tieu, s.is_enabled
+FROM (
+         SELECT 'CNTT' AS ma_nganh, 'XTT'  AS ma_phuongthuc, 30 AS chi_tieu, 1 AS is_enabled
+         UNION ALL SELECT 'CNTT', 'THPT', 50, 1
+         UNION ALL SELECT 'CNTT', 'VSAT', 50, 1
+         UNION ALL SELECT 'CNTT', 'DGNL', 60, 1
+         UNION ALL SELECT 'CNTT', 'NK',   10, 1
+
+         UNION ALL SELECT 'KT',   'XTT',  20, 1
+         UNION ALL SELECT 'KT',   'THPT', 50, 1
+         UNION ALL SELECT 'KT',   'VSAT', 50, 1
+         UNION ALL SELECT 'KT',   'DGNL', 60, 1
+         UNION ALL SELECT 'KT',   'NK',    0, 1
+
+         UNION ALL SELECT 'QTKD', 'XTT',  20, 1
+         UNION ALL SELECT 'QTKD', 'THPT', 40, 1
+         UNION ALL SELECT 'QTKD', 'VSAT', 40, 1
+         UNION ALL SELECT 'QTKD', 'DGNL', 50, 1
+         UNION ALL SELECT 'QTKD', 'NK',    0, 1
+
+         UNION ALL SELECT 'NN',   'XTT',  15, 1
+         UNION ALL SELECT 'NN',   'THPT', 30, 1
+         UNION ALL SELECT 'NN',   'VSAT', 25, 1
+         UNION ALL SELECT 'NN',   'DGNL', 30, 1
+         UNION ALL SELECT 'NN',   'NK',    0, 1
+
+         UNION ALL SELECT 'TCCN', 'XTT',  20, 1
+         UNION ALL SELECT 'TCCN', 'THPT', 30, 1
+         UNION ALL SELECT 'TCCN', 'VSAT', 30, 1
+         UNION ALL SELECT 'TCCN', 'DGNL', 40, 1
+         UNION ALL SELECT 'TCCN', 'NK',    0, 1
+
+         UNION ALL SELECT 'TNNN', 'XTT',  20, 1
+         UNION ALL SELECT 'TNNN', 'THPT', 20, 1
+         UNION ALL SELECT 'TNNN', 'VSAT', 30, 1
+         UNION ALL SELECT 'TNNN', 'DGNL', 30, 1
+         UNION ALL SELECT 'TNNN', 'NK',    0, 1
+
+         UNION ALL SELECT 'SP',   'XTT',  10, 1
+         UNION ALL SELECT 'SP',   'THPT', 20, 1
+         UNION ALL SELECT 'SP',   'VSAT', 20, 1
+         UNION ALL SELECT 'SP',   'DGNL', 30, 1
+         UNION ALL SELECT 'SP',   'NK',    0, 1
+
+         UNION ALL SELECT 'SPV',  'XTT',  10, 1
+         UNION ALL SELECT 'SPV',  'THPT', 20, 1
+         UNION ALL SELECT 'SPV',  'VSAT', 20, 1
+         UNION ALL SELECT 'SPV',  'DGNL', 30, 1
+         UNION ALL SELECT 'SPV',  'NK',    0, 1
+
+         UNION ALL SELECT 'MT',   'XTT',  10, 1
+         UNION ALL SELECT 'MT',   'THPT', 10, 1
+         UNION ALL SELECT 'MT',   'VSAT', 10, 1
+         UNION ALL SELECT 'MT',   'DGNL', 10, 1
+         UNION ALL SELECT 'MT',   'NK',   20, 1
+
+         UNION ALL SELECT 'AN',   'XTT',  10, 1
+         UNION ALL SELECT 'AN',   'THPT', 10, 1
+         UNION ALL SELECT 'AN',   'VSAT', 10, 1
+         UNION ALL SELECT 'AN',   'DGNL', 10, 1
+         UNION ALL SELECT 'AN',   'NK',   10, 1
+
+         UNION ALL SELECT 'MN',   'XTT',  10, 1
+         UNION ALL SELECT 'MN',   'THPT', 20, 1
+         UNION ALL SELECT 'MN',   'VSAT', 20, 1
+         UNION ALL SELECT 'MN',   'DGNL', 20, 1
+         UNION ALL SELECT 'MN',   'NK',   10, 1
+
+         UNION ALL SELECT 'GDCD', 'XTT',  10, 1
+         UNION ALL SELECT 'GDCD', 'THPT', 20, 1
+         UNION ALL SELECT 'GDCD', 'VSAT', 15, 1
+         UNION ALL SELECT 'GDCD', 'DGNL', 15, 1
+         UNION ALL SELECT 'GDCD', 'NK',    0, 1
+     ) s
+         JOIN xt_nganh n
+              ON n.ma_nganh = s.ma_nganh
+         JOIN xt_phuongthuc p
+              ON p.ma_phuongthuc = s.ma_phuongthuc;
 
 -- Nganh - To hop (gan cac to hop cho tung nganh)
-INSERT INTO xt_nganh_tohop (nganh_id, tohop_id, do_lech) VALUES
--- CNTT
-(1, 1, 0.00), (1, 2, 0.00), (1, 3, 0.00), (1, 10, 0.00),
--- KT
-(2, 1, 0.00), (2, 2, 0.00), (2, 7, 0.00), (2, 10, 0.00),
--- QTKD
-(3, 1, 0.00), (3, 2, 0.00), (3, 10, 0.00), (3, 11, 0.00),
--- NN
-(4, 2, 0.00), (4, 10, 0.00), (4, 12, 0.00),
--- TCCN
-(5, 1, 0.00), (5, 3, 0.00), (5, 5, 0.00),
--- TNNN
-(6, 1, 0.00), (6, 4, 0.00), (6, 6, 0.00),
--- SP
-(7, 1, 0.00), (7, 2, 0.00), (7, 10, 0.00),
--- SPV
-(8, 4, 0.00), (8, 6, 0.00), (8, 8, 0.00),
--- MT (nang khieu My thuat)
-(9, 14, 0.00),
--- AN (nang khieu Am nhac)
-(10, 15, 0.00),
--- MN (nang khieu Mam non)
-(11, 13, 0.00),
--- GDCD
-(12, 4, 0.00), (12, 6, 0.00), (12, 9, 0.00);
+-- ============================================================
+-- NGANH - TO HOP
+-- Seed an toan, khong dung nganh_id / tohop_id cung
+-- ============================================================
 
--- Doi tuong uu tien
-INSERT INTO xt_doituong_uutien (ma_doituong, ten_doituong, muc_diem) VALUES
-('DT01', 'Hoc sinh chinh sach uu tien loai 1', 2.00),
-('DT02', 'Hoc sinh chinh sach uu tien loai 2', 1.50),
-('DT03', 'Hoc sinh chinh sach uu tien loai 3', 1.00),
-('DT04', 'Hoc sinh dan toc thieu so',          1.00),
-('DT05', 'Hoc sinh nghe nghiep',               0.50);
+INSERT INTO xt_nganh_tohop (nganh_id, tohop_id, do_lech)
+SELECT n.nganh_id, t.tohop_id, s.do_lech
+FROM (
+         -- CNTT
+         SELECT 'CNTT' AS ma_nganh, 'A00' AS ma_tohop, 0.00 AS do_lech
+         UNION ALL SELECT 'CNTT', 'A01', 0.00
+         UNION ALL SELECT 'CNTT', 'A02', 0.00
+         UNION ALL SELECT 'CNTT', 'D01', 0.00
 
--- Khu vuc uu tien
-INSERT INTO xt_khuvuc_uutien (ma_khuvuc, ten_khuvuc, muc_diem) VALUES
-('KV1',  'Khu vuc 1',                          0.00),
-('KV2',  'Khu vuc 2 - NT',                     0.50),
-('KV2NT','Khu vuc 2 - Nong thon',              1.00),
-('KV3',  'Khu vuc 3',                          1.50);
+         -- KT
+         UNION ALL SELECT 'KT', 'A00', 0.00
+         UNION ALL SELECT 'KT', 'A01', 0.00
+         UNION ALL SELECT 'KT', 'B00', 0.00
+         UNION ALL SELECT 'KT', 'D01', 0.00
+
+         -- QTKD
+         UNION ALL SELECT 'QTKD', 'A00', 0.00
+         UNION ALL SELECT 'QTKD', 'A01', 0.00
+         UNION ALL SELECT 'QTKD', 'D01', 0.00
+         UNION ALL SELECT 'QTKD', 'D07', 0.00
+
+         -- NN
+         UNION ALL SELECT 'NN', 'A01', 0.00
+         UNION ALL SELECT 'NN', 'D01', 0.00
+         UNION ALL SELECT 'NN', 'D08', 0.00
+
+         -- TCCN
+         UNION ALL SELECT 'TCCN', 'A00', 0.00
+         UNION ALL SELECT 'TCCN', 'A02', 0.00
+         UNION ALL SELECT 'TCCN', 'A07', 0.00
+
+         -- TNNN
+         UNION ALL SELECT 'TNNN', 'A00', 0.00
+         UNION ALL SELECT 'TNNN', 'A05', 0.00
+         UNION ALL SELECT 'TNNN', 'A14', 0.00
+
+         -- SP
+         UNION ALL SELECT 'SP', 'A00', 0.00
+         UNION ALL SELECT 'SP', 'A01', 0.00
+         UNION ALL SELECT 'SP', 'D01', 0.00
+
+         -- SPV
+         UNION ALL SELECT 'SPV', 'A05', 0.00
+         UNION ALL SELECT 'SPV', 'A14', 0.00
+         UNION ALL SELECT 'SPV', 'C00', 0.00
+
+         -- MT
+         UNION ALL SELECT 'MT', 'NK_MT', 0.00
+
+         -- AN
+         UNION ALL SELECT 'AN', 'NK_AN', 0.00
+
+         -- MN
+         UNION ALL SELECT 'MN', 'NK_MN', 0.00
+
+         -- GDCD
+         UNION ALL SELECT 'GDCD', 'A05', 0.00
+         UNION ALL SELECT 'GDCD', 'A14', 0.00
+         UNION ALL SELECT 'GDCD', 'C14', 0.00
+     ) s
+         JOIN xt_nganh n
+              ON n.ma_nganh = s.ma_nganh
+         JOIN xt_tohop t
+              ON t.ma_tohop = s.ma_tohop;
+
+
+-- ------------------------------------------------------------
+-- DOI TUONG UU TIEN
+-- ------------------------------------------------------------
+INSERT INTO xt_doituong_uutien (ma_doituong, ten_doituong, muc_diem, ghi_chu) VALUES
+('UT1-01', 'Con liet si', 2.00, 'Con liet si, con thuong binh nang'),
+('UT1-02', 'Con thuong binh nang - benh binh', 2.00, 'Con thuong binh nang, benh binh suy giam >=81%'),
+('UT1-03', 'Nguoi dan toc thieu so - vung dac biet kho khan', 2.00, 'Nguoi dan toc thieu so o vung dac biet kho khan'),
+('UT1-04', 'Nguoi bi nhiem chat doc hoa hoc', 2.00, 'Nguoi bi nhiem chat doc hoa hoc nang'),
+('UT1-05', 'Nguoi khuyet tat nang', 2.00, 'Nguoi khuyet tat nang'),
+
+('UT2-01', 'Con thuong binh - benh binh', 1.00, 'Con thuong binh, benh binh suy giam <81%'),
+('UT2-02', 'Con nguoi co cong voi cach mang', 1.00, 'Con cua nguoi co cong voi cach mang'),
+('UT2-03', 'Nguoi dan toc thieu so', 1.00, 'Nguoi dan toc thieu so (khong thuoc UT1)'),
+('UT2-04', 'Nguoi o vung kho khan', 1.00, 'Nguoi o vung kho khan (khong thuoc dien dac biet kho khan)'),
+
+('UT3-00', 'Khong thuoc dien uu tien', 0.00, 'Khong thuoc dien uu tien');
+
+
+-- ------------------------------------------------------------
+-- KHU VUC UU TIEN
+-- ------------------------------------------------------------
+INSERT INTO xt_khuvuc_uutien (ma_khuvuc, ten_khuvuc, muc_diem, ghi_chu) VALUES
+('KV1',    'Khu vuc 1',               0.75, 'Vung sau, vung xa, mien nui, hai dao, vung dac biet kho khan'),
+('KV2-NT', 'Khu vuc 2 - Nong thon',   0.50, 'Khu vuc nong thon (khong thuoc KV1)'),
+('KV2',    'Khu vuc 2',               0.25, 'Thanh pho truc thuoc tinh, thi xa'),
+('KV3',    'Khu vuc 3',               0.00, 'Quan noi thanh cua cac thanh pho lon');
 
 -- Thi sinh mau
 INSERT INTO xt_thisinh (cccd, sobaodanh, ho, ten, ngay_sinh, gioi_tinh, dien_thoai, email, noi_sinh, doituong_id, khuvuc_id) VALUES

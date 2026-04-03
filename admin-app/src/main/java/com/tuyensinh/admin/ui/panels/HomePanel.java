@@ -95,7 +95,7 @@ public class HomePanel extends JPanel {
             "nganh", new Color(249, 115, 22)));
 
         gridPanel.add(makeModuleCard("Quan ly diem thi",
-            "Import diem 5 cot\nDiem XTT, VHAT, DGNL, THPT\nThong ke theo mon hoc",
+            "Import diem 5 cot\nDiem XTT, VSAT, DGNL, THPT\nThong ke theo mon hoc",
             "diemthi", new Color(168, 85, 247)));
 
         gridPanel.add(makeModuleCard("Quan ly diem cong",
