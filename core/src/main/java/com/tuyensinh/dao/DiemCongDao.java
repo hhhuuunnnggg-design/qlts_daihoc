@@ -2,12 +2,11 @@ package com.tuyensinh.dao;
 
 import com.tuyensinh.dao.InterfaceDao.IDiemCongDao;
 import com.tuyensinh.entity.DiemCong;
+
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,52 +17,70 @@ public class DiemCongDao extends BaseDao<DiemCong> implements IDiemCongDao {
         return DiemCong.class;
     }
 
+    @Override
     public List<DiemCong> findByThiSinhId(Integer thisinhId) {
         CriteriaBuilder cb = cb();
         CriteriaQuery<DiemCong> cq = cb.createQuery(DiemCong.class);
         Root<DiemCong> root = cq.from(DiemCong.class);
-        Join<DiemCong, ?> thiSinh = root.join("thiSinh");
-        Join<DiemCong, ?> nganhToHop = root.join("nganhToHop");
-        Join<DiemCong, ?> nganh = nganhToHop.join("nganh");
-        cq.select(root).where(cb.equal(thiSinh.get("thisinhId"), thisinhId));
-        cq.orderBy(cb.asc(nganh.get("maNganh")));
+        Join<DiemCong, ?> thiSinhJoin = root.join("thiSinh");
+        Join<DiemCong, ?> nganhToHopJoin = root.join("nganhToHop");
+
+        cq.select(root)
+                .where(cb.equal(thiSinhJoin.get("thisinhId"), thisinhId))
+                .orderBy(cb.asc(nganhToHopJoin.get("nganhTohopId")));
+
         return em().createQuery(cq).getResultList();
     }
 
-    public Optional<DiemCong> findByThiSinhNganhToHopPhuongThuc(
-            Integer thisinhId, Integer nganhToHopId, Short phuongthucId) {
-        CriteriaBuilder cb = cb();
-        CriteriaQuery<DiemCong> cq = cb.createQuery(DiemCong.class);
-        Root<DiemCong> root = cq.from(DiemCong.class);
-        Join<DiemCong, ?> thiSinh = root.join("thiSinh");
-        Join<DiemCong, ?> nganhToHop = root.join("nganhToHop");
-        Join<DiemCong, ?> phuongThuc = root.join("phuongThuc");
-        List<Predicate> preds = new ArrayList<>();
-        preds.add(cb.equal(thiSinh.get("thisinhId"), thisinhId));
-        preds.add(cb.equal(nganhToHop.get("nganhTohopId"), nganhToHopId));
-        preds.add(cb.equal(phuongThuc.get("phuongthucId"), phuongthucId));
-        cq.select(root).where(preds.toArray(new Predicate[0]));
-        List<DiemCong> list = em().createQuery(cq).setMaxResults(1).getResultList();
-        return list.isEmpty() ? Optional.empty() : Optional.of(list.get(0));
-    }
-
-    public List<DiemCong> findAll() {
-        CriteriaBuilder cb = cb();
-        CriteriaQuery<DiemCong> cq = cb.createQuery(DiemCong.class);
-        Root<DiemCong> root = cq.from(DiemCong.class);
-        Join<DiemCong, ?> thiSinh = root.join("thiSinh");
-        cq.select(root).orderBy(cb.asc(thiSinh.get("ten")), cb.asc(thiSinh.get("ho")));
-        return em().createQuery(cq).getResultList();
-    }
-
+    @Override
     public List<DiemCong> findByPhuongThuc(Short phuongthucId) {
         CriteriaBuilder cb = cb();
         CriteriaQuery<DiemCong> cq = cb.createQuery(DiemCong.class);
         Root<DiemCong> root = cq.from(DiemCong.class);
-        Join<DiemCong, ?> phuongThuc = root.join("phuongThuc");
-        Join<DiemCong, ?> thiSinh = root.join("thiSinh");
-        cq.select(root).where(cb.equal(phuongThuc.get("phuongthucId"), phuongthucId));
-        cq.orderBy(cb.asc(thiSinh.get("ten")));
+        Join<DiemCong, ?> phuongThucJoin = root.join("phuongThuc");
+        Join<DiemCong, ?> thiSinhJoin = root.join("thiSinh");
+
+        cq.select(root)
+                .where(cb.equal(phuongThucJoin.get("phuongthucId"), phuongthucId))
+                .orderBy(cb.asc(thiSinhJoin.get("ten")), cb.asc(thiSinhJoin.get("ho")));
+
         return em().createQuery(cq).getResultList();
+    }
+
+    @Override
+    public List<DiemCong> findByNganhToHopId(Integer nganhToHopId) {
+        CriteriaBuilder cb = cb();
+        CriteriaQuery<DiemCong> cq = cb.createQuery(DiemCong.class);
+        Root<DiemCong> root = cq.from(DiemCong.class);
+        Join<DiemCong, ?> nganhToHopJoin = root.join("nganhToHop");
+        Join<DiemCong, ?> thiSinhJoin = root.join("thiSinh");
+
+        cq.select(root)
+                .where(cb.equal(nganhToHopJoin.get("nganhTohopId"), nganhToHopId))
+                .orderBy(cb.asc(thiSinhJoin.get("ten")), cb.asc(thiSinhJoin.get("ho")));
+
+        return em().createQuery(cq).getResultList();
+    }
+
+    @Override
+    public Optional<DiemCong> findByThiSinhNganhToHopPhuongThuc(Integer thisinhId, Integer nganhToHopId, Short phuongthucId) {
+        CriteriaBuilder cb = cb();
+        CriteriaQuery<DiemCong> cq = cb.createQuery(DiemCong.class);
+        Root<DiemCong> root = cq.from(DiemCong.class);
+
+        Join<DiemCong, ?> thiSinhJoin = root.join("thiSinh");
+        Join<DiemCong, ?> nganhToHopJoin = root.join("nganhToHop");
+        Join<DiemCong, ?> phuongThucJoin = root.join("phuongThuc");
+
+        cq.select(root).where(
+                cb.and(
+                        cb.equal(thiSinhJoin.get("thisinhId"), thisinhId),
+                        cb.equal(nganhToHopJoin.get("nganhTohopId"), nganhToHopId),
+                        cb.equal(phuongThucJoin.get("phuongthucId"), phuongthucId)
+                )
+        );
+
+        List<DiemCong> list = em().createQuery(cq).setMaxResults(1).getResultList();
+        return list.isEmpty() ? Optional.empty() : Optional.of(list.get(0));
     }
 }

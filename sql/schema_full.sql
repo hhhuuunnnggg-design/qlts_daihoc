@@ -331,31 +331,183 @@ CREATE TABLE xt_bangquydoi (
         FOREIGN KEY (mon_id) REFERENCES xt_mon(mon_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ----------------------------------------------------------
--- 17. Bang diem cong (diem uu tien, diem chung chi)
--- ----------------------------------------------------------
+-- =========================================================
+-- MODULE DIEM CONG / UU TIEN / THANH TICH
+-- Huong thiet ke:
+-- 1) Bang du lieu goc cua thi sinh:
+--    - xt_thisinh_chungchi
+--    - xt_thisinh_thanh_tich
+-- 2) Bang ket qua tinh tong:
+--    - xt_diemcong
+-- 3) Bang chi tiet nguon diem cong da ap:
+--    - xt_diemcong_chitiet
+-- =========================================================
+
+SET FOREIGN_KEY_CHECKS = 0;
+
+-- Xoa bang chi tiet truoc
+DROP TABLE IF EXISTS xt_diemcong_chitiet;
 DROP TABLE IF EXISTS xt_diemcong;
-CREATE TABLE xt_diemcong (
-    diemcong_id         INT             NOT NULL AUTO_INCREMENT,
-    thisinh_id         INT             NOT NULL,
-    nganh_tohop_id     INT             NOT NULL,
-    phuongthuc_id      TINYINT UNSIGNED NOT NULL,
-    diem_chungchi      DECIMAL(6,2)    NOT NULL DEFAULT 0.00,
-    diem_uutien_xt     DECIMAL(6,2)    NOT NULL DEFAULT 0.00,
-    diem_tong           DECIMAL(6,2)    NOT NULL DEFAULT 0.00,
-    ghi_chu            TEXT            NULL,
-    PRIMARY KEY (diemcong_id),
-    UNIQUE KEY uk_diemcong (thisinh_id, nganh_tohop_id, phuongthuc_id),
-    KEY idx_diemcong_pt (phuongthuc_id),
-    CONSTRAINT fk_dc_thisinh
-        FOREIGN KEY (thisinh_id) REFERENCES xt_thisinh(thisinh_id)
-        ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT fk_dc_nt
-        FOREIGN KEY (nganh_tohop_id) REFERENCES xt_nganh_tohop(nganh_tohop_id)
-        ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT fk_dc_pt
-        FOREIGN KEY (phuongthuc_id) REFERENCES xt_phuongthuc(phuongthuc_id)
+
+-- Xoa bang du lieu goc
+DROP TABLE IF EXISTS xt_thisinh_thanh_tich;
+DROP TABLE IF EXISTS xt_thisinh_chungchi;
+
+SET FOREIGN_KEY_CHECKS = 1;
+
+-- =========================================================
+-- BANG HO SO CHUNG CHI CUA THI SINH
+-- Moi dong = 1 chung chi ngoai ngu / chung chi duoc khai bao
+-- =========================================================
+CREATE TABLE xt_thisinh_chungchi (
+     chungchi_id INT AUTO_INCREMENT PRIMARY KEY,
+     thisinh_id INT NOT NULL,
+
+     loai_chungchi VARCHAR(50) NOT NULL,
+     ten_chungchi VARCHAR(255) NULL,
+
+     diem_goc DECIMAL(6,2) NULL,
+     bac_chungchi VARCHAR(50) NULL,
+
+     so_hieu VARCHAR(100) NULL,
+     don_vi_cap VARCHAR(255) NULL,
+
+     ngay_cap DATE NULL,
+     ngay_het_han DATE NULL,
+
+     is_hop_le BIT NOT NULL DEFAULT b'1',
+     trang_thai_xac_minh VARCHAR(30) NOT NULL DEFAULT 'CHUA_XAC_MINH',
+     ghi_chu TEXT NULL,
+
+     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+     CONSTRAINT fk_xt_thisinh_chungchi_thisinh
+         FOREIGN KEY (thisinh_id) REFERENCES xt_thisinh(thisinh_id)
+             ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE INDEX idx_xt_tscc_thisinh ON xt_thisinh_chungchi(thisinh_id);
+CREATE INDEX idx_xt_tscc_loai ON xt_thisinh_chungchi(loai_chungchi);
+CREATE INDEX idx_xt_tscc_hople ON xt_thisinh_chungchi(is_hop_le);
+
+-- =========================================================
+-- BANG HO SO THANH TICH / GIAI THUONG CUA THI SINH
+-- Moi dong = 1 thanh tich co the duoc xet uu tien / diem cong
+-- =========================================================
+CREATE TABLE xt_thisinh_thanh_tich (
+   thanhtich_id INT AUTO_INCREMENT PRIMARY KEY,
+   thisinh_id INT NOT NULL,
+
+   nhom_thanh_tich VARCHAR(50) NOT NULL,
+   cap_thanh_tich VARCHAR(50) NULL,
+   loai_giai VARCHAR(50) NULL,
+
+   ten_thanh_tich VARCHAR(255) NULL,
+   mon_dat_giai VARCHAR(100) NULL,
+   linh_vuc VARCHAR(100) NULL,
+
+   nam_dat_giai SMALLINT NULL,
+   don_vi_to_chuc VARCHAR(255) NULL,
+
+   so_hieu_minh_chung VARCHAR(100) NULL,
+   is_hop_le BIT NOT NULL DEFAULT b'1',
+   trang_thai_xac_minh VARCHAR(30) NOT NULL DEFAULT 'CHUA_XAC_MINH',
+   ghi_chu TEXT NULL,
+
+   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+   CONSTRAINT fk_xt_tstt_thisinh
+       FOREIGN KEY (thisinh_id) REFERENCES xt_thisinh(thisinh_id)
+           ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE INDEX idx_xt_tstt_thisinh ON xt_thisinh_thanh_tich(thisinh_id);
+CREATE INDEX idx_xt_tstt_nhom ON xt_thisinh_thanh_tich(nhom_thanh_tich);
+CREATE INDEX idx_xt_tstt_cap ON xt_thisinh_thanh_tich(cap_thanh_tich);
+CREATE INDEX idx_xt_tstt_hople ON xt_thisinh_thanh_tich(is_hop_le);
+
+-- =========================================================
+-- BANG TONG DIEM CONG
+-- Moi dong = 1 thi sinh + 1 nganh-tohop + 1 phuong thuc
+-- Day la KET QUA TINH TOAN, khong phai du lieu goc
+-- =========================================================
+CREATE TABLE xt_diemcong (
+     diemcong_id INT AUTO_INCREMENT PRIMARY KEY,
+     thisinh_id INT NOT NULL,
+     nganh_tohop_id INT NOT NULL,
+     phuongthuc_id SMALLINT NOT NULL,
+
+     tong_diem_chungchi DECIMAL(6,2) NOT NULL DEFAULT 0.00,
+     tong_diem_uutien_xt DECIMAL(6,2) NOT NULL DEFAULT 0.00,
+     tong_diem_uutien_quyche DECIMAL(6,2) NOT NULL DEFAULT 0.00,
+     tong_diem_cong DECIMAL(6,2) NOT NULL DEFAULT 0.00,
+
+     ghi_chu_tong TEXT NULL,
+
+     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+     CONSTRAINT fk_xt_diemcong_thisinh
+         FOREIGN KEY (thisinh_id) REFERENCES xt_thisinh(thisinh_id)
+             ON DELETE CASCADE,
+
+     CONSTRAINT fk_xt_diemcong_nganh_tohop
+         FOREIGN KEY (nganh_tohop_id) REFERENCES xt_nganh_tohop(nganh_tohop_id)
+             ON DELETE CASCADE,
+
+     CONSTRAINT fk_xt_diemcong_phuongthuc
+         FOREIGN KEY (phuongthuc_id) REFERENCES xt_phuongthuc(phuongthuc_id)
+             ON DELETE CASCADE,
+
+     CONSTRAINT uk_xt_diemcong_unique
+         UNIQUE (thisinh_id, nganh_tohop_id, phuongthuc_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE INDEX idx_xt_diemcong_thisinh ON xt_diemcong(thisinh_id);
+CREATE INDEX idx_xt_diemcong_nganh_tohop ON xt_diemcong(nganh_tohop_id);
+CREATE INDEX idx_xt_diemcong_phuongthuc ON xt_diemcong(phuongthuc_id);
+
+-- =========================================================
+-- BANG CHI TIET DIEM CONG
+-- Moi dong = 1 nguon diem cong/uu tien da duoc ap vao ket qua tong
+-- =========================================================
+CREATE TABLE xt_diemcong_chitiet (
+     diemcong_ct_id INT AUTO_INCREMENT PRIMARY KEY,
+     diemcong_id INT NOT NULL,
+
+     loai_nguon VARCHAR(50) NOT NULL,
+     ma_nguon VARCHAR(50) NULL,
+     ten_nguon VARCHAR(255) NULL,
+
+     cap_ap_dung VARCHAR(50) NULL,
+     mon_lien_quan VARCHAR(50) NULL,
+     gia_tri_goc VARCHAR(100) NULL,
+
+     diem_quy_doi DECIMAL(6,2) NOT NULL DEFAULT 0.00,
+     diem_cong DECIMAL(6,2) NOT NULL DEFAULT 0.00,
+
+     nguon_bang VARCHAR(50) NULL,
+     nguon_id INT NULL,
+
+     thu_tu_uu_tien SMALLINT NOT NULL DEFAULT 1,
+     is_ap_dung BIT NOT NULL DEFAULT b'1',
+
+     ghi_chu TEXT NULL,
+
+     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+     CONSTRAINT fk_xt_diemcong_ct_diemcong
+         FOREIGN KEY (diemcong_id) REFERENCES xt_diemcong(diemcong_id)
+             ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE INDEX idx_xt_diemcong_ct_diemcong ON xt_diemcong_chitiet(diemcong_id);
+CREATE INDEX idx_xt_diemcong_ct_loai ON xt_diemcong_chitiet(loai_nguon);
+CREATE INDEX idx_xt_diemcong_ct_apdung ON xt_diemcong_chitiet(is_ap_dung);
+CREATE INDEX idx_xt_diemcong_ct_nguonbang_nguonid ON xt_diemcong_chitiet(nguon_bang, nguon_id);
 
 -- ----------------------------------------------------------
 -- 18. Bang nguyen vong xet tuyen

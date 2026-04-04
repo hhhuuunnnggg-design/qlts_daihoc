@@ -166,7 +166,6 @@ public class ThiSinhImportPanel extends JPanel {
                         int lastRow = sheet.getLastRowNum();
                         publish("Tong so dong du lieu (uoc tinh): " + lastRow);
 
-                        String currentMaxSbd = thiSinhService.generateSoBaoDanh();
                         int nextSbdNumber = extractSoBaoDanhNumber(thiSinhService.generateSoBaoDanh());
 
                         for (int i = 1; i <= lastRow; i++) {
@@ -279,7 +278,7 @@ public class ThiSinhImportPanel extends JPanel {
                                         }
                                         ts.setSobaodanh(sbdMoi);
                                     } else if (ts.getSobaodanh() == null || ts.getSobaodanh().trim().isEmpty()) {
-                                        ts.setSobaodanh(thiSinhService.generateSoBaoDanh());
+                                        ts.setSobaodanh(String.format("TS%05d", nextSbdNumber++));
                                     }
 
                                     thiSinhService.update(ts);

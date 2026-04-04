@@ -31,7 +31,7 @@ public class DiemCongPanel extends BaseCrudPanel<DiemCong> {
 
     @Override
     protected String[] getTableColumns() {
-        return new String[]{"ID", "CCCD", "Ho Ten", "Nganh", "To Hop", "Ph. thuc", "Diem CC", "Diem UT", "Diem Tong"};
+        return new String[]{"ID", "CCCD", "Ho Ten", "Nganh", "To Hop", "Ph. thuc", "Diem CC", "Diem UTXT", "Diem UTQC", "Diem Tong"};
     }
 
     @Override
@@ -87,15 +87,16 @@ public class DiemCongPanel extends BaseCrudPanel<DiemCong> {
         for (DiemCong dc : list) {
             ThiSinh ts = dc.getThiSinh();
             model.addRow(new Object[]{
-                dc.getDiemcongId(),
-                ts != null ? ts.getCccd() : "",
-                ts != null ? ts.getHoVaTen() : "",
-                dc.getNganhToHop() != null ? dc.getNganhToHop().getNganh().getMaNganh() : "",
-                dc.getNganhToHop() != null ? dc.getNganhToHop().getToHop().getMaTohop() : "",
-                dc.getPhuongThuc() != null ? dc.getPhuongThuc().getMaPhuongthuc() : "",
-                dc.getDiemChungchi(),
-                dc.getDiemUutienXt(),
-                dc.getDiemTong()
+                    dc.getDiemcongId(),
+                    ts != null ? ts.getCccd() : "",
+                    ts != null ? ts.getHoVaTen() : "",
+                    dc.getNganhToHop() != null ? dc.getNganhToHop().getNganh().getMaNganh() : "",
+                    dc.getNganhToHop() != null ? dc.getNganhToHop().getToHop().getMaTohop() : "",
+                    dc.getPhuongThuc() != null ? dc.getPhuongThuc().getMaPhuongthuc() : "",
+                    dc.getTongDiemChungChi(),
+                    dc.getTongDiemUutienXt(),
+                    dc.getTongDiemUutienQuyChe(),
+                    dc.getTongDiemCong()
             });
         }
         updateTotalLabel(list.size(), "ban ghi");
@@ -122,49 +123,68 @@ public class DiemCongPanel extends BaseCrudPanel<DiemCong> {
         configurePhuongThucCombo(cboPt);
 
         JTextField txtDiemCC = new JTextField("0", 20);
-        JTextField txtDiemUT = new JTextField("0", 20);
+        JTextField txtDiemUTXT = new JTextField("0", 20);
+        JTextField txtDiemUTQC = new JTextField("0", 20);
 
         int r = JOptionPane.showConfirmDialog(this, new Object[]{
-            "CCCD thi sinh:", txtCccd,
-            "Nganh - To hop:", cboNt,
-            "Phuong thuc:", cboPt,
-            "Diem chung chi:", txtDiemCC,
-            "Diem uu tien:", txtDiemUT
+                "CCCD thi sinh:", txtCccd,
+                "Nganh - To hop:", cboNt,
+                "Phuong thuc:", cboPt,
+                "Tong diem chung chi:", txtDiemCC,
+                "Tong diem uu tien XT:", txtDiemUTXT,
+                "Tong diem uu tien quy che:", txtDiemUTQC
         }, "Them diem cong", JOptionPane.OK_CANCEL_OPTION);
         if (r != JOptionPane.OK_OPTION) return;
 
         String cccd = txtCccd.getText().trim();
-        if (cccd.isEmpty()) { showMessage(this, "CCCD la bat buoc!"); return; }
+        if (cccd.isEmpty()) {
+            showMessage(this, "CCCD la bat buoc!");
+            return;
+        }
 
         var optTs = thiSinhService.findByCccd(cccd);
-        if (optTs.isEmpty()) { showMessage(this, "Khong tim thay thi sinh!"); return; }
+        if (optTs.isEmpty()) {
+            showMessage(this, "Khong tim thay thi sinh!");
+            return;
+        }
 
         ThiSinh ts = optTs.get();
 
-        // Auto-fill diem uu tien tu KhuVuc + DoiTuong
-        BigDecimal diemUuTienAuto = tinhDiemUuTien(ts);
-        if (diemUuTienAuto.compareTo(BigDecimal.ZERO) > 0) {
-            txtDiemUT.setText(diemUuTienAuto.setScale(2, RoundingMode.HALF_UP).toPlainString());
-            String kv = ts.getKhuVucUutien() != null ? ts.getKhuVucUutien().getTenKhuvuc() + " (" + ts.getKhuVucUutien().getMucDiem() + ")" : "Khong co";
-            String dt = ts.getDoiTuongUutien() != null ? ts.getDoiTuongUutien().getTenDoituong() + " (" + ts.getDoiTuongUutien().getMucDiem() + ")" : "Khong co";
-            showMessage(this, "Diem uu tien tu dong: " + diemUuTienAuto.setScale(2, RoundingMode.HALF_UP).toPlainString()
-                + "\n(Khu vuc: " + kv + " | Doi tuong: " + dt + ")");
+        // Auto-fill diem uu tien quy che tu KhuVuc + DoiTuong
+        BigDecimal diemUuTienQuyCheAuto = tinhDiemUuTien(ts);
+        if (diemUuTienQuyCheAuto.compareTo(BigDecimal.ZERO) > 0) {
+            txtDiemUTQC.setText(diemUuTienQuyCheAuto.setScale(2, RoundingMode.HALF_UP).toPlainString());
+            String kv = ts.getKhuVucUutien() != null
+                    ? ts.getKhuVucUutien().getTenKhuvuc() + " (" + ts.getKhuVucUutien().getMucDiem() + ")"
+                    : "Khong co";
+            String dt = ts.getDoiTuongUutien() != null
+                    ? ts.getDoiTuongUutien().getTenDoituong() + " (" + ts.getDoiTuongUutien().getMucDiem() + ")"
+                    : "Khong co";
+            showMessage(this, "Diem uu tien quy che tu dong: "
+                    + diemUuTienQuyCheAuto.setScale(2, RoundingMode.HALF_UP).toPlainString()
+                    + "\n(Khu vuc: " + kv + " | Doi tuong: " + dt + ")");
         }
 
         NganhToHop nt = (NganhToHop) cboNt.getSelectedItem();
         PhuongThuc pt = (PhuongThuc) cboPt.getSelectedItem();
-        if (nt == null || pt == null) { showMessage(this, "Chon day du thong tin!"); return; }
+        if (nt == null || pt == null) {
+            showMessage(this, "Chon day du thong tin!");
+            return;
+        }
 
         DiemCong dc = new DiemCong();
         dc.setThiSinh(ts);
         dc.setNganhToHop(nt);
         dc.setPhuongThuc(pt);
-        dc.setDiemChungchi(parseBigDecimal(txtDiemCC.getText()));
-        dc.setDiemUutienXt(parseBigDecimal(txtDiemUT.getText()));
 
-        BigDecimal cc = dc.getDiemChungchi() != null ? dc.getDiemChungchi() : BigDecimal.ZERO;
-        BigDecimal ut = dc.getDiemUutienXt() != null ? dc.getDiemUutienXt() : BigDecimal.ZERO;
-        dc.setDiemTong(cc.add(ut));
+        dc.setTongDiemChungChi(parseBigDecimal(txtDiemCC.getText()));
+        dc.setTongDiemUutienXt(parseBigDecimal(txtDiemUTXT.getText()));
+        dc.setTongDiemUutienQuyChe(parseBigDecimal(txtDiemUTQC.getText()));
+
+        BigDecimal cc = safe(dc.getTongDiemChungChi());
+        BigDecimal utXt = safe(dc.getTongDiemUutienXt());
+        BigDecimal utQc = safe(dc.getTongDiemUutienQuyChe());
+        dc.setTongDiemCong(cc.add(utXt).add(utQc));
 
         try {
             diemCongService.save(dc);
@@ -186,27 +206,41 @@ public class DiemCongPanel extends BaseCrudPanel<DiemCong> {
         return tong;
     }
 
+    private static BigDecimal safe(BigDecimal value) {
+        return value != null ? value : BigDecimal.ZERO;
+    }
+
     @Override
     protected void showEditDialog() {
         DiemCong dc = getSelectedEntity();
-        if (dc == null) { showSelectRow(); return; }
+        if (dc == null) {
+            showSelectRow();
+            return;
+        }
 
-        JTextField txtDiemCC = new JTextField(dc.getDiemChungchi() != null ? dc.getDiemChungchi().toString() : "0", 20);
-        JTextField txtDiemUT = new JTextField(dc.getDiemUutienXt() != null ? dc.getDiemUutienXt().toString() : "0", 20);
+        JTextField txtDiemCC = new JTextField(
+                dc.getTongDiemChungChi() != null ? dc.getTongDiemChungChi().toString() : "0", 20);
+        JTextField txtDiemUTXT = new JTextField(
+                dc.getTongDiemUutienXt() != null ? dc.getTongDiemUutienXt().toString() : "0", 20);
+        JTextField txtDiemUTQC = new JTextField(
+                dc.getTongDiemUutienQuyChe() != null ? dc.getTongDiemUutienQuyChe().toString() : "0", 20);
 
         int r = JOptionPane.showConfirmDialog(this, new Object[]{
-            "Thi sinh: " + (dc.getThiSinh() != null ? dc.getThiSinh().getHoVaTen() : ""),
-            "Diem chung chi:", txtDiemCC,
-            "Diem uu tien:", txtDiemUT
+                "Thi sinh: " + (dc.getThiSinh() != null ? dc.getThiSinh().getHoVaTen() : ""),
+                "Tong diem chung chi:", txtDiemCC,
+                "Tong diem uu tien XT:", txtDiemUTXT,
+                "Tong diem uu tien quy che:", txtDiemUTQC
         }, "Sua diem cong", JOptionPane.OK_CANCEL_OPTION);
         if (r != JOptionPane.OK_OPTION) return;
 
-        dc.setDiemChungchi(parseBigDecimal(txtDiemCC.getText()));
-        dc.setDiemUutienXt(parseBigDecimal(txtDiemUT.getText()));
+        dc.setTongDiemChungChi(parseBigDecimal(txtDiemCC.getText()));
+        dc.setTongDiemUutienXt(parseBigDecimal(txtDiemUTXT.getText()));
+        dc.setTongDiemUutienQuyChe(parseBigDecimal(txtDiemUTQC.getText()));
 
-        BigDecimal cc = dc.getDiemChungchi() != null ? dc.getDiemChungchi() : BigDecimal.ZERO;
-        BigDecimal ut = dc.getDiemUutienXt() != null ? dc.getDiemUutienXt() : BigDecimal.ZERO;
-        dc.setDiemTong(cc.add(ut));
+        BigDecimal cc = safe(dc.getTongDiemChungChi());
+        BigDecimal utXt = safe(dc.getTongDiemUutienXt());
+        BigDecimal utQc = safe(dc.getTongDiemUutienQuyChe());
+        dc.setTongDiemCong(cc.add(utXt).add(utQc));
 
         try {
             diemCongService.update(dc);
@@ -222,7 +256,7 @@ public class DiemCongPanel extends BaseCrudPanel<DiemCong> {
         combo.setRenderer(new DefaultListCellRenderer() {
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value, int index,
-                    boolean isSelected, boolean cellHasFocus) {
+                                                          boolean isSelected, boolean cellHasFocus) {
                 super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
                 if (value instanceof NganhToHop) {
                     NganhToHop nt = (NganhToHop) value;
@@ -232,7 +266,7 @@ public class DiemCongPanel extends BaseCrudPanel<DiemCong> {
                     String tenNganh = n != null && n.getTenNganh() != null ? n.getTenNganh() : "";
                     String maTh = th != null && th.getMaTohop() != null ? th.getMaTohop() : "?";
                     String tenTh = th != null && th.getTenTohop() != null ? th.getTenTohop() : "";
-                    String doLech = nt != null && nt.getDoLech() != null ? nt.getDoLech().toString() : "";
+                    String doLech = nt.getDoLech() != null ? nt.getDoLech().toString() : "";
                     setText(maNganh + " | " + tenNganh + " | " + maTh + " | " + tenTh + " | " + doLech);
                 }
                 return this;
@@ -245,7 +279,7 @@ public class DiemCongPanel extends BaseCrudPanel<DiemCong> {
         combo.setRenderer(new DefaultListCellRenderer() {
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value, int index,
-                    boolean isSelected, boolean cellHasFocus) {
+                                                          boolean isSelected, boolean cellHasFocus) {
                 super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
                 if (value instanceof PhuongThuc) {
                     PhuongThuc pt = (PhuongThuc) value;

@@ -51,5 +51,8 @@
         <mapping class="com.tuyensinh.entity.BangQuyDoi"/>
         <mapping class="com.tuyensinh.entity.DiemCong"/>
         <mapping class="com.tuyensinh.entity.NguyenVong"/>
+        <mapping class="com.tuyensinh.entity.DiemCongChiTiet"/>
+        <mapping class="com.tuyensinh.entity.ThiSinhThanhTich"/>
+        <mapping class="com.tuyensinh.entity.ThiSinhChungChi"/>
     </session-factory>
 </hibernate-configuration>
