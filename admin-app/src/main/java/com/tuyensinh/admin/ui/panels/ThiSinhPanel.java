@@ -24,7 +24,7 @@ public class ThiSinhPanel extends JPanel {
     private JTable table;
     private DefaultTableModel model;
     private JTextField txtSearch;
-    private JButton btnSearch, btnAdd, btnEdit, btnDelete, btnViewDiem;
+    private JButton btnSearch, btnRefresh, btnImport, btnAdd, btnEdit, btnDelete, btnViewDiem;
     private JLabel lblTotal;
     private JSpinner spnPage;
     private int currentPage = 1;
@@ -43,6 +43,7 @@ public class ThiSinhPanel extends JPanel {
         // Toolbar
         JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.LEFT));
         toolbar.add(new JLabel("Tim kiem (CCCD/Ho ten/SBD):"));
+
         txtSearch = new JTextField(20);
         txtSearch.addActionListener(e -> search());
         toolbar.add(txtSearch);
@@ -51,7 +52,20 @@ public class ThiSinhPanel extends JPanel {
         btnSearch.addActionListener(e -> search());
         toolbar.add(btnSearch);
 
+        btnRefresh = new JButton("Lam moi");
+        btnRefresh.addActionListener(e -> {
+            txtSearch.setText("");
+            currentPage = 1;
+            loadData();
+        });
+        toolbar.add(btnRefresh);
+
+        btnImport = new JButton("Import");
+        btnImport.addActionListener(e -> showImportDialog());
+        toolbar.add(btnImport);
+
         toolbar.add(Box.createHorizontalStrut(20));
+
         btnAdd = new JButton("Them moi");
         btnAdd.addActionListener(e -> showAddDialog());
         toolbar.add(btnAdd);
@@ -72,7 +86,7 @@ public class ThiSinhPanel extends JPanel {
 
         // Table
         model = new DefaultTableModel(
-            new String[]{"ID", "So BD", "CCCD", "Ho", "Ten", "Ngay sinh", "GT", "Dien thoai", "Email", "DT UT", "KV UT"}, 0) {
+                new String[]{"ID", "So BD", "CCCD", "Ho ten", "Ngay sinh", "GT", "Dien thoai", "Email", "Noi sinh", "DT UT", "KV UT"}, 0) {
             @Override
             public boolean isCellEditable(int row, int col) { return false; }
         };
@@ -119,14 +133,14 @@ public class ThiSinhPanel extends JPanel {
                 ts.getThisinhId(),
                 ts.getSobaodanh(),
                 ts.getCccd(),
-                ts.getHo(),
-                ts.getTen(),
+                ts.getHoVaTen(),
                 ts.getNgaySinh() != null ? DateUtil.formatDateShort(ts.getNgaySinh()) : "",
                 ts.getGioiTinh(),
                 ts.getDienThoai(),
                 ts.getEmail(),
+                ts.getNoiSinh(),
                 ts.getDoiTuongUutien() != null ? ts.getDoiTuongUutien().getMaDoituong() : "",
-                ts.getKhuVucUutien() != null ? ts.getKhuVucUutien().getMaKhuvuc() : ""
+                ts.getKhuVucUutien() != null ? ts.getKhuVucUutien().getMaKhuVuc() : ""
             });
         }
 
@@ -219,7 +233,7 @@ public class ThiSinhPanel extends JPanel {
                 if (value == null) {
                     setText("");
                 } else if (value instanceof KhuVucUutien) {
-                    setText(((KhuVucUutien) value).getMaKhuvuc());
+                    setText(((KhuVucUutien) value).getMaKhuVuc());
                 }
                 return this;
             }
@@ -233,6 +247,7 @@ public class ThiSinhPanel extends JPanel {
         JTextField txtSbd = new JTextField(20);
         JTextField txtDt = new JTextField(20);
         JTextField txtEmail = new JTextField(20);
+        JTextField txtNoiSinh = new JTextField(20);
         JSpinner spnNs = createNgaySinhSpinner(null);
         JComboBox<String> cboGt = new JComboBox<>(new String[]{"", "Nam", "Nu"});
         JComboBox<DoiTuongUutien> cboDt = new JComboBox<>();
@@ -246,13 +261,14 @@ public class ThiSinhPanel extends JPanel {
 
         Object[] msg = {
             "CCCD (*):", txtCccd,
-            "So bao danh:", txtSbd,
+            "So bao danh (de trong de tu sinh):", txtSbd,
             "Ho (*):", txtHo,
             "Ten (*):", txtTen,
             "Ngay sinh (dd/MM/yyyy):", spnNs,
             "Gioi tinh:", cboGt,
             "Dien thoai:", txtDt,
             "Email:", txtEmail,
+            "Noi sinh:", txtNoiSinh,
             "Doi tuong UT:", cboDt,
             "Khu vuc UT:", cboKv
         };
@@ -265,13 +281,18 @@ public class ThiSinhPanel extends JPanel {
             }
             ThiSinh ts = new ThiSinh();
             ts.setCccd(txtCccd.getText().trim());
-            ts.setSobaodanh(txtSbd.getText().trim().isEmpty() ? null : txtSbd.getText().trim());
+            String sbd = txtSbd.getText().trim();
+            if (sbd.isEmpty()) {
+                sbd = service.generateSoBaoDanh();
+            }
+            ts.setSobaodanh(sbd);
             ts.setHo(txtHo.getText().trim());
             ts.setTen(txtTen.getText().trim());
             ts.setNgaySinh(localDateFromSpinner(spnNs));
             ts.setGioiTinh((String) cboGt.getSelectedItem());
             ts.setDienThoai(txtDt.getText().trim().isEmpty() ? null : txtDt.getText().trim());
             ts.setEmail(txtEmail.getText().trim().isEmpty() ? null : txtEmail.getText().trim());
+            ts.setNoiSinh(txtNoiSinh.getText().trim().isEmpty() ? null : txtNoiSinh.getText().trim());
             ts.setDoiTuongUutien((DoiTuongUutien) cboDt.getSelectedItem());
             ts.setKhuVucUutien((KhuVucUutien) cboKv.getSelectedItem());
 
@@ -295,6 +316,7 @@ public class ThiSinhPanel extends JPanel {
         JTextField txtTen = new JTextField(ts.getTen());
         JTextField txtDt = new JTextField(ts.getDienThoai() != null ? ts.getDienThoai() : "");
         JTextField txtEmail = new JTextField(ts.getEmail() != null ? ts.getEmail() : "");
+        JTextField txtNoiSinh = new JTextField(ts.getNoiSinh() != null ? ts.getNoiSinh() : "");
         JSpinner spnNs = createNgaySinhSpinner(ts.getNgaySinh());
         JComboBox<String> cboGt = new JComboBox<>(new String[]{"", "Nam", "Nu"});
         if (ts.getGioiTinh() != null) cboGt.setSelectedItem(ts.getGioiTinh());
@@ -308,12 +330,14 @@ public class ThiSinhPanel extends JPanel {
 
         Object[] msg = {
             "CCCD: " + ts.getCccd() + " (khong doi)",
+            "So bao danh: " + (ts.getSobaodanh() != null ? ts.getSobaodanh() : ""),
             "Ho:", txtHo,
             "Ten:", txtTen,
             "Ngay sinh (dd/MM/yyyy):", spnNs,
             "Gioi tinh:", cboGt,
             "Dien thoai:", txtDt,
             "Email:", txtEmail,
+            "Noi sinh:", txtNoiSinh,
             "Doi tuong UT:", cboDt,
             "Khu vuc UT:", cboKv
         };
@@ -326,6 +350,7 @@ public class ThiSinhPanel extends JPanel {
             ts.setGioiTinh((String) cboGt.getSelectedItem());
             ts.setDienThoai(txtDt.getText().trim().isEmpty() ? null : txtDt.getText().trim());
             ts.setEmail(txtEmail.getText().trim().isEmpty() ? null : txtEmail.getText().trim());
+            ts.setNoiSinh(txtNoiSinh.getText().trim().isEmpty() ? null : txtNoiSinh.getText().trim());
             ts.setDoiTuongUutien((DoiTuongUutien) cboDt.getSelectedItem());
             ts.setKhuVucUutien((KhuVucUutien) cboKv.getSelectedItem());
             try {
@@ -389,5 +414,19 @@ public class ThiSinhPanel extends JPanel {
         JScrollPane sp = new JScrollPane(ta);
         sp.setPreferredSize(new Dimension(450, 350));
         JOptionPane.showMessageDialog(this, sp, "Diem thi - " + ts.getHoVaTen(), JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private void showImportDialog() {
+        JDialog dialog = new JDialog(
+                (Frame) SwingUtilities.getWindowAncestor(this),
+                "Import thi sinh",
+                true
+        );
+        dialog.setContentPane(new ThiSinhImportPanel(mainFrame));
+        dialog.setSize(900, 650);
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
+
+        loadData();
     }
 }

@@ -2,6 +2,9 @@ package com.tuyensinh.dao;
 
 import com.tuyensinh.dao.InterfaceDao.IThiSinhDao;
 import com.tuyensinh.entity.ThiSinh;
+import com.tuyensinh.util.HibernateUtil;
+import org.hibernate.Session;
+
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -92,7 +95,8 @@ public class ThiSinhDao extends BaseDao<ThiSinh> implements IThiSinhDao {
         Predicate p1 = cb.like(root.get("cccd"), kw);
         Predicate p2 = cb.like(root.get("ho"), kw);
         Predicate p3 = cb.like(root.get("ten"), kw);
-        cq.where(cb.or(p1, p2, p3));
+        Predicate p4 = cb.like(root.get("sobaodanh"), kw);
+        cq.where(cb.or(p1, p2, p3, p4));
         return em().createQuery(cq).getSingleResult();
     }
 
@@ -106,13 +110,19 @@ public class ThiSinhDao extends BaseDao<ThiSinh> implements IThiSinhDao {
     }
 
     public String generateSoBaoDanh() {
-        String hql = "SELECT MAX(ts.sobaodanh) FROM ThiSinh ts WHERE ts.sobaodanh IS NOT NULL";
-        javax.persistence.TypedQuery<String> q = em().createQuery(hql, String.class);
-        String maxSo = q.getSingleResult();
-        if (maxSo == null) {
-            return "TS0001";
+        try (Session session = HibernateUtil.getSession()) {
+            Object result = session.createNativeQuery(
+                    "SELECT MAX(CAST(SUBSTRING(sobaodanh, 3) AS UNSIGNED)) " +
+                            "FROM xt_thisinh " +
+                            "WHERE sobaodanh LIKE 'TS%'"
+            ).uniqueResult();
+
+            int nextNumber = 1;
+            if (result != null) {
+                nextNumber = ((Number) result).intValue() + 1;
+            }
+
+            return String.format("TS%05d", nextNumber);
         }
-        int num = Integer.parseInt(maxSo.replace("TS", ""));
-        return String.format("TS%04d", num + 1);
     }
 }

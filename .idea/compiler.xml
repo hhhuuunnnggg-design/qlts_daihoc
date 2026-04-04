@@ -11,8 +11,8 @@
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.30/lombok-1.18.30.jar" />
         </processorPath>
         <module name="admin-app" />
-        <module name="core" />
         <module name="web-app" />
+        <module name="core" />
       </profile>
     </annotationProcessing>
   </component>

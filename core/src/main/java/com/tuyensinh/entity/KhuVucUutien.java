@@ -36,4 +36,8 @@ public class KhuVucUutien {
 
     @OneToMany(mappedBy = "khuVucUutien", fetch = FetchType.LAZY)
     private List<ThiSinh> danhSachThiSinh;
+
+    public String getMaKhuVuc() {
+        return this.maKhuvuc;
+    }
 }

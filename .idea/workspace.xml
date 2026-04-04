@@ -5,188 +5,36 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a06fc29a-8649-4298-8c6f-cc2578e07637" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/admin-app/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/src/main/java/com/tuyensinh/admin/ui/panels/DiemImportPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/src/main/java/com/tuyensinh/admin/ui/panels/DiemImportPanel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/src/main/java/com/tuyensinh/admin/ui/panels/HomePanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/src/main/java/com/tuyensinh/admin/ui/panels/HomePanel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/admin-app-1.0.0.jar" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/admin-app-1.0.0.jar" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/MainApp.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/MainApp.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/BaseCrudPanel.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/BaseCrudPanel.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/BasePanel.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/BasePanel.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/LoginFrame$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/LoginFrame$1.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/LoginFrame$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/LoginFrame$2.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/LoginFrame$3.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/LoginFrame$3.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/LoginFrame.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/LoginFrame.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/MainFrame$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/MainFrame$1.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/MainFrame$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/MainFrame$2.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/MainFrame$3.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/MainFrame$3.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/MainFrame$4.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/MainFrame$4.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/MainFrame$5.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/MainFrame$5.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/MainFrame$6.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/MainFrame$6.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/MainFrame$7$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/MainFrame$7$1.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/MainFrame$7.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/MainFrame$7.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/MainFrame$8.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/MainFrame$8.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/MainFrame.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/MainFrame.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/TableFactory$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/TableFactory$1.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/TableFactory$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/TableFactory$2.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/TableFactory$3.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/TableFactory$3.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/TableFactory.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/TableFactory.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/ToolbarFactory$ActionButton.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/ToolbarFactory$ActionButton.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/ToolbarFactory.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/ToolbarFactory.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/UIConstants.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/UIConstants.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/BangQuyDoiPanel.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/BangQuyDoiPanel.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/DiemCongPanel$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/DiemCongPanel$1.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/DiemCongPanel$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/DiemCongPanel$2.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/DiemCongPanel.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/DiemCongPanel.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/DiemImportPanel$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/DiemImportPanel$1.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/DiemImportPanel.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/DiemImportPanel.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/DiemThiPanel$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/DiemThiPanel$1.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/DiemThiPanel.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/DiemThiPanel.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/DiemThongKePanel$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/DiemThongKePanel$1.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/DiemThongKePanel.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/DiemThongKePanel.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/HomePanel$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/HomePanel$1.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/HomePanel$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/HomePanel$2.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/HomePanel$3.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/HomePanel$3.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/HomePanel$4.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/HomePanel$4.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/HomePanel$5.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/HomePanel$5.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/HomePanel$6.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/HomePanel$6.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/HomePanel.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/HomePanel.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/NganhPanel$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/NganhPanel$1.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/NganhPanel$ToHopRow.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/NganhPanel$ToHopRow.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/NganhPanel.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/NganhPanel.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/NganhToHopPanel.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/NganhToHopPanel.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/NguoiDungPanel.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/NguoiDungPanel.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/NguyenVongPanel.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/NguyenVongPanel.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/ThiSinhImportPanel$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/ThiSinhImportPanel$1.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/ThiSinhImportPanel.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/ThiSinhImportPanel.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-app/src/main/java/com/tuyensinh/admin/ui/panels/ThiSinhImportPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/src/main/java/com/tuyensinh/admin/ui/panels/ThiSinhImportPanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-app/src/main/java/com/tuyensinh/admin/ui/panels/ThiSinhPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/src/main/java/com/tuyensinh/admin/ui/panels/ThiSinhPanel.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/ThiSinhPanel$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/ThiSinhPanel$1.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/ThiSinhPanel$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/ThiSinhPanel$2.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/ThiSinhPanel$3.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/ThiSinhPanel$3.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/ThiSinhPanel$4.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/ThiSinhPanel$4.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/ThiSinhPanel$5.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/ThiSinhPanel$5.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/ThiSinhPanel.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/ThiSinhPanel.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/ToHopPanel.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/ToHopPanel.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/XetTuyenPanel$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/XetTuyenPanel$1.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/XetTuyenPanel$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/XetTuyenPanel$2.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/XetTuyenPanel$3.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/XetTuyenPanel$3.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/XetTuyenPanel$4.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/XetTuyenPanel$4.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/XetTuyenPanel.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/XetTuyenPanel.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/maven-archiver/pom.properties" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/maven-archiver/pom.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/java/com/tuyensinh/entity/PhuongThuc.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/com/tuyensinh/entity/PhuongThuc.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/com/tuyensinh/dao/ThiSinhDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/com/tuyensinh/dao/ThiSinhDao.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/com/tuyensinh/entity/KhuVucUutien.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/com/tuyensinh/entity/KhuVucUutien.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/core/src/main/java/com/tuyensinh/util/DataSeeder.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/com/tuyensinh/util/DataSeeder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/resources/hibernate.cfg.xml" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/resources/hibernate.cfg.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/BangQuyDoiDao.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/BangQuyDoiDao.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/BaseDao.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/BaseDao.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/DiemCongDao.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/DiemCongDao.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/DiemThiDao.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/DiemThiDao.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/DoiTuongUutienDao.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/DoiTuongUutienDao.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/InterfaceDao/IBangQuyDoiDao.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/InterfaceDao/IBangQuyDoiDao.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/InterfaceDao/IBaseDao.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/InterfaceDao/IBaseDao.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/InterfaceDao/IDiemCongDao.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/InterfaceDao/IDiemCongDao.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/InterfaceDao/IDiemThiDao.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/InterfaceDao/IDiemThiDao.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/InterfaceDao/IDoiTuongUutienDao.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/InterfaceDao/IDoiTuongUutienDao.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/InterfaceDao/IKhuVucUutienDao.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/InterfaceDao/IKhuVucUutienDao.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/InterfaceDao/IMonDao.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/InterfaceDao/IMonDao.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/InterfaceDao/INganhDao.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/InterfaceDao/INganhDao.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/InterfaceDao/INganhPhuongThucDao.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/InterfaceDao/INganhPhuongThucDao.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/InterfaceDao/INganhToHopDao.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/InterfaceDao/INganhToHopDao.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/InterfaceDao/INguoiDungDao.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/InterfaceDao/INguoiDungDao.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/InterfaceDao/INguyenVongDao.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/InterfaceDao/INguyenVongDao.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/InterfaceDao/IPhuongThucDao.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/InterfaceDao/IPhuongThucDao.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/InterfaceDao/IThiSinhDao.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/InterfaceDao/IThiSinhDao.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/InterfaceDao/IToHopDao.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/InterfaceDao/IToHopDao.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/InterfaceDao/IVaiTroDao.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/InterfaceDao/IVaiTroDao.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/KhuVucUutienDao.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/KhuVucUutienDao.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/MonDao.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/MonDao.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/NganhDao.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/NganhDao.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/NganhPhuongThucDao.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/NganhPhuongThucDao.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/NganhToHopDao.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/NganhToHopDao.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/NguoiDungDao.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/NguoiDungDao.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/NguyenVongDao.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/NguyenVongDao.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/PhuongThucDao.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/PhuongThucDao.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/ThiSinhDao.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/ThiSinhDao.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/ToHopDao.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/ToHopDao.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/VaiTroDao.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/VaiTroDao.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/entity/BangQuyDoi.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/entity/BangQuyDoi.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/entity/DiemCong.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/entity/DiemCong.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/entity/DiemThi.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/entity/DiemThi.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/entity/DiemThiChiTiet.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/entity/DiemThiChiTiet.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/entity/DoiTuongUutien.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/entity/DoiTuongUutien.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/entity/KhuVucUutien.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/entity/KhuVucUutien.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/entity/Mon$LoaiMon.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/entity/Mon$LoaiMon.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/entity/Mon.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/entity/Mon.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/entity/Nganh.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/entity/Nganh.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/entity/NganhPhuongThuc.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/entity/NganhPhuongThuc.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/entity/NganhToHop.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/entity/NganhToHop.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/entity/NganhToHopMon.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/entity/NganhToHopMon.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/entity/NguoiDung.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/entity/NguoiDung.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/entity/NguyenVong$KetQua.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/entity/NguyenVong$KetQua.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/entity/NguyenVong.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/entity/NguyenVong.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/entity/PhuongThuc.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/entity/PhuongThuc.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/entity/ThiSinh.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/entity/ThiSinh.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/entity/ToHop.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/entity/ToHop.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/entity/ToHopMon.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/entity/ToHopMon.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/entity/VaiTro.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/entity/VaiTro.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/service/AuthService.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/service/AuthService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/service/BangQuyDoiService.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/service/BangQuyDoiService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/service/DiemCongService.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/service/DiemCongService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/service/DiemThiService.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/service/DiemThiService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/service/DoiTuongService.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/service/DoiTuongService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/service/KhuVucService.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/service/KhuVucService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/service/MonService.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/service/MonService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/service/NganhToHopService.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/service/NganhToHopService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/service/NguoiDungService.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/service/NguoiDungService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/service/NguyenVongService.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/service/NguyenVongService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/service/ThiSinhService.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/service/ThiSinhService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/service/TinhDiemService$KetQuaDiem.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/service/TinhDiemService$KetQuaDiem.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/service/TinhDiemService.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/service/TinhDiemService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/service/ToHopService.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/service/ToHopService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/service/VaiTroService.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/service/VaiTroService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/service/XetTuyenEngine$DotXetTuyenResult.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/service/XetTuyenEngine$DotXetTuyenResult.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/service/XetTuyenEngine$KetQuaXetTuyen.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/service/XetTuyenEngine$KetQuaXetTuyen.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/service/XetTuyenEngine.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/service/XetTuyenEngine.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/service/XetTuyenService.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/service/XetTuyenService.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/util/DataSeeder.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/util/DataSeeder.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/util/DateUtil.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/util/DateUtil.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/util/HibernateUtil.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/util/HibernateUtil.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/util/PasswordUtil.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/util/PasswordUtil.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/util/StringUtil.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/util/StringUtil.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/hibernate.cfg.xml" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/hibernate.cfg.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/core-1.0.0.jar" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/core-1.0.0.jar" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/maven-archiver/pom.properties" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/maven-archiver/pom.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sql/schema_full.sql" beforeDir="false" afterPath="$PROJECT_DIR$/sql/schema_full.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web-app/target/classes/com/tuyensinh/web/servlet/AddNguyenVongServlet.class" beforeDir="false" afterPath="$PROJECT_DIR$/web-app/target/classes/com/tuyensinh/web/servlet/AddNguyenVongServlet.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web-app/target/classes/com/tuyensinh/web/servlet/BaseServlet.class" beforeDir="false" afterPath="$PROJECT_DIR$/web-app/target/classes/com/tuyensinh/web/servlet/BaseServlet.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web-app/target/classes/com/tuyensinh/web/servlet/DashboardServlet.class" beforeDir="false" afterPath="$PROJECT_DIR$/web-app/target/classes/com/tuyensinh/web/servlet/DashboardServlet.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web-app/target/classes/com/tuyensinh/web/servlet/LoginServlet.class" beforeDir="false" afterPath="$PROJECT_DIR$/web-app/target/classes/com/tuyensinh/web/servlet/LoginServlet.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web-app/target/classes/com/tuyensinh/web/servlet/LogoutServlet.class" beforeDir="false" afterPath="$PROJECT_DIR$/web-app/target/classes/com/tuyensinh/web/servlet/LogoutServlet.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web-app/target/classes/com/tuyensinh/web/servlet/NguyenVongServlet.class" beforeDir="false" afterPath="$PROJECT_DIR$/web-app/target/classes/com/tuyensinh/web/servlet/NguyenVongServlet.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web-app/target/classes/com/tuyensinh/web/servlet/ProfileServlet.class" beforeDir="false" afterPath="$PROJECT_DIR$/web-app/target/classes/com/tuyensinh/web/servlet/ProfileServlet.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web-app/target/classes/com/tuyensinh/web/servlet/RegisterServlet.class" beforeDir="false" afterPath="$PROJECT_DIR$/web-app/target/classes/com/tuyensinh/web/servlet/RegisterServlet.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web-app/target/classes/com/tuyensinh/web/servlet/ScoresServlet.class" beforeDir="false" afterPath="$PROJECT_DIR$/web-app/target/classes/com/tuyensinh/web/servlet/ScoresServlet.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web-app/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/web-app/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/web-app/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/web-app/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web-app/target/tmp/jsp/org/apache/jsp/WEB_002dINF/views/dashboard_jsp.class" beforeDir="false" afterPath="$PROJECT_DIR$/web-app/target/tmp/jsp/org/apache/jsp/WEB_002dINF/views/dashboard_jsp.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web-app/target/tmp/jsp/org/apache/jsp/WEB_002dINF/views/dashboard_jsp.java" beforeDir="false" afterPath="$PROJECT_DIR$/web-app/target/tmp/jsp/org/apache/jsp/WEB_002dINF/views/dashboard_jsp.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web-app/target/tmp/jsp/org/apache/jsp/WEB_002dINF/views/footer_jsp.class" beforeDir="false" afterPath="$PROJECT_DIR$/web-app/target/tmp/jsp/org/apache/jsp/WEB_002dINF/views/footer_jsp.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web-app/target/tmp/jsp/org/apache/jsp/WEB_002dINF/views/footer_jsp.java" beforeDir="false" afterPath="$PROJECT_DIR$/web-app/target/tmp/jsp/org/apache/jsp/WEB_002dINF/views/footer_jsp.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web-app/target/tmp/jsp/org/apache/jsp/WEB_002dINF/views/header_jsp.class" beforeDir="false" afterPath="$PROJECT_DIR$/web-app/target/tmp/jsp/org/apache/jsp/WEB_002dINF/views/header_jsp.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web-app/target/tmp/jsp/org/apache/jsp/WEB_002dINF/views/header_jsp.java" beforeDir="false" afterPath="$PROJECT_DIR$/web-app/target/tmp/jsp/org/apache/jsp/WEB_002dINF/views/header_jsp.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web-app/target/tmp/jsp/org/apache/jsp/WEB_002dINF/views/login_jsp.class" beforeDir="false" afterPath="$PROJECT_DIR$/web-app/target/tmp/jsp/org/apache/jsp/WEB_002dINF/views/login_jsp.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web-app/target/tmp/jsp/org/apache/jsp/WEB_002dINF/views/add_002dnguyenvong_002dform_jsp.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/web-app/target/tmp/jsp/org/apache/jsp/WEB_002dINF/views/add_002dnguyenvong_002dform_jsp.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/web-app/target/tmp/jsp/org/apache/jsp/WEB_002dINF/views/dashboard_jsp.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/web-app/target/tmp/jsp/org/apache/jsp/WEB_002dINF/views/dashboard_jsp.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/web-app/target/tmp/jsp/org/apache/jsp/WEB_002dINF/views/footer_jsp.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/web-app/target/tmp/jsp/org/apache/jsp/WEB_002dINF/views/footer_jsp.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/web-app/target/tmp/jsp/org/apache/jsp/WEB_002dINF/views/header_jsp.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/web-app/target/tmp/jsp/org/apache/jsp/WEB_002dINF/views/header_jsp.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/web-app/target/tmp/jsp/org/apache/jsp/WEB_002dINF/views/login_jsp.java" beforeDir="false" afterPath="$PROJECT_DIR$/web-app/target/tmp/jsp/org/apache/jsp/WEB_002dINF/views/login_jsp.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web-app/target/tmp/jsp/org/apache/jsp/WEB_002dINF/views/nguyenvong_jsp.class" beforeDir="false" afterPath="$PROJECT_DIR$/web-app/target/tmp/jsp/org/apache/jsp/WEB_002dINF/views/nguyenvong_jsp.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web-app/target/tmp/jsp/org/apache/jsp/WEB_002dINF/views/nguyenvong_jsp.java" beforeDir="false" afterPath="$PROJECT_DIR$/web-app/target/tmp/jsp/org/apache/jsp/WEB_002dINF/views/nguyenvong_jsp.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web-app/target/tmp/jsp/org/apache/jsp/WEB_002dINF/views/profile_jsp.class" beforeDir="false" afterPath="$PROJECT_DIR$/web-app/target/tmp/jsp/org/apache/jsp/WEB_002dINF/views/profile_jsp.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web-app/target/tmp/jsp/org/apache/jsp/WEB_002dINF/views/profile_jsp.java" beforeDir="false" afterPath="$PROJECT_DIR$/web-app/target/tmp/jsp/org/apache/jsp/WEB_002dINF/views/profile_jsp.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web-app/target/tmp/jsp/org/apache/jsp/WEB_002dINF/views/scores_jsp.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/web-app/target/tmp/jsp/org/apache/jsp/WEB_002dINF/views/scores_jsp.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/web-app/target/tmp/jsp/org/apache/jsp/index_jsp.class" beforeDir="false" afterPath="$PROJECT_DIR$/web-app/target/tmp/jsp/org/apache/jsp/index_jsp.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web-app/target/tmp/jsp/org/apache/jsp/WEB_002dINF/views/nguyenvong_jsp.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/web-app/target/tmp/jsp/org/apache/jsp/WEB_002dINF/views/nguyenvong_jsp.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/web-app/target/tmp/jsp/org/apache/jsp/WEB_002dINF/views/profile_jsp.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/web-app/target/tmp/jsp/org/apache/jsp/WEB_002dINF/views/profile_jsp.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/web-app/target/tmp/jsp/org/apache/jsp/index_jsp.java" beforeDir="false" afterPath="$PROJECT_DIR$/web-app/target/tmp/jsp/org/apache/jsp/index_jsp.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -209,26 +57,27 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Application.MainApp.executor&quot;: &quot;Run&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
-    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;Trung&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;E:/qlts_daihoc&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.MainApp.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "git-widget-placeholder": "Trung",
+    "ignore.virus.scanning.warn.message": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "E:/qlts_daihoc",
+    "nodejs_package_manager_path": "npm",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="a06fc29a-8649-4298-8c6f-cc2578e07637" name="Changes" comment="" />
@@ -243,6 +92,10 @@
       <workItem from="1775199509650" duration="92000" />
       <workItem from="1775199771816" duration="1822000" />
       <workItem from="1775202538048" duration="4745000" />
+      <workItem from="1775208115435" duration="653000" />
+      <workItem from="1775238559976" duration="238000" />
+      <workItem from="1775293833977" duration="3031000" />
+      <workItem from="1775298480918" duration="5743000" />
     </task>
     <servers />
   </component>
