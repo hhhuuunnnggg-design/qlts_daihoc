@@ -58,6 +58,18 @@ public class ToHopDao extends BaseDao<ToHop> implements IToHopDao {
         }
     }
 
+    public void deleteToHopMon(ToHopMon entity) {
+        EntityManager em = em();
+        em.getTransaction().begin();
+        try {
+            em.remove(em.contains(entity) ? entity : em.merge(entity));
+            em.getTransaction().commit();
+        } catch (RuntimeException e) {
+            if (em.getTransaction().isActive()) em.getTransaction().rollback();
+            throw e;
+        }
+    }
+
     public List<ToHop> searchByMaOrTen(String keyword) {
         CriteriaBuilder cb = cb();
         CriteriaQuery<ToHop> cq = cb.createQuery(ToHop.class);

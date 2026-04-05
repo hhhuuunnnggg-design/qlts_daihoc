@@ -40,4 +40,15 @@ public class ToHopService implements IToHopService {
     public void saveToHopMon(ToHopMon entity) {
         dao.saveToHopMon(entity);
     }
+    public List<Mon> findAllMonHoc() {
+        return monDao.findMonHoc();
+    }
+
+    public void updateToHopMon(ToHopMon entity) {
+        dao.saveToHopMon(entity);
+    }
+
+    public void deleteToHopMon(ToHopMon entity) {
+        dao.deleteToHopMon(entity);
+    }
 }

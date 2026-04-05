@@ -102,30 +102,41 @@ public class XetTuyenEngine {
      * @return KetQuaDiem da tinh, hoac null neu khong the tinh
      */
     public TinhDiemService.KetQuaDiem tinhDiemNguyenVong(NguyenVong nv) {
-        if (nv.getThiSinh() == null || nv.getPhuongThuc() == null) return null;
+        if (nv == null || nv.getThiSinh() == null || nv.getPhuongThuc() == null) {
+            return null;
+        }
 
         PhuongThuc pt = nv.getPhuongThuc();
         ThiSinh ts = nv.getThiSinh();
 
-        // Tim DiemThi
-        DiemThi diemThi = diemThiDao
-            .findByThiSinhAndPhuongThuc(ts.getThisinhId(), pt.getPhuongthucId(), null)
-            .orElse(null);
+        // 1. Dong bo diem cong tu dong truoc khi tinh diem
+        try {
+            tinhDiemService.taoDiemCongTuDong(ts, pt);
+        } catch (Exception e) {
+            // Khong chan ca luong tinh diem, nhung nen log de debug
+            System.err.println("Khong the dong bo diem cong tu dong cho thi sinh "
+                    + ts.getThisinhId() + ": " + e.getMessage());
+        }
 
-        // Tim DiemCong
+        // 2. Tim DiemThi
+        DiemThi diemThi = diemThiDao
+                .findByThiSinhAndPhuongThuc(ts.getThisinhId(), pt.getPhuongthucId(), null)
+                .orElse(null);
+
+        // 3. Tim DiemCong sau khi da dong bo lai
         Optional<DiemCong> diemCong = Optional.empty();
         if (nv.getNganhToHop() != null) {
             diemCong = diemCongDao.findByThiSinhNganhToHopPhuongThuc(
-                ts.getThisinhId(),
-                nv.getNganhToHop().getNganhTohopId(),
-                pt.getPhuongthucId()
+                    ts.getThisinhId(),
+                    nv.getNganhToHop().getNganhTohopId(),
+                    pt.getPhuongthucId()
             );
         }
 
-        // Tinh
+        // 4. Tinh diem
         TinhDiemService.KetQuaDiem kq = tinhDiemService.tinhDiem(nv, diemThi, diemCong);
 
-        // Cap nhat NguyenVong
+        // 5. Cap nhat lai NguyenVong
         nv.setDiemThxt(kq.diemThxt);
         nv.setDiemCong(kq.diemCong);
         nv.setDiemUutien(kq.diemUutien);

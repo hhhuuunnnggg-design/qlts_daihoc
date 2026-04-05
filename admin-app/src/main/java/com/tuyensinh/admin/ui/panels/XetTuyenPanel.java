@@ -379,7 +379,7 @@ public class XetTuyenPanel extends BaseCrudPanel<NguyenVong> {
             "Huong dan:\n" +
             "1. Chon Phuong thuc + Nganh\n" +
             "2. [Tinh diem] — tinh diem_xettuyen\n" +
-            "3. [Diem uu tien] — tu dong dien muc uu tien KV/DT\n" +
+            "3. [Diem uu tien] — dong bo thu cong diem cong (KV/DT/CC/Thanh tich)\n" +
             "4. [Xet tuyen] — TRUNG_TUYEN / TRUOT / PHOI_DU_KIEN\n" +
             "Cong thuc: diem_xettuyen = diem_thxt + diem_cong\n" +
             "  diem_thxt = sum(diem * he_so) - do_lech\n" +

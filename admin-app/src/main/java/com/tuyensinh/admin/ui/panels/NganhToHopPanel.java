@@ -1,32 +1,29 @@
 package com.tuyensinh.admin.ui.panels;
 
-import com.tuyensinh.admin.ui.*;
+import com.tuyensinh.admin.ui.BaseCrudPanel;
 import com.tuyensinh.admin.ui.MainFrame;
-import com.tuyensinh.entity.*;
-import com.tuyensinh.service.*;
+import com.tuyensinh.admin.ui.UIConstants;
+import com.tuyensinh.entity.Nganh;
+import com.tuyensinh.entity.NganhToHop;
+import com.tuyensinh.entity.ToHop;
+import com.tuyensinh.service.NganhToHopService;
+import com.tuyensinh.service.XetTuyenService;
+
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.math.BigDecimal;
 import java.util.List;
 
-/**
- * Refactored: extends BasePanel, uses TableFactory.
- */
-public class NganhToHopPanel extends BasePanel {
+public class NganhToHopPanel extends BaseCrudPanel<NganhToHop> {
 
-    private XetTuyenService xetTuyenService;
-    private NganhToHopService service;
-    private ToHopService toHopService;
-
-    private JTable table;
-    private DefaultTableModel model;
+    private final XetTuyenService xetTuyenService;
+    private final NganhToHopService service;
 
     public NganhToHopPanel(MainFrame mainFrame) {
         super(mainFrame);
-        xetTuyenService = new XetTuyenService();
-        service = new NganhToHopService();
-        toHopService = new ToHopService();
-        initUI();
+        this.xetTuyenService = new XetTuyenService();
+        this.service = new NganhToHopService();
+        initCrudUI();
         loadData();
     }
 
@@ -36,99 +33,272 @@ public class NganhToHopPanel extends BasePanel {
     }
 
     @Override
-    protected void initUI() {
-        JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
-        toolbar.add(new JLabel("Gan to hop mon cho nganh tuyen sinh"));
-        toolbar.add(Box.createHorizontalStrut(20));
+    protected String[] getTableColumns() {
+        return new String[]{
+                "ID", "Ma nganh", "Ten nganh", "Ma to hop", "Ten to hop", "Do lech"
+        };
+    }
 
-        JButton btnAdd = new JButton("Gan to hop");
-        btnAdd.addActionListener(e -> showAddDialog());
-        toolbar.add(btnAdd);
+    @Override
+    protected Integer getSelectedId() {
+        int row = table.getSelectedRow();
+        return row < 0 ? null : (Integer) model.getValueAt(row, 0);
+    }
 
-        JButton btnDelete = new JButton("Xoa");
-        btnDelete.addActionListener(e -> deleteNt());
-        toolbar.add(btnDelete);
+    @Override
+    protected NganhToHop getSelectedEntity() {
+        Integer id = getSelectedId();
+        return id == null ? null : service.findById(id);
+    }
 
-        add(toolbar, BorderLayout.NORTH);
+    @Override
+    protected void configureTableColumns() {
+        table.getColumnModel().getColumn(0).setPreferredWidth(50);
+        table.getColumnModel().getColumn(1).setPreferredWidth(100);
+        table.getColumnModel().getColumn(2).setPreferredWidth(240);
+        table.getColumnModel().getColumn(3).setPreferredWidth(100);
+        table.getColumnModel().getColumn(4).setPreferredWidth(240);
+        table.getColumnModel().getColumn(5).setPreferredWidth(80);
+    }
 
-        model = TableFactory.newReadOnlyModel(
-            "ID", "Ma Nganh", "Ten Nganh", "Ma To Hop", "Ten To Hop", "Do lech");
-        table = TableFactory.create(model);
-        add(TableFactory.wrap(table), BorderLayout.CENTER);
-
-        JLabel lblTotal = new JLabel("Tong: 0");
-        lblTotal.setFont(UIConstants.FONT_SMALL);
-        add(lblTotal, BorderLayout.SOUTH);
+    @Override
+    protected void buildBottomBar() {
+        totalLabel = new JLabel("Tong: 0 lien ket");
+        totalLabel.setFont(UIConstants.FONT_SMALL);
+        add(totalLabel, BorderLayout.SOUTH);
     }
 
     @Override
     public void loadData() {
         model.setRowCount(0);
+
+        String kw = searchTextField != null ? searchTextField.getText().trim().toLowerCase() : "";
         List<NganhToHop> list = service.findAll();
+
+        int count = 0;
         for (NganhToHop nt : list) {
+            if (!matchKeyword(nt, kw)) continue;
+
             model.addRow(new Object[]{
-                nt.getNganhTohopId(),
-                nt.getNganh() != null ? nt.getNganh().getMaNganh() : "",
-                nt.getNganh() != null ? nt.getNganh().getTenNganh() : "",
-                nt.getToHop() != null ? nt.getToHop().getMaTohop() : "",
-                nt.getToHop() != null ? nt.getToHop().getTenTohop() : "",
-                nt.getDoLech()
+                    nt.getNganhTohopId(),
+                    nt.getNganh() != null ? safe(nt.getNganh().getMaNganh()) : "",
+                    nt.getNganh() != null ? safe(nt.getNganh().getTenNganh()) : "",
+                    nt.getToHop() != null ? safe(nt.getToHop().getMaTohop()) : "",
+                    nt.getToHop() != null ? safe(nt.getToHop().getTenTohop()) : "",
+                    nt.getDoLech() != null ? nt.getDoLech() : BigDecimal.ZERO
             });
+            count++;
         }
+
+        updateTotalLabel(count, "lien ket");
     }
 
-    private NganhToHop getSelected() {
-        int row = table.getSelectedRow();
-        if (row < 0) return null;
-        return service.findById((Integer) model.getValueAt(row, 0));
+    @Override
+    protected String getEntityDisplayName(NganhToHop entity) {
+        String maNganh = entity.getNganh() != null ? safe(entity.getNganh().getMaNganh()) : "";
+        String maToHop = entity.getToHop() != null ? safe(entity.getToHop().getMaTohop()) : "";
+        return maNganh + " - " + maToHop;
     }
 
-    private void showAddDialog() {
-        JComboBox<Nganh> cboN = new JComboBox<>();
-        JComboBox<ToHop> cboTh = new JComboBox<>();
-        JTextField txtDl = new JTextField("0", 10);
+    @Override
+    protected void deleteEntity(NganhToHop entity) {
+        service.delete(entity);
+    }
 
-        for (Nganh n : xetTuyenService.findActiveNganh()) cboN.addItem(n);
-        for (ToHop th : toHopService.findAll()) cboTh.addItem(th);
+    @Override
+    protected void showAddDialog() {
+        showEditor(null);
+    }
 
-        int r = JOptionPane.showConfirmDialog(this,
-            new Object[]{
-                "Nganh (*):", cboN,
-                "To hop (*):", cboTh,
-                "Do lech:", txtDl
-            },
-            "Gan to hop cho nganh", JOptionPane.OK_CANCEL_OPTION);
+    @Override
+    protected void showEditDialog() {
+        NganhToHop nt = getSelectedEntity();
+        if (nt == null) {
+            showSelectRow();
+            return;
+        }
+        showEditor(nt);
+    }
+
+    private void showEditor(NganhToHop existing) {
+        boolean edit = existing != null;
+
+        List<Nganh> dsNganh = xetTuyenService.findAllNganh();
+        List<ToHop> dsToHop = xetTuyenService.findAllToHop();
+
+        JComboBox<Nganh> cboNganh = new JComboBox<>();
+        for (Nganh n : dsNganh) cboNganh.addItem(n);
+        decorateNganhCombo(cboNganh);
+
+        JComboBox<ToHop> cboToHop = new JComboBox<>();
+        for (ToHop th : dsToHop) cboToHop.addItem(th);
+        decorateToHopCombo(cboToHop);
+
+        JTextField txtDoLech = new JTextField(12);
+
+        if (edit) {
+            selectNganh(cboNganh, existing.getNganh());
+            selectToHop(cboToHop, existing.getToHop());
+            txtDoLech.setText(existing.getDoLech() != null ? existing.getDoLech().toPlainString() : "0");
+        } else {
+            txtDoLech.setText("0");
+        }
+
+        JPanel form = new JPanel(new GridBagLayout());
+        GridBagConstraints gc = new GridBagConstraints();
+        gc.insets = new Insets(4, 4, 4, 4);
+        gc.anchor = GridBagConstraints.WEST;
+        gc.fill = GridBagConstraints.HORIZONTAL;
+        gc.gridx = 0;
+        gc.gridy = 0;
+
+        if (edit) {
+            form.add(new JLabel("ID:"), gc);
+            gc.gridx = 1;
+            form.add(new JLabel(String.valueOf(existing.getNganhTohopId())), gc);
+            gc.gridy++;
+        }
+
+        gc.gridx = 0;
+        form.add(new JLabel("Nganh (*):"), gc);
+        gc.gridx = 1;
+        form.add(cboNganh, gc);
+        gc.gridy++;
+
+        gc.gridx = 0;
+        form.add(new JLabel("To hop (*):"), gc);
+        gc.gridx = 1;
+        form.add(cboToHop, gc);
+        gc.gridy++;
+
+        gc.gridx = 0;
+        form.add(new JLabel("Do lech:"), gc);
+        gc.gridx = 1;
+        form.add(txtDoLech, gc);
+
+        int r = JOptionPane.showConfirmDialog(
+                this,
+                form,
+                edit ? "Sua lien ket nganh - to hop" : "Them lien ket nganh - to hop",
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.PLAIN_MESSAGE
+        );
         if (r != JOptionPane.OK_OPTION) return;
 
-        Nganh n = (Nganh) cboN.getSelectedItem();
-        ToHop th = (ToHop) cboTh.getSelectedItem();
-        if (n == null || th == null) { showMessage(this, "Chon day du thong tin!"); return; }
+        Nganh nganh = (Nganh) cboNganh.getSelectedItem();
+        ToHop toHop = (ToHop) cboToHop.getSelectedItem();
 
-        NganhToHop nt = new NganhToHop();
-        nt.setNganh(n);
-        nt.setToHop(th);
-        nt.setDoLech(parseBigDecimal(txtDl.getText()));
+        if (nganh == null || toHop == null) {
+            showMessage(this, "Hay chon day du nganh va to hop!");
+            return;
+        }
+
+        BigDecimal doLech = parseBigDecimal(txtDoLech.getText());
+        if (doLech == null) doLech = BigDecimal.ZERO;
 
         try {
-            service.save(nt);
-            showSuccess(this, "Gan thanh cong!");
+            if (edit) {
+                existing.setNganh(nganh);
+                existing.setToHop(toHop);
+                existing.setDoLech(doLech);
+                service.update(existing);
+                showSuccess(this, "Cap nhat thanh cong!");
+            } else {
+                NganhToHop nt = new NganhToHop();
+                nt.setNganh(nganh);
+                nt.setToHop(toHop);
+                nt.setDoLech(doLech);
+                service.save(nt);
+                showSuccess(this, "Them thanh cong!");
+            }
             loadData();
         } catch (Exception ex) {
-            showError(this, ex.getMessage());
+            showError(this, getRootMessage(ex));
         }
     }
 
-    private void deleteNt() {
-        NganhToHop nt = getSelected();
-        if (nt == null) { showSelectRow(this); return; }
-        if (confirmDelete(this, nt.getNganh() != null ? nt.getNganh().getMaNganh() : "") != JOptionPane.YES_OPTION) return;
+    private boolean matchKeyword(NganhToHop nt, String kw) {
+        if (kw == null || kw.isEmpty()) return true;
 
-        try {
-            service.delete(nt);
-            showSuccess(this, UIConstants.MSG_DELETE_SUCCESS);
-            loadData();
-        } catch (Exception ex) {
-            showError(this, ex.getMessage());
+        String maNganh = nt.getNganh() != null ? safe(nt.getNganh().getMaNganh()).toLowerCase() : "";
+        String tenNganh = nt.getNganh() != null ? safe(nt.getNganh().getTenNganh()).toLowerCase() : "";
+        String maToHop = nt.getToHop() != null ? safe(nt.getToHop().getMaTohop()).toLowerCase() : "";
+        String tenToHop = nt.getToHop() != null ? safe(nt.getToHop().getTenTohop()).toLowerCase() : "";
+
+        return maNganh.contains(kw)
+                || tenNganh.contains(kw)
+                || maToHop.contains(kw)
+                || tenToHop.contains(kw);
+    }
+
+    private void decorateNganhCombo(JComboBox<Nganh> cbo) {
+        cbo.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+                                                          boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value instanceof Nganh) {
+                    Nganh n = (Nganh) value;
+                    setText(safe(n.getMaNganh()) + " - " + safe(n.getTenNganh()));
+                }
+                return this;
+            }
+        });
+    }
+
+    private void decorateToHopCombo(JComboBox<ToHop> cbo) {
+        cbo.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+                                                          boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value instanceof ToHop) {
+                    ToHop th = (ToHop) value;
+                    setText(safe(th.getMaTohop()) + " - " + safe(th.getTenTohop()));
+                }
+                return this;
+            }
+        });
+    }
+
+    private void selectNganh(JComboBox<Nganh> cbo, Nganh selected) {
+        if (selected == null || selected.getNganhId() == null) return;
+        for (int i = 0; i < cbo.getItemCount(); i++) {
+            Nganh item = cbo.getItemAt(i);
+            if (item != null && selected.getNganhId().equals(item.getNganhId())) {
+                cbo.setSelectedIndex(i);
+                return;
+            }
         }
+    }
+
+    private void selectToHop(JComboBox<ToHop> cbo, ToHop selected) {
+        if (selected == null || selected.getTohopId() == null) return;
+        for (int i = 0; i < cbo.getItemCount(); i++) {
+            ToHop item = cbo.getItemAt(i);
+            if (item != null && selected.getTohopId().equals(item.getTohopId())) {
+                cbo.setSelectedIndex(i);
+                return;
+            }
+        }
+    }
+
+    private String safe(String s) {
+        return s == null ? "" : s;
+    }
+
+    private String getRootMessage(Throwable ex) {
+        Throwable root = ex;
+        while (root.getCause() != null && root.getCause() != root) {
+            root = root.getCause();
+        }
+        String msg = root.getMessage();
+        if (msg == null || msg.trim().isEmpty()) {
+            msg = ex.getMessage();
+        }
+        if (msg == null || msg.trim().isEmpty()) {
+            msg = "Khong the thuc hien thao tac.";
+        }
+        return msg;
     }
 }

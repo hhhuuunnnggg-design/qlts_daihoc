@@ -26,6 +26,10 @@ public class NganhToHopService implements INganhToHopService {
         return dao.save(entity);
     }
 
+    public void update(NganhToHop entity) {
+        dao.update(entity);
+    }
+
     public void delete(NganhToHop entity) {
         dao.delete(entity);
     }

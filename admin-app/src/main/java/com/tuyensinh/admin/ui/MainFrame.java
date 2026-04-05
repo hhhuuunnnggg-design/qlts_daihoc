@@ -23,6 +23,7 @@ public class MainFrame extends JFrame {
     private final Color navActive = new Color(255, 255, 255, 25);
     private final Color accentBlue = new Color(59, 130, 246);
     private final Map<String, JComponent> navItems = new LinkedHashMap<>();
+    private final Map<String, JComponent> pagePanels = new LinkedHashMap<>();
 
     public MainFrame() {
         initUI();
@@ -129,7 +130,9 @@ public class MainFrame extends JFrame {
         addNavItem("Nguoi dung", "nguoidung", null);
         addNavItem("Thi sinh", "thisinh", null);
         addNavSpacer(12);
-        addNavItem("Nganh & To hop", "nganh", null);
+        addNavItem("Nganh", "nganh", null);
+        addNavItem("To hop", "tohop", null);
+        addNavItem("Nganh - To hop", "nganhtohop", null);
         addNavItem("Diem thi", "diemthi", null);
         addNavItem("Diem cong", "diemcong", null);
         addNavSpacer(12);
@@ -243,6 +246,8 @@ public class MainFrame extends JFrame {
         sidebar.add(navItems.get("thisinh"));
         sidebar.add(Box.createVerticalStrut(12));
         sidebar.add(navItems.get("nganh"));
+        sidebar.add(navItems.get("tohop"));
+        sidebar.add(navItems.get("nganhtohop"));
         sidebar.add(navItems.get("diemthi"));
         sidebar.add(navItems.get("diemcong"));
         sidebar.add(Box.createVerticalStrut(12));
@@ -341,20 +346,50 @@ public class MainFrame extends JFrame {
         contentPanel.setBackground(new Color(243, 244, 246));
 
         // Add all panels
-        contentPanel.add(new HomePanel(this), "home");
-        contentPanel.add(new NguoiDungPanel(this), "nguoidung");
-        contentPanel.add(new ThiSinhPanel(this), "thisinh");
-        contentPanel.add(new ThiSinhImportPanel(this), "thisinh_import");
-        contentPanel.add(new NganhPanel(this), "nganh");
-        contentPanel.add(new ToHopPanel(this), "tohop");
-        contentPanel.add(new NganhToHopPanel(this), "nganhtohop");
-        contentPanel.add(new DiemThiPanel(this), "diemthi");
-        contentPanel.add(new DiemImportPanel(this), "diem_import");
-        contentPanel.add(new DiemThongKePanel(this), "diem_thongke");
-        contentPanel.add(new DiemCongPanel(this), "diemcong");
-        contentPanel.add(new NguyenVongPanel(this), "nguyenvong");
-        contentPanel.add(new XetTuyenPanel(this), "xettuyen");
-        contentPanel.add(new BangQuyDoiPanel(this), "bangquydoi");
+        JComponent homePanel = new HomePanel(this);
+        JComponent nguoiDungPanel = new NguoiDungPanel(this);
+        JComponent thiSinhPanel = new ThiSinhPanel(this);
+        JComponent thiSinhImportPanel = new ThiSinhImportPanel(this);
+        JComponent nganhPanel = new NganhPanel(this);
+        JComponent toHopPanel = new ToHopPanel(this);
+        JComponent nganhToHopPanel = new NganhToHopPanel(this);
+        JComponent diemThiPanel = new DiemThiPanel(this);
+        JComponent diemImportPanel = new DiemImportPanel(this);
+        JComponent diemThongKePanel = new DiemThongKePanel(this);
+        JComponent diemCongPanel = new DiemCongPanel(this);
+        JComponent nguyenVongPanel = new NguyenVongPanel(this);
+        JComponent xetTuyenPanel = new XetTuyenPanel(this);
+        JComponent bangQuyDoiPanel = new BangQuyDoiPanel(this);
+
+        contentPanel.add(homePanel, "home");
+        contentPanel.add(nguoiDungPanel, "nguoidung");
+        contentPanel.add(thiSinhPanel, "thisinh");
+        contentPanel.add(thiSinhImportPanel, "thisinh_import");
+        contentPanel.add(nganhPanel, "nganh");
+        contentPanel.add(toHopPanel, "tohop");
+        contentPanel.add(nganhToHopPanel, "nganhtohop");
+        contentPanel.add(diemThiPanel, "diemthi");
+        contentPanel.add(diemImportPanel, "diem_import");
+        contentPanel.add(diemThongKePanel, "diem_thongke");
+        contentPanel.add(diemCongPanel, "diemcong");
+        contentPanel.add(nguyenVongPanel, "nguyenvong");
+        contentPanel.add(xetTuyenPanel, "xettuyen");
+        contentPanel.add(bangQuyDoiPanel, "bangquydoi");
+
+        pagePanels.put("home", homePanel);
+        pagePanels.put("nguoidung", nguoiDungPanel);
+        pagePanels.put("thisinh", thiSinhPanel);
+        pagePanels.put("thisinh_import", thiSinhImportPanel);
+        pagePanels.put("nganh", nganhPanel);
+        pagePanels.put("tohop", toHopPanel);
+        pagePanels.put("nganhtohop", nganhToHopPanel);
+        pagePanels.put("diemthi", diemThiPanel);
+        pagePanels.put("diem_import", diemImportPanel);
+        pagePanels.put("diem_thongke", diemThongKePanel);
+        pagePanels.put("diemcong", diemCongPanel);
+        pagePanels.put("nguyenvong", nguyenVongPanel);
+        pagePanels.put("xettuyen", xetTuyenPanel);
+        pagePanels.put("bangquydoi", bangQuyDoiPanel);
 
         // ===== WRAP content in a padding container =====
         JPanel contentWrapper = new JPanel(new BorderLayout());
@@ -509,11 +544,18 @@ public class MainFrame extends JFrame {
         currentPage = name;
         cardLayout.show(contentPanel, name);
 
-        // Update title
+        JComponent panel = pagePanels.get(name);
+        if (panel instanceof BasePanel) {
+            try {
+                ((BasePanel) panel).loadData();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+
         String title = getPageTitle(name);
         lblPageTitle.setText(title);
 
-        // Update active nav
         for (Map.Entry<String, JComponent> e : navItems.entrySet()) {
             if (e.getValue() instanceof JPanel) {
                 repaintSidebarNav(e.getValue(), e.getKey().equals(name));
