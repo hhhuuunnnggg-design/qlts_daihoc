@@ -553,37 +553,51 @@ CREATE TABLE xt_ma_xettuyen (
 -- ----------------------------------------------------------
 DROP TABLE IF EXISTS xt_nguyenvong;
 CREATE TABLE xt_nguyenvong (
-    nguyenvong_id      INT             NOT NULL AUTO_INCREMENT,
-    thisinh_id         INT             NOT NULL,
-    nganh_id           INT             NOT NULL,
-    nganh_tohop_id     INT             NOT NULL,
+    nguyenvong_id      INT              NOT NULL AUTO_INCREMENT,
+    thisinh_id         INT              NOT NULL,
+    thu_tu             INT              NOT NULL,
+
+    ma_xettuyen_id     INT              NULL,
+    nganh_id           INT              NOT NULL,
+    nganh_tohop_id     INT              NOT NULL,
     phuongthuc_id      TINYINT UNSIGNED NOT NULL,
-    thu_tu             INT             NOT NULL,
-    diem_thxt          DECIMAL(10,5)   NULL,
-    diem_thgxt         DECIMAL(10,5)   NULL,
-    diem_cong          DECIMAL(6,2)    NULL,
-    diem_uutien        DECIMAL(6,2)    NULL,
-    diem_xettuyen      DECIMAL(10,5)   NULL,
-    ket_qua            VARCHAR(45)     NULL,
-    -- ket_qua: CHO_XET | TRUNG_TUYEN | TRUOT | PHOI_DU_KIEN
-    ghi_chu            VARCHAR(255)    NULL,
+
+    diem_thxt          DECIMAL(10,5)    NULL,
+    diem_thgxt         DECIMAL(10,5)    NULL,
+    diem_cong          DECIMAL(6,2)     NULL,
+    diem_uutien        DECIMAL(6,2)     NULL,
+    diem_xettuyen      DECIMAL(10,5)    NULL,
+    ket_qua            VARCHAR(45)      NULL,
+    ghi_chu            VARCHAR(255)     NULL,
+
     PRIMARY KEY (nguyenvong_id),
+
     UNIQUE KEY uk_nguyenvong_thutu (thisinh_id, thu_tu),
-    UNIQUE KEY uk_nguyenvong_once (thisinh_id, nganh_id, nganh_tohop_id, phuongthuc_id),
+    UNIQUE KEY uk_nguyenvong_thisinh_maxt (thisinh_id, ma_xettuyen_id),
+
+    KEY idx_nguyenvong_maxt (ma_xettuyen_id),
     KEY idx_nguyenvong_nganh (nganh_id),
     KEY idx_nguyenvong_nt (nganh_tohop_id),
     KEY idx_nguyenvong_pt (phuongthuc_id),
+
     CONSTRAINT fk_nv_thisinh
-        FOREIGN KEY (thisinh_id) REFERENCES xt_thisinh(thisinh_id)
-        ON DELETE CASCADE ON UPDATE CASCADE,
+       FOREIGN KEY (thisinh_id) REFERENCES xt_thisinh(thisinh_id)
+           ON DELETE CASCADE ON UPDATE CASCADE,
+
+    CONSTRAINT fk_nv_maxt
+       FOREIGN KEY (ma_xettuyen_id) REFERENCES xt_ma_xettuyen(ma_xettuyen_id)
+           ON DELETE SET NULL ON UPDATE CASCADE,
+
     CONSTRAINT fk_nv_nganh
-        FOREIGN KEY (nganh_id) REFERENCES xt_nganh(nganh_id)
-        ON DELETE CASCADE ON UPDATE CASCADE,
+       FOREIGN KEY (nganh_id) REFERENCES xt_nganh(nganh_id)
+           ON DELETE CASCADE ON UPDATE CASCADE,
+
     CONSTRAINT fk_nv_nt
-        FOREIGN KEY (nganh_tohop_id) REFERENCES xt_nganh_tohop(nganh_tohop_id)
-            ON DELETE CASCADE ON UPDATE CASCADE,
+       FOREIGN KEY (nganh_tohop_id) REFERENCES xt_nganh_tohop(nganh_tohop_id)
+           ON DELETE CASCADE ON UPDATE CASCADE,
+
     CONSTRAINT fk_nv_pt
-        FOREIGN KEY (phuongthuc_id) REFERENCES xt_phuongthuc(phuongthuc_id)
+       FOREIGN KEY (phuongthuc_id) REFERENCES xt_phuongthuc(phuongthuc_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 SET FOREIGN_KEY_CHECKS = 1;

@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 
 @Entity
 @Table(name = "xt_nguyenvong")
-@ToString(exclude = {"thiSinh", "nganh", "nganhToHop", "phuongThuc"})
+@ToString(exclude = {"thiSinh", "maXetTuyenMap", "nganh", "nganhToHop", "phuongThuc"})
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -24,6 +24,10 @@ public class NguyenVong {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "thisinh_id", nullable = false)
     private ThiSinh thiSinh;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ma_xettuyen_id")
+    private MaXetTuyenMap maXetTuyenMap;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "nganh_id", nullable = false)
@@ -62,9 +66,9 @@ public class NguyenVong {
     private String ghiChu;
 
     public static final class KetQua {
-        public static final String CHO_XET        = "CHO_XET";
-        public static final String TRUNG_TUYEN     = "TRUNG_TUYEN";
-        public static final String TRUOT           = "TRUOT";
-        public static final String PHOI_DU_KIEN    = "PHOI_DU_KIEN";
+        public static final String CHO_XET = "CHO_XET";
+        public static final String TRUNG_TUYEN = "TRUNG_TUYEN";
+        public static final String TRUOT = "TRUOT";
+        public static final String PHOI_DU_KIEN = "PHOI_DU_KIEN";
     }
 }
