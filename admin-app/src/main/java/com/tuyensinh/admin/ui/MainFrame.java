@@ -133,6 +133,7 @@ public class MainFrame extends JFrame {
         addNavItem("Nganh", "nganh", null);
         addNavItem("To hop", "tohop", null);
         addNavItem("Nganh - To hop", "nganhtohop", null);
+        addNavItem("Ma xet tuyen", "ma_xettuyen", null);
         addNavItem("Diem thi", "diemthi", null);
         addNavItem("Diem cong", "diemcong", null);
         addNavSpacer(12);
@@ -248,6 +249,7 @@ public class MainFrame extends JFrame {
         sidebar.add(navItems.get("nganh"));
         sidebar.add(navItems.get("tohop"));
         sidebar.add(navItems.get("nganhtohop"));
+        sidebar.add(navItems.get("ma_xettuyen"));
         sidebar.add(navItems.get("diemthi"));
         sidebar.add(navItems.get("diemcong"));
         sidebar.add(Box.createVerticalStrut(12));
@@ -353,6 +355,7 @@ public class MainFrame extends JFrame {
         JComponent nganhPanel = new NganhPanel(this);
         JComponent toHopPanel = new ToHopPanel(this);
         JComponent nganhToHopPanel = new NganhToHopPanel(this);
+        JComponent maXetTuyenPanel = new MaXetTuyenPanel(this);
         JComponent diemThiPanel = new DiemThiPanel(this);
         JComponent diemImportPanel = new DiemImportPanel(this);
         JComponent diemThongKePanel = new DiemThongKePanel(this);
@@ -368,6 +371,7 @@ public class MainFrame extends JFrame {
         contentPanel.add(nganhPanel, "nganh");
         contentPanel.add(toHopPanel, "tohop");
         contentPanel.add(nganhToHopPanel, "nganhtohop");
+        contentPanel.add(maXetTuyenPanel, "ma_xettuyen");
         contentPanel.add(diemThiPanel, "diemthi");
         contentPanel.add(diemImportPanel, "diem_import");
         contentPanel.add(diemThongKePanel, "diem_thongke");
@@ -383,6 +387,7 @@ public class MainFrame extends JFrame {
         pagePanels.put("nganh", nganhPanel);
         pagePanels.put("tohop", toHopPanel);
         pagePanels.put("nganhtohop", nganhToHopPanel);
+        pagePanels.put("ma_xettuyen", maXetTuyenPanel);
         pagePanels.put("diemthi", diemThiPanel);
         pagePanels.put("diem_import", diemImportPanel);
         pagePanels.put("diem_thongke", diemThongKePanel);
@@ -573,6 +578,7 @@ public class MainFrame extends JFrame {
             case "nganh": return "Quan ly nganh";
             case "tohop": return "Quan ly to hop mon";
             case "nganhtohop": return "Nganh - To hop";
+            case "ma_xettuyen": return "Quan ly ma xet tuyen";
             case "diemthi": return "Quan ly diem thi";
             case "diem_import": return "Import diem";
             case "diem_thongke": return "Thong ke diem";

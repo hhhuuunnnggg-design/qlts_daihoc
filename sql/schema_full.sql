@@ -510,6 +510,45 @@ CREATE INDEX idx_xt_diemcong_ct_apdung ON xt_diemcong_chitiet(is_ap_dung);
 CREATE INDEX idx_xt_diemcong_ct_nguonbang_nguonid ON xt_diemcong_chitiet(nguon_bang, nguon_id);
 
 -- ----------------------------------------------------------
+-- 18. Bang map ma xet tuyen -> nganh + phuong thuc + to hop
+-- ----------------------------------------------------------
+DROP TABLE IF EXISTS xt_ma_xettuyen;
+CREATE TABLE xt_ma_xettuyen (
+    ma_xettuyen_id      INT              NOT NULL AUTO_INCREMENT,
+    ma_xet_tuyen        VARCHAR(30)      NOT NULL,
+    ten_chuong_trinh    VARCHAR(255)     NULL,
+    nganh_id            INT              NOT NULL,
+    phuongthuc_id       TINYINT UNSIGNED NOT NULL,
+    nganh_tohop_id      INT              NULL,
+    ma_tohop_nguon      VARCHAR(20)      NOT NULL DEFAULT '',
+    ghi_chu             VARCHAR(255)     NULL,
+    is_active           TINYINT(1)       NOT NULL DEFAULT 1,
+    created_at          TIMESTAMP        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at          TIMESTAMP        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    PRIMARY KEY (ma_xettuyen_id),
+
+    UNIQUE KEY uk_maxt_combo (ma_xet_tuyen, phuongthuc_id, ma_tohop_nguon),
+
+    KEY idx_maxt_ma (ma_xet_tuyen),
+    KEY idx_maxt_nganh (nganh_id),
+    KEY idx_maxt_pt (phuongthuc_id),
+    KEY idx_maxt_nt (nganh_tohop_id),
+
+    CONSTRAINT fk_maxt_nganh
+        FOREIGN KEY (nganh_id) REFERENCES xt_nganh(nganh_id)
+            ON DELETE CASCADE ON UPDATE CASCADE,
+
+    CONSTRAINT fk_maxt_pt
+        FOREIGN KEY (phuongthuc_id) REFERENCES xt_phuongthuc(phuongthuc_id)
+            ON DELETE CASCADE ON UPDATE CASCADE,
+
+    CONSTRAINT fk_maxt_nt
+        FOREIGN KEY (nganh_tohop_id) REFERENCES xt_nganh_tohop(nganh_tohop_id)
+            ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ----------------------------------------------------------
 -- 18. Bang nguyen vong xet tuyen
 -- ----------------------------------------------------------
 DROP TABLE IF EXISTS xt_nguyenvong;

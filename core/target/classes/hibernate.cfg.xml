@@ -45,6 +45,7 @@
         <mapping class="com.tuyensinh.entity.Nganh"/>
         <mapping class="com.tuyensinh.entity.NganhPhuongThuc"/>
         <mapping class="com.tuyensinh.entity.NganhToHop"/>
+        <mapping class="com.tuyensinh.entity.MaXetTuyenMap"/>
         <mapping class="com.tuyensinh.entity.NganhToHopMon"/>
         <mapping class="com.tuyensinh.entity.DiemThi"/>
         <mapping class="com.tuyensinh.entity.DiemThiChiTiet"/>
