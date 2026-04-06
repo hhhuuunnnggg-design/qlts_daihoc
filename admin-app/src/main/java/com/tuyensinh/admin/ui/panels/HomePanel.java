@@ -25,12 +25,12 @@ public class HomePanel extends JPanel {
 
     private void initColors() {
         cardColors = new HashMap<>();
-        cardColors.put("nguoidung", new Color(59, 130, 246));   // blue
-        cardColors.put("thisinh", new Color(34, 197, 94));      // green
-        cardColors.put("nganh", new Color(249, 115, 22));      // orange
-        cardColors.put("diemthi", new Color(168, 85, 247));   // purple
-        cardColors.put("diemcong", new Color(20, 184, 166));   // teal
-        cardColors.put("nguyenvong", new Color(239, 68, 68));  // red
+        cardColors.put("nguoidung", new Color(59, 130, 246)); // blue
+        cardColors.put("thisinh", new Color(34, 197, 94)); // green
+        cardColors.put("nganh", new Color(249, 115, 22)); // orange
+        cardColors.put("diemthi", new Color(168, 85, 247)); // purple
+        cardColors.put("diemcong", new Color(20, 184, 166)); // teal
+        cardColors.put("nguyenvong", new Color(239, 68, 68)); // red
     }
 
     private void initUI() {
@@ -53,17 +53,17 @@ public class HomePanel extends JPanel {
                 java.lang.reflect.Method m = user.getClass().getMethod("getUsername");
                 userName = (String) m.invoke(user);
             }
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
 
-        JLabel welcome = new JLabel("Xin chao, " + userName + "!");
+        JLabel welcome = new JLabel("Xin chào, " + userName + "!");
         welcome.setFont(new Font("Segoe UI", Font.BOLD, 22));
         welcome.setForeground(new Color(30, 30, 30));
-        welcome.setAlignmentX(Component.LEFT_ALIGNMENT);
+        welcome.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JLabel sub = new JLabel("Chao mung ban den voi he thong quan ly tuyen sinh dai hoc 2026");
-        sub.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        JLabel sub = new JLabel("Chào mừng bạn đến với hệ thống quản lý tuyển sinh đại học 2026");
         sub.setForeground(new Color(100, 100, 100));
-        sub.setAlignmentX(Component.LEFT_ALIGNMENT);
+        sub.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         headerPanel.add(welcome);
         headerPanel.add(Box.createVerticalStrut(4));
@@ -73,38 +73,50 @@ public class HomePanel extends JPanel {
         JPanel statsRow = new JPanel(new GridLayout(1, 4, 16, 0));
         statsRow.setOpaque(false);
 
-        statsRow.add(makeStatCard("Tong so nganh", "25", new Color(59, 130, 246), "📚"));
-        statsRow.add(makeStatCard("Thi sinh dang ky", "1,250", new Color(34, 197, 94), "🎓"));
-        statsRow.add(makeStatCard("Nguyen vong", "3,180", new Color(249, 115, 22), "📝"));
-        statsRow.add(makeStatCard("Ket qua trung tuyen", "890", new Color(20, 184, 166), "✅"));
+        statsRow.add(makeStatCard("Tổng số ngành", "25", new Color(59, 130, 246), "📚"));
+        statsRow.add(makeStatCard("Thí sinh đăng ký", "1,250", new Color(34, 197, 94), "🎓"));
+        statsRow.add(makeStatCard("Nguyện vọng", "3,180", new Color(249, 115, 22), "📝"));
+        statsRow.add(makeStatCard("Kết quả trúng tuyển", "890", new Color(20, 184, 166), "✅"));
 
         // ===== Module Cards Grid =====
         JPanel gridPanel = new JPanel(new GridLayout(2, 3, 16, 16));
         gridPanel.setOpaque(false);
+        gridPanel.setLayout(new GridLayout(0, 3, 20, 10));
+        gridPanel.add(makeModuleCard("Quản lý người dùng",
+                "Thêm, sửa, xóa tài khoản\nPhân quyền người dùng\nKhóa / mở tài khoản",
+                "nguoidung", new Color(59, 130, 246)));
 
-        gridPanel.add(makeModuleCard("Quan ly nguoi dung",
-            "Them, sua, xoa tai khoan\nPhan quyen nguoi dung\nKhoa / mo tai khoan",
-            "nguoidung", new Color(59, 130, 246)));
+        gridPanel.add(makeModuleCard("Quản lý thí sinh",
+                "Import DSSV từ file Excel\nTìm kiếm theo CCCD, họ tên\nPhân trang 20 dòng/trang",
+                "thisinh", new Color(34, 197, 94)));
 
-        gridPanel.add(makeModuleCard("Quan ly thi sinh",
-            "Import DSSV tu file Excel\nTim kiem theo CCCD, ho ten\nPhan trang 20 dong/trang",
-            "thisinh", new Color(34, 197, 94)));
+        gridPanel.add(makeModuleCard("Quản lý ngành",
+                "Thêm, sửa, xóa ngành\nGán tổ hợp môn thi\nQuản lý chỉ tiêu",
+                "nganh", new Color(249, 115, 22)));
 
-        gridPanel.add(makeModuleCard("Quan ly nganh",
-            "Them, sua, xoa nganh\nGan to hop mon thi\nQuan ly chi tieu",
-            "nganh", new Color(249, 115, 22)));
+        gridPanel.add(makeModuleCard("Quản lý điểm thi",
+                "Import điểm 5 cột\nĐiểm XTT, VSAT, ĐGNL, THPT\nThống kê theo môn học",
+                "diemthi", new Color(168, 85, 247)));
 
-        gridPanel.add(makeModuleCard("Quan ly diem thi",
-            "Import diem 5 cot\nDiem XTT, VSAT, DGNL, THPT\nThong ke theo mon hoc",
-            "diemthi", new Color(168, 85, 247)));
+        gridPanel.add(makeModuleCard("Quản lý điểm cộng",
+                "Điểm chứng chỉ, điểm ưu tiên\nTự động tính tổng điểm\nImport danh sách",
+                "diemcong", new Color(20, 184, 166)));
 
-        gridPanel.add(makeModuleCard("Quan ly diem cong",
-            "Diem chung chi, diem uu tien\nTu dong tinh tong diem\nImport danh sach",
-            "diemcong", new Color(20, 184, 166)));
+        gridPanel.add(makeModuleCard("Quản lý nguyện vọng",
+                "Xét tuyển tự động\nCập nhật kết quả\nThống kê trúng / trượt",
+                "nguyenvong", new Color(239, 68, 68)));
 
-        gridPanel.add(makeModuleCard("Quan ly nguyen vong",
-            "Xet tuyen tu dong\nCap nhat ket qua\nThong ke trung / trot",
-            "nguyenvong", new Color(239, 68, 68)));
+        gridPanel.add(makeModuleCard("Quản lý tổ hợp môn",
+                "Import danh sách\nXem danh sách và tìm kiếm tổ hợp môn\nThêm, sửa, xóa tổ hợp môn",
+                "tohop", new Color(99, 102, 241)));
+
+        gridPanel.add(makeModuleCard("Quản lý mã xét tuyển",
+                "Import danh sách\nThêm, sửa, xóa mã xét tuyển\nXem danh sách và Tìm kiếm mã xét tuyển",
+                "ma_xettuyen", new Color(236, 72, 153)));
+
+        gridPanel.add(makeModuleCard("Bảng quy đổi",
+                "Import danh sách quy đổi\nXem và Tìm kiếm đối tượng quy đổi\nThêm, sửa, xóa đối tượng quy đổi",
+                "bangquydoi", new Color(99, 102, 241)));
 
         // ===== Assemble =====
         JPanel wrapper = new JPanel();
@@ -136,7 +148,7 @@ public class HomePanel extends JPanel {
         card.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JLabel iconLbl = new JLabel(icon);
-        iconLbl.setFont(new Font("Segoe UI", Font.PLAIN, 24));
+        iconLbl.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 24));
         iconLbl.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JLabel valueLbl = new JLabel(value);
@@ -215,7 +227,7 @@ public class HomePanel extends JPanel {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setColor(new Color(
-                    accentColor.getRed(), accentColor.getGreen(), accentColor.getBlue(), 25));
+                        accentColor.getRed(), accentColor.getGreen(), accentColor.getBlue(), 25));
                 g2.fillOval(0, 0, 40, 40);
                 g2.setColor(accentColor);
                 g2.fillOval(4, 4, 32, 32);
@@ -223,7 +235,11 @@ public class HomePanel extends JPanel {
             }
         };
         iconCircle.setOpaque(false);
+        iconCircle.setLayout(new BorderLayout()); // 🔥 bắt buộc
+        iconCircle.setPreferredSize(new Dimension(40, 40));
+        iconCircle.setMinimumSize(new Dimension(40, 40));
         iconCircle.setMaximumSize(new Dimension(40, 40));
+        iconCircle.setOpaque(false);
 
         JLabel iconDot = new JLabel() {
             @Override
@@ -238,8 +254,8 @@ public class HomePanel extends JPanel {
         };
         iconDot.setOpaque(false);
         iconDot.setMaximumSize(new Dimension(40, 40));
-
-        iconCircle.add(iconDot);
+        iconDot.setPreferredSize(new Dimension(40, 40));
+        iconCircle.add(iconDot, BorderLayout.CENTER);
 
         JLabel titleLbl = new JLabel(title);
         titleLbl.setFont(new Font("Segoe UI", Font.BOLD, 14));
@@ -274,10 +290,12 @@ public class HomePanel extends JPanel {
                 card.putClientProperty("hovered", Boolean.TRUE);
                 card.repaint();
             }
+
             public void mouseExited(java.awt.event.MouseEvent e) {
                 card.putClientProperty("hovered", Boolean.FALSE);
                 card.repaint();
             }
+
             public void mouseClicked(java.awt.event.MouseEvent e) {
                 if (mainFrame != null) {
                     mainFrame.showPanel(pageKey);

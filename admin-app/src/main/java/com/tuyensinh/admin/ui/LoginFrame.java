@@ -21,7 +21,7 @@ public class LoginFrame extends JFrame {
     }
 
     private void initUI() {
-        setTitle("Quan ly Tuyen Sinh Dai Hoc 2026");
+        setTitle("Quản Lý Tuyển Sinh Đại Học 2026");
         setSize(520, 580);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
