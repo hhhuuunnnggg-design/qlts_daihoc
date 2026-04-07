@@ -4,6 +4,7 @@ import com.tuyensinh.entity.DiemThi;
 import com.tuyensinh.entity.ThiSinh;
 import java.util.List;
 import java.util.Optional;
+import com.tuyensinh.service.ThiSinhBulkAccountResult;
 
 public interface IThiSinhService {
 
@@ -35,6 +36,8 @@ public interface IThiSinhService {
     String generateSoBaoDanh();
 
     List<DiemThi> getDiemThiList(Integer thisinhId);
+
+    ThiSinhBulkAccountResult createBulkAccountsForImportedCandidates();
 
     int getTotalPages(long total, int pageSize);
 }

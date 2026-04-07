@@ -12,6 +12,7 @@ import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class ThiSinhPanel extends JPanel {
 
@@ -24,7 +25,7 @@ public class ThiSinhPanel extends JPanel {
     private JTable table;
     private DefaultTableModel model;
     private JTextField txtSearch;
-    private JButton btnSearch, btnRefresh, btnImport, btnAdd, btnEdit, btnDelete, btnViewDiem;
+    private JButton btnSearch, btnRefresh, btnImport, btnCreateBulkAccounts, btnAdd, btnEdit, btnDelete, btnViewDiem;
     private JLabel lblTotal;
     private JSpinner spnPage;
     private int currentPage = 1;
@@ -63,6 +64,11 @@ public class ThiSinhPanel extends JPanel {
         btnImport = new JButton("Import");
         btnImport.addActionListener(e -> showImportDialog());
         toolbar.add(btnImport);
+
+        btnCreateBulkAccounts = new JButton("Tao TK hang loat");
+        btnCreateBulkAccounts.setToolTipText("Tao tai khoan USER cho thi sinh chua co tai khoan: username = CCCD, mat khau = ddMMyyyy");
+        btnCreateBulkAccounts.addActionListener(e -> createBulkAccounts());
+        toolbar.add(btnCreateBulkAccounts);
 
         toolbar.add(Box.createHorizontalStrut(20));
 
@@ -414,6 +420,70 @@ public class ThiSinhPanel extends JPanel {
         JScrollPane sp = new JScrollPane(ta);
         sp.setPreferredSize(new Dimension(450, 350));
         JOptionPane.showMessageDialog(this, sp, "Diem thi - " + ts.getHoVaTen(), JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private void createBulkAccounts() {
+        int confirm = JOptionPane.showConfirmDialog(
+                this,
+                "He thong se tao tai khoan USER cho tat ca thi sinh chua co tai khoan.\n"
+                        + "Quy uoc dang nhap:\n"
+                        + "- Username = CCCD\n"
+                        + "- Mat khau goc = ngay sinh ddMMyyyy\n\n"
+                        + "Tiep tuc?",
+                "Xac nhan tao tai khoan hang loat",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE
+        );
+        if (confirm != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        btnCreateBulkAccounts.setEnabled(false);
+        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
+        SwingWorker<ThiSinhBulkAccountResult, Void> worker = new SwingWorker<ThiSinhBulkAccountResult, Void>() {
+            @Override
+            protected ThiSinhBulkAccountResult doInBackground() {
+                return service.createBulkAccountsForImportedCandidates();
+            }
+
+            @Override
+            protected void done() {
+                btnCreateBulkAccounts.setEnabled(true);
+                setCursor(Cursor.getDefaultCursor());
+                try {
+                    ThiSinhBulkAccountResult result = get();
+                    loadData();
+                    showBulkAccountResult(result);
+                } catch (InterruptedException ex) {
+                    Thread.currentThread().interrupt();
+                    JOptionPane.showMessageDialog(ThiSinhPanel.this, "Tien trinh bi gian doan: " + ex.getMessage());
+                } catch (ExecutionException ex) {
+                    Throwable cause = ex.getCause() != null ? ex.getCause() : ex;
+                    JOptionPane.showMessageDialog(ThiSinhPanel.this, "Loi tao tai khoan hang loat: " + cause.getMessage());
+                }
+            }
+        };
+        worker.execute();
+    }
+
+    private void showBulkAccountResult(ThiSinhBulkAccountResult result) {
+        JTextArea ta = new JTextArea(result.toHumanMessage() + "\n\nChi tiet:\n" + result.getDetailsText());
+        ta.setEditable(false);
+        ta.setLineWrap(true);
+        ta.setWrapStyleWord(true);
+        ta.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        ta.setCaretPosition(0);
+
+        JScrollPane sp = new JScrollPane(ta);
+        sp.setPreferredSize(new Dimension(720, 420));
+
+        JOptionPane.showMessageDialog(
+                this,
+                sp,
+                "Ket qua tao tai khoan hang loat",
+                result.getErrorCount() > 0 ? JOptionPane.WARNING_MESSAGE : JOptionPane.INFORMATION_MESSAGE
+        );
     }
 
     private void showImportDialog() {

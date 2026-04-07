@@ -142,16 +142,17 @@ public class ToHopPanel extends BaseCrudPanel<ToHop> {
             String m3 = "";
             String loai = "Thong thuong";
 
-            if (th.getMaTohop() != null && th.getMaTohop().startsWith("NK")) {
-                loai = "Nang khieu";
-            }
-
             for (int i = 0; i < monList.size() && i < 3; i++) {
                 ToHopMon tm = monList.get(i);
                 String maMon = tm.getMon() != null ? tm.getMon().getMaMon() : "";
+
                 if (i == 0) m1 = maMon;
                 if (i == 1) m2 = maMon;
                 if (i == 2) m3 = maMon;
+
+                if (isNangKhieuMon(maMon)) {
+                    loai = "Nang khieu";
+                }
             }
 
             model.addRow(new Object[]{
@@ -437,5 +438,14 @@ public class ToHopPanel extends BaseCrudPanel<ToHop> {
         } catch (Exception e) {
             return 1;
         }
+    }
+
+    private boolean isNangKhieuMon(String maMon) {
+        if (maMon == null) {
+            return false;
+        }
+
+        String normalized = maMon.trim().toUpperCase();
+        return normalized.matches("^NK\\d+.*");
     }
 }
