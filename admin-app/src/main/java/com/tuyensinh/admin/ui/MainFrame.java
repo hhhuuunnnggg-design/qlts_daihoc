@@ -62,8 +62,8 @@ public class MainFrame extends JFrame {
         sidebarHeader.setOpaque(false);
         sidebarHeader.setLayout(new BoxLayout(sidebarHeader, BoxLayout.Y_AXIS));
         sidebarHeader.setBorder(new EmptyBorder(20, 20, 16, 20));
-        sidebarHeader.setAlignmentX(Component.LEFT_ALIGNMENT);
-        sidebarHeader.setMaximumSize(new Dimension(240, 90));
+        sidebarHeader.setAlignmentX(Component.CENTER_ALIGNMENT);
+        sidebarHeader.setMaximumSize(new Dimension(Integer.MAX_VALUE, 90));
 
         // Logo icon
         JPanel logoIcon = new JPanel() {
@@ -119,10 +119,11 @@ public class MainFrame extends JFrame {
         // ---- Divider ----
         JSeparator sidebarSep = new JSeparator();
         sidebarSep.setForeground(new Color(255, 255, 255, 30));
-        sidebarSep.setMaximumSize(new Dimension(240, 1));
+        sidebarSep.setMaximumSize(new Dimension(Integer.MAX_VALUE, 1));
         sidebarSep.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         // ---- Nav section labels ----
+
         JLabel navLabelMain = makeNavSectionLabel("QUẢN LÝ");
         JLabel navLabelSys = makeNavSectionLabel("HỆ THỐNG");
 
@@ -421,12 +422,12 @@ public class MainFrame extends JFrame {
     }
 
     private JLabel makeNavSectionLabel(String text) {
-        JLabel lbl = new JLabel("  " + text);
-        lbl.setFont(new Font("Segoe UI", Font.BOLD, 10));
-        lbl.setForeground(new Color(255, 255, 255, 60));
-        lbl.setMaximumSize(new Dimension(240, 20));
-        lbl.setAlignmentX(Component.LEFT_ALIGNMENT);
-        return lbl;
+        JLabel label = new JLabel(text.toUpperCase()); // in hoa
+        label.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        label.setForeground(new Color(200, 210, 230)); // màu nhạt hơn, dịu mắt
+        label.setAlignmentX(Component.LEFT_ALIGNMENT);
+        label.setBorder(new EmptyBorder(12, 16, 4, 0)); // padding trên & trái
+        return label;
     }
 
     private void addNavItem(String text, String pageKey, String icon) {
@@ -494,21 +495,27 @@ public class MainFrame extends JFrame {
                 super.paintComponent(g);
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                int cy = getHeight() / 2; // chính giữa trục Y
                 g2.setColor(new Color(255, 255, 255, 160));
-                g2.fillOval(5, 13, 6, 6);
+                g2.fillOval(2, cy - 3, 6, 6); // 6 là đường kính, nên -3 để căn giữa
                 g2.dispose();
             }
         };
         iconArea.setOpaque(false);
+
         iconArea.setMaximumSize(new Dimension(16, 42));
+        iconArea.setAlignmentY(Component.CENTER_ALIGNMENT);
 
         JLabel textLbl = new JLabel(text);
         textLbl.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         textLbl.setForeground(Color.WHITE);
-        textLbl.setBorder(new EmptyBorder(0, 10, 0, 0));
+        textLbl.setBorder(new EmptyBorder(0, 1, 0, 0));
+        textLbl.setAlignmentY(Component.CENTER_ALIGNMENT);
 
+        navItem.setLayout(new BoxLayout(navItem, BoxLayout.X_AXIS));
         navItem.add(iconArea);
         navItem.add(textLbl);
+        navItem.setBorder(new EmptyBorder(0, 0, 0, 30));
         navItems.put(pageKey, navItem);
     }
 
