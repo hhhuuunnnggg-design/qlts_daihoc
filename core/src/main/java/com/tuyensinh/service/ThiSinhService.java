@@ -81,7 +81,7 @@ public class ThiSinhService implements IThiSinhService {
     }
 
     public List<DiemThi> getDiemThiList(Integer thisinhId) {
-        return diemThiDao.findByThiSinhId(thisinhId);
+        return diemThiDao.findByThiSinhIdWithDetails(thisinhId);
     }
 
     @Override

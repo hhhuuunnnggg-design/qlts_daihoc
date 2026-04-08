@@ -103,4 +103,14 @@ public class DiemThiService implements IDiemThiService {
 
         return dao.replaceForUniqueKey(diemThi);
     }
+
+    @Override
+    public DiemThi findByIdWithDetails(Integer id) {
+        return dao.findByIdWithDetails(id);
+    }
+
+    @Override
+    public List<DiemThi> findByThiSinhIdWithDetails(Integer thisinhId) {
+        return dao.findByThiSinhIdWithDetails(thisinhId);
+    }
 }

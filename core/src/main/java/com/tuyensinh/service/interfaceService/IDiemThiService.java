@@ -34,4 +34,8 @@ public interface IDiemThiService {
                                       String soBaoDanh,
                                       String ghiChu,
                                       Map<Mon, BigDecimal> diemTheoMon);
+
+    DiemThi findByIdWithDetails(Integer id);
+
+    List<DiemThi> findByThiSinhIdWithDetails(Integer thisinhId);
 }

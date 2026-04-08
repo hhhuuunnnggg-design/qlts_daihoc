@@ -9,6 +9,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 import java.util.Optional;
+import javax.swing.table.DefaultTableModel;
+import java.util.ArrayList;
+import java.util.Comparator;
 
 /**
  * Refactored: extends BaseCrudPanel with custom phuong thuc filter toolbar.
@@ -18,6 +21,8 @@ public class DiemThiPanel extends BaseCrudPanel<DiemThi> {
     private ThiSinhService thiSinhService;
     private DiemThiService diemThiService;
     private PhuongThucDao phuongThucDao;
+    private JTable detailTable;
+    private DefaultTableModel detailModel;
 
     private JComboBox<PhuongThuc> phuongThucFilter;
 
@@ -108,6 +113,11 @@ public class DiemThiPanel extends BaseCrudPanel<DiemThi> {
     @Override
     public void loadData() {
         model.setRowCount(0);
+
+        if (detailModel != null) {
+            detailModel.setRowCount(0);
+        }
+
         PhuongThuc pt = (PhuongThuc) phuongThucFilter.getSelectedItem();
         String kw = searchTextField != null ? searchTextField.getText().trim() : "";
 
@@ -243,5 +253,63 @@ public class DiemThiPanel extends BaseCrudPanel<DiemThi> {
                 return this;
             }
         });
+    }
+
+    @Override
+    protected void buildTable() {
+        model = TableFactory.newReadOnlyModel(getTableColumns());
+        table = TableFactory.create(model);
+        configureTableColumns();
+        table.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                onRowSelected();
+            }
+        });
+
+        detailModel = TableFactory.newReadOnlyModel(
+                new String[]{"Ma mon", "Ten mon", "Diem goc", "Diem quy doi", "Diem su dung"});
+        detailTable = TableFactory.create(detailModel);
+        detailTable.setEnabled(false);
+
+        JScrollPane topScroll = TableFactory.wrap(table);
+        topScroll.setBorder(BorderFactory.createTitledBorder("Danh sach diem thi"));
+
+        JScrollPane bottomScroll = TableFactory.wrap(detailTable);
+        bottomScroll.setBorder(BorderFactory.createTitledBorder("Chi tiet xt_diemthi_chitiet"));
+
+        JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, topScroll, bottomScroll);
+        splitPane.setResizeWeight(0.62);
+
+        add(splitPane, BorderLayout.CENTER);
+    }
+
+    @Override
+    protected void onRowSelected() {
+        loadDetailTable();
+    }
+
+    private void loadDetailTable() {
+        if (detailModel == null) return;
+        detailModel.setRowCount(0);
+
+        Integer id = getSelectedId();
+        if (id == null) return;
+
+        DiemThi dt = diemThiService.findByIdWithDetails(id);
+        if (dt == null || dt.getDanhSachDiemChiTiet() == null) return;
+
+        List<DiemThiChiTiet> details = new ArrayList<>(dt.getDanhSachDiemChiTiet());
+        details.sort(Comparator.comparing(d -> d.getMon() != null && d.getMon().getMaMon() != null
+                ? d.getMon().getMaMon() : ""));
+
+        for (DiemThiChiTiet ct : details) {
+            detailModel.addRow(new Object[]{
+                    ct.getMon() != null ? ct.getMon().getMaMon() : "",
+                    ct.getMon() != null ? ct.getMon().getTenMon() : "",
+                    ct.getDiemGoc(),
+                    ct.getDiemQuydoi(),
+                    ct.getDiemSudung()
+            });
+        }
     }
 }

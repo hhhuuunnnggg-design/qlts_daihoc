@@ -144,6 +144,35 @@ public class DiemThiDao extends BaseDao<DiemThi> implements IDiemThiDao {
         }
     }
 
+    public DiemThi findByIdWithDetails(Integer id) {
+        List<DiemThi> list = em().createQuery(
+                        "select distinct d " +
+                                "from DiemThi d " +
+                                "left join fetch d.thiSinh ts " +
+                                "left join fetch d.phuongThuc pt " +
+                                "left join fetch d.danhSachDiemChiTiet ct " +
+                                "left join fetch ct.mon m " +
+                                "where d.diemthiId = :id", DiemThi.class)
+                .setParameter("id", id)
+                .getResultList();
+
+        return list.isEmpty() ? null : list.get(0);
+    }
+
+    public List<DiemThi> findByThiSinhIdWithDetails(Integer thisinhId) {
+        return em().createQuery(
+                        "select distinct d " +
+                                "from DiemThi d " +
+                                "left join fetch d.thiSinh ts " +
+                                "left join fetch d.phuongThuc pt " +
+                                "left join fetch d.danhSachDiemChiTiet ct " +
+                                "left join fetch ct.mon m " +
+                                "where ts.thisinhId = :thisinhId " +
+                                "order by pt.phuongthucId, d.diemthiId", DiemThi.class)
+                .setParameter("thisinhId", thisinhId)
+                .getResultList();
+    }
+
     public List<DiemThi> searchByCccdOrSoBaoDanh(String keyword, Short phuongthucId) {
         CriteriaBuilder cb = cb();
         CriteriaQuery<DiemThi> cq = cb.createQuery(DiemThi.class);

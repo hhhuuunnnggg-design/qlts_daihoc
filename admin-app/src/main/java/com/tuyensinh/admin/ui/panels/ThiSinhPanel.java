@@ -13,6 +13,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.ArrayList;
+import java.util.Comparator;
 
 public class ThiSinhPanel extends JPanel {
 
@@ -395,31 +397,108 @@ public class ThiSinhPanel extends JPanel {
             JOptionPane.showMessageDialog(this, "Chon thi sinh!");
             return;
         }
+
         List<DiemThi> diemList = service.getDiemThiList(ts.getThisinhId());
-        StringBuilder sb = new StringBuilder();
-        sb.append("Thi sinh: ").append(ts.getHoVaTen()).append("\n");
-        sb.append("CCCD: ").append(ts.getCccd()).append("\n\n");
-        if (diemList.isEmpty()) {
-            sb.append("Chua co diem thi nao.\n");
-        } else {
-            for (DiemThi dt : diemList) {
-                sb.append("Phuong thuc: ").append(dt.getPhuongThuc().getTenPhuongthuc()).append("\n");
-                sb.append("  Nam tuyen sinh: ").append(dt.getNamTuyensinh()).append("\n");
-                if (dt.getDanhSachDiemChiTiet() != null) {
-                    for (DiemThiChiTiet dct : dt.getDanhSachDiemChiTiet()) {
-                        sb.append("  ").append(dct.getMon().getMaMon()).append(": ")
-                          .append(dct.getDiemSudung() != null ? dct.getDiemSudung() : "N/A").append("\n");
-                    }
-                }
-                sb.append("\n");
+
+        JDialog dialog = new JDialog(
+                (Frame) SwingUtilities.getWindowAncestor(this),
+                "Diem thi - " + ts.getHoVaTen(),
+                true
+        );
+        dialog.setLayout(new BorderLayout(8, 8));
+
+        JPanel infoPanel = new JPanel(new GridLayout(2, 2, 8, 4));
+        infoPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
+        infoPanel.add(new JLabel("Thi sinh: " + ts.getHoVaTen()));
+        infoPanel.add(new JLabel("CCCD: " + (ts.getCccd() != null ? ts.getCccd() : "")));
+        infoPanel.add(new JLabel("So bao danh: " + (ts.getSobaodanh() != null ? ts.getSobaodanh() : "")));
+        infoPanel.add(new JLabel("Tong bo diem: " + diemList.size()));
+        dialog.add(infoPanel, BorderLayout.NORTH);
+
+        DefaultTableModel headModel = new DefaultTableModel(
+                new String[]{"ID", "Phuong thuc", "Nam TS", "So BD", "So mon", "Ghi chu"}, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
             }
+        };
+
+        JTable tblHead = new JTable(headModel);
+        tblHead.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        tblHead.setRowHeight(24);
+
+        DefaultTableModel detailModel = new DefaultTableModel(
+                new String[]{"Ma mon", "Ten mon", "Diem goc", "Diem quy doi", "Diem su dung"}, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+
+        JTable tblDetail = new JTable(detailModel);
+        tblDetail.setRowHeight(24);
+
+        for (DiemThi dt : diemList) {
+            int soMon = dt.getDanhSachDiemChiTiet() != null ? dt.getDanhSachDiemChiTiet().size() : 0;
+            headModel.addRow(new Object[]{
+                    dt.getDiemthiId(),
+                    dt.getPhuongThuc() != null ? dt.getPhuongThuc().getTenPhuongthuc() : "",
+                    dt.getNamTuyensinh(),
+                    dt.getSobaodanh(),
+                    soMon,
+                    dt.getGhiChu()
+            });
         }
-        JTextArea ta = new JTextArea(sb.toString());
-        ta.setEditable(false);
-        ta.setFont(new Font("Monospaced", Font.PLAIN, 12));
-        JScrollPane sp = new JScrollPane(ta);
-        sp.setPreferredSize(new Dimension(450, 350));
-        JOptionPane.showMessageDialog(this, sp, "Diem thi - " + ts.getHoVaTen(), JOptionPane.INFORMATION_MESSAGE);
+
+        tblHead.getSelectionModel().addListSelectionListener(e -> {
+            if (e.getValueIsAdjusting()) return;
+            int row = tblHead.getSelectedRow();
+            detailModel.setRowCount(0);
+            if (row < 0 || row >= diemList.size()) return;
+
+            DiemThi selected = diemList.get(row);
+            List<DiemThiChiTiet> details = new ArrayList<>(
+                    selected.getDanhSachDiemChiTiet() != null ? selected.getDanhSachDiemChiTiet() : List.of()
+            );
+            details.sort(Comparator.comparing(d -> d.getMon() != null && d.getMon().getMaMon() != null
+                    ? d.getMon().getMaMon() : ""));
+
+            for (DiemThiChiTiet ct : details) {
+                detailModel.addRow(new Object[]{
+                        ct.getMon() != null ? ct.getMon().getMaMon() : "",
+                        ct.getMon() != null ? ct.getMon().getTenMon() : "",
+                        ct.getDiemGoc(),
+                        ct.getDiemQuydoi(),
+                        ct.getDiemSudung()
+                });
+            }
+        });
+
+        JScrollPane spHead = new JScrollPane(tblHead);
+        spHead.setBorder(BorderFactory.createTitledBorder("Danh sach bo diem"));
+
+        JScrollPane spDetail = new JScrollPane(tblDetail);
+        spDetail.setBorder(BorderFactory.createTitledBorder("Chi tiet diem thi"));
+
+        JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, spHead, spDetail);
+        splitPane.setResizeWeight(0.42);
+
+        dialog.add(splitPane, BorderLayout.CENTER);
+
+        JButton btnClose = new JButton("Dong");
+        btnClose.addActionListener(e -> dialog.dispose());
+        JPanel bottom = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        bottom.add(btnClose);
+        dialog.add(bottom, BorderLayout.SOUTH);
+
+        dialog.setSize(900, 600);
+        dialog.setLocationRelativeTo(this);
+
+        if (!diemList.isEmpty()) {
+            tblHead.setRowSelectionInterval(0, 0);
+        }
+
+        dialog.setVisible(true);
     }
 
     private void createBulkAccounts() {
