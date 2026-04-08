@@ -113,6 +113,37 @@ public class DiemThiDao extends BaseDao<DiemThi> implements IDiemThiDao {
         return em().createQuery(cq).getResultList();
     }
 
+    public DiemThi replaceForUniqueKey(DiemThi newEntity) {
+        var em = em();
+        em.getTransaction().begin();
+        try {
+            List<DiemThi> existingList = em.createQuery(
+                            "select d from DiemThi d where d.thiSinh.thisinhId = :thisinhId and d.phuongThuc.phuongthucId = :phuongthucId and d.namTuyensinh = :nam",
+                            DiemThi.class)
+                    .setParameter("thisinhId", newEntity.getThiSinh().getThisinhId())
+                    .setParameter("phuongthucId", newEntity.getPhuongThuc().getPhuongthucId())
+                    .setParameter("nam", newEntity.getNamTuyensinh())
+                    .setMaxResults(1)
+                    .getResultList();
+
+            if (!existingList.isEmpty()) {
+                DiemThi existing = existingList.get(0);
+                DiemThi managed = em.contains(existing) ? existing : em.merge(existing);
+                em.remove(managed);
+                em.flush();
+            }
+
+            em.persist(newEntity);
+            em.getTransaction().commit();
+            return newEntity;
+        } catch (RuntimeException e) {
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+            throw e;
+        }
+    }
+
     public List<DiemThi> searchByCccdOrSoBaoDanh(String keyword, Short phuongthucId) {
         CriteriaBuilder cb = cb();
         CriteriaQuery<DiemThi> cq = cb.createQuery(DiemThi.class);

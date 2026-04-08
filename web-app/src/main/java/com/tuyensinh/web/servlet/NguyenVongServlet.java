@@ -39,6 +39,8 @@ public class NguyenVongServlet extends BaseServlet {
 
             setAttribute(request, "thiSinh", thiSinh);
             setAttribute(request, "danhSachNguyenVong", danhSachNguyenVong);
+            setAttribute(request, "currentPage", "nguyenvong");
+            setAttribute(request, "pageTitle", "Nguyện vọng");
 
             forward(request, response, getViewPath("nguyenvong"));
 
