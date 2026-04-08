@@ -129,16 +129,19 @@ public class MainFrame extends JFrame {
         addNavItem("Trang chu", "home", null);
         addNavItem("Nguoi dung", "nguoidung", null);
         addNavItem("Thi sinh", "thisinh", null);
+        addNavItem("Chung chi ngoai ngu", "thisinh_chungchi", null);
+        addNavItem("Thanh tich uu tien", "thisinh_thanhtich", null);
         addNavSpacer(12);
         addNavItem("Nganh", "nganh", null);
         addNavItem("To hop", "tohop", null);
         addNavItem("Nganh - To hop", "nganhtohop", null);
         addNavItem("Ma xet tuyen", "ma_xettuyen", null);
+        addNavSpacer(12);
         addNavItem("Diem thi", "diemthi", null);
         addNavItem("Diem cong", "diemcong", null);
+        addNavItem("Bang quy doi", "bangquydoi", null);
         addNavSpacer(12);
         addNavItem("Nguyen vong", "nguyenvong", null);
-        addNavItem("Bang quy doi", "bangquydoi", null);
 
         // ---- Sidebar bottom: user info + logout ----
         JPanel sidebarBottom = new JPanel();
@@ -245,16 +248,19 @@ public class MainFrame extends JFrame {
         sidebar.add(navItems.get("home"));
         sidebar.add(navItems.get("nguoidung"));
         sidebar.add(navItems.get("thisinh"));
+        sidebar.add(navItems.get("thisinh_chungchi"));
+        sidebar.add(navItems.get("thisinh_thanhtich"));
         sidebar.add(Box.createVerticalStrut(12));
         sidebar.add(navItems.get("nganh"));
         sidebar.add(navItems.get("tohop"));
         sidebar.add(navItems.get("nganhtohop"));
         sidebar.add(navItems.get("ma_xettuyen"));
+        sidebar.add(Box.createVerticalStrut(12));
         sidebar.add(navItems.get("diemthi"));
         sidebar.add(navItems.get("diemcong"));
+        sidebar.add(navItems.get("bangquydoi"));
         sidebar.add(Box.createVerticalStrut(12));
         sidebar.add(navItems.get("nguyenvong"));
-        sidebar.add(navItems.get("bangquydoi"));
         sidebar.add(Box.createVerticalStrut(8));
         sidebar.add(navLabelSys);
         sidebar.add(Box.createVerticalStrut(4));
@@ -351,6 +357,8 @@ public class MainFrame extends JFrame {
         JComponent homePanel = new HomePanel(this);
         JComponent nguoiDungPanel = new NguoiDungPanel(this);
         JComponent thiSinhPanel = new ThiSinhPanel(this);
+        JComponent thiSinhChungChiPanel = new ThiSinhChungChiPanel(this);
+        JComponent thiSinhThanhTichPanel = new ThiSinhThanhTichPanel(this);
         JComponent thiSinhImportPanel = new ThiSinhImportPanel(this);
         JComponent nganhPanel = new NganhPanel(this);
         JComponent toHopPanel = new ToHopPanel(this);
@@ -367,6 +375,8 @@ public class MainFrame extends JFrame {
         contentPanel.add(homePanel, "home");
         contentPanel.add(nguoiDungPanel, "nguoidung");
         contentPanel.add(thiSinhPanel, "thisinh");
+        contentPanel.add(thiSinhChungChiPanel, "thisinh_chungchi");
+        contentPanel.add(thiSinhThanhTichPanel, "thisinh_thanhtich");
         contentPanel.add(thiSinhImportPanel, "thisinh_import");
         contentPanel.add(nganhPanel, "nganh");
         contentPanel.add(toHopPanel, "tohop");
@@ -383,6 +393,8 @@ public class MainFrame extends JFrame {
         pagePanels.put("home", homePanel);
         pagePanels.put("nguoidung", nguoiDungPanel);
         pagePanels.put("thisinh", thiSinhPanel);
+        pagePanels.put("thisinh_chungchi", thiSinhChungChiPanel);
+        pagePanels.put("thisinh_thanhtich", thiSinhThanhTichPanel);
         pagePanels.put("thisinh_import", thiSinhImportPanel);
         pagePanels.put("nganh", nganhPanel);
         pagePanels.put("tohop", toHopPanel);
@@ -574,6 +586,8 @@ public class MainFrame extends JFrame {
             case "home": return "Trang chu";
             case "nguoidung": return "Quan ly nguoi dung";
             case "thisinh": return "Quan ly thi sinh";
+            case "thisinh_chungchi": return "Quan ly chung chi ngoai ngu";
+            case "thisinh_thanhtich": return "Quan ly thanh tich uu tien";
             case "thisinh_import": return "Import thi sinh";
             case "nganh": return "Quan ly nganh";
             case "tohop": return "Quan ly to hop mon";

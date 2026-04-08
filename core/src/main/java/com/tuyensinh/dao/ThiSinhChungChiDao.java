@@ -58,7 +58,11 @@ public class ThiSinhChungChiDao extends BaseDao<ThiSinhChungChi> implements IThi
 
         cq.select(root)
                 .where(cb.equal(root.get("loaiChungChi"), loaiChungChi))
-                .orderBy(cb.asc(thiSinhJoin.get("ten")), cb.asc(thiSinhJoin.get("ho")));
+                .orderBy(
+                        cb.asc(thiSinhJoin.get("ho")),
+                        cb.asc(thiSinhJoin.get("ten")),
+                        cb.asc(root.get("chungchiId"))
+                );
 
         return em().createQuery(cq).getResultList();
     }
