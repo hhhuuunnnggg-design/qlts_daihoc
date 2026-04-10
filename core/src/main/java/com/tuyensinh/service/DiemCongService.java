@@ -60,46 +60,64 @@ public class DiemCongService implements IDiemCongService {
     }
 
     @Override
-    public void recalculateTongHop(Integer diemcongId) {
-        DiemCong dc = dao.findById(diemcongId);
+    public void recalculateTongHop(Integer diemCongId) {
+        if (diemCongId == null) return;
+
+        DiemCong dc = dao.findById(diemCongId);
         if (dc == null) return;
 
-        List<DiemCongChiTiet> list = chiTietService.findAppliedByDiemCongId(diemcongId);
+        List<DiemCongChiTiet> details = chiTietService.findByDiemCongId(diemCongId);
 
         BigDecimal tongChungChi = BigDecimal.ZERO;
         BigDecimal tongUuTienXt = BigDecimal.ZERO;
-        BigDecimal tongUuTienQuyChe = BigDecimal.ZERO;
+        BigDecimal tongUuTienQc = BigDecimal.ZERO;
 
-        for (DiemCongChiTiet ct : list) {
-            BigDecimal diem = ct.getDiemCongGiaTri() != null
-                    ? ct.getDiemCongGiaTri()
-                    : BigDecimal.ZERO;
+        if (details != null) {
+            for (DiemCongChiTiet ct : details) {
+                if (ct == null || Boolean.FALSE.equals(ct.getIsApDung())) continue;
 
-            switch (ct.getLoaiNguon()) {
-                case CC_NGOAI_NGU:
-                    tongChungChi = tongChungChi.add(diem);
-                    break;
+                BigDecimal diemCong = ct.getDiemCongGiaTri() != null
+                        ? ct.getDiemCongGiaTri()
+                        : BigDecimal.ZERO;
 
-                case UTXT_HSG_QUOCGIA:
-                case UTXT_HSG_TINH:
-                case UTXT_KHKT:
-                case UTXT_NGHE_THUAT:
-                    tongUuTienXt = tongUuTienXt.add(diem);
-                    break;
+                if (ct.getLoaiNguon() == null) continue;
 
-                case UUTIEN_KHUVUC:
-                case UUTIEN_DOITUONG:
-                    tongUuTienQuyChe = tongUuTienQuyChe.add(diem);
-                    break;
+                switch (ct.getLoaiNguon()) {
+                    case CC_NGOAI_NGU:
+                        tongChungChi = tongChungChi.add(diemCong);
+                        break;
+
+                    case UUTIEN_KHUVUC:
+                    case UUTIEN_DOITUONG:
+                        tongUuTienQc = tongUuTienQc.add(diemCong);
+                        break;
+
+                    case UTXT_HSG_QUOCGIA:
+                    case UTXT_HSG_TINH:
+                    case UTXT_KHKT:
+                    case UTXT_NGHE_THUAT:
+                        tongUuTienXt = tongUuTienXt.add(diemCong);
+                        break;
+
+                    default:
+                        break;
+                }
             }
         }
 
+        BigDecimal tongThucTe = tongChungChi.add(tongUuTienXt).add(tongUuTienQc);
+        BigDecimal tongSauTran = tongThucTe.min(new BigDecimal("3.00"));
+
         dc.setTongDiemChungChi(tongChungChi);
         dc.setTongDiemUutienXt(tongUuTienXt);
-        dc.setTongDiemUutienQuyChe(tongUuTienQuyChe);
-        dc.setTongDiemCong(
-                tongChungChi.add(tongUuTienXt).add(tongUuTienQuyChe)
-        );
+        dc.setTongDiemUutienQuyChe(tongUuTienQc);
+        dc.setTongDiemCong(tongSauTran);
+
+        if (tongThucTe.compareTo(new BigDecimal("3.00")) > 0) {
+            dc.setGhiChuTong("Tong diem cong thuc te = " + tongThucTe.toPlainString() + ", ap tran SGU = 3.00");
+        } else {
+            dc.setGhiChuTong(null);
+        }
 
         dao.update(dc);
     }

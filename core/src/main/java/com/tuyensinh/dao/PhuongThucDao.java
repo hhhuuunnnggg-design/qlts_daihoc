@@ -16,6 +16,10 @@ public class PhuongThucDao extends BaseDao<PhuongThuc> implements IPhuongThucDao
         return PhuongThuc.class;
     }
 
+    public PhuongThuc findById(Short id) {
+        return id == null ? null : em().find(PhuongThuc.class, id);
+    }
+
     public Optional<PhuongThuc> findByMa(String maPhuongthuc) {
         CriteriaBuilder cb = cb();
         CriteriaQuery<PhuongThuc> cq = cb.createQuery(PhuongThuc.class);
