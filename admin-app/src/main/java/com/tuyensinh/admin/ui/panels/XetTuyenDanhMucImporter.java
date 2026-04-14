@@ -14,6 +14,7 @@ import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import com.tuyensinh.entity.NganhToHopMon;
 
 import javax.persistence.EntityManager;
 import java.io.File;
@@ -62,7 +63,9 @@ public class XetTuyenDanhMucImporter {
 
             Map<String, ToHop> toHopByMa = importToHopAndMon(em, data);
             Map<String, Nganh> nganhByMa = importNganh(em, data, toHopByMa);
-            int nganhToHopCount = importNganhToHop(em, data, nganhByMa, toHopByMa);
+            Map<String, NganhToHop> nganhToHopByKey = importNganhToHop(em, data, nganhByMa, toHopByMa);
+            Map<String, Mon> monByMa = loadMonByMa(em);
+            int nganhToHopMonCount = importNganhToHopMon(em, data, nganhToHopByKey, monByMa);
             int nganhPhuongThucCount = importNganhPhuongThuc(em, ptThpt, nganhByMa);
 
             em.getTransaction().commit();
@@ -73,7 +76,8 @@ public class XetTuyenDanhMucImporter {
                     nganhByMa.size(),
                     toHopByMa.size(),
                     data.totalToHopMonRows(),
-                    nganhToHopCount,
+                    nganhToHopByKey.size(),
+                    nganhToHopMonCount,
                     nganhPhuongThucCount
             );
         } catch (Exception ex) {
@@ -277,11 +281,11 @@ public class XetTuyenDanhMucImporter {
         return map;
     }
 
-    private int importNganhToHop(EntityManager em,
-                                 ParsedData data,
-                                 Map<String, Nganh> nganhByMa,
-                                 Map<String, ToHop> toHopByMa) {
-        int count = 0;
+    private Map<String, NganhToHop> importNganhToHop(EntityManager em,
+                                                     ParsedData data,
+                                                     Map<String, Nganh> nganhByMa,
+                                                     Map<String, ToHop> toHopByMa) {
+        Map<String, NganhToHop> map = new LinkedHashMap<>();
 
         for (NganhToHopLinkSource src : data.linkRows) {
             Nganh nganh = nganhByMa.get(src.maNganh);
@@ -298,15 +302,64 @@ public class XetTuyenDanhMucImporter {
                 );
             }
 
+            String key = buildNganhToHopKey(src.maNganh, src.maToHop);
+            if (map.containsKey(key)) {
+                continue;
+            }
+
             NganhToHop nt = new NganhToHop();
             nt.setNganh(nganh);
             nt.setToHop(toHop);
             nt.setDoLech(src.doLech != null ? src.doLech : BigDecimal.ZERO);
             em.persist(nt);
-            count++;
+            map.put(key, nt);
+        }
+
+        return map;
+    }
+
+    private int importNganhToHopMon(EntityManager em,
+                                    ParsedData data,
+                                    Map<String, NganhToHop> nganhToHopByKey,
+                                    Map<String, Mon> monByMa) {
+        int count = 0;
+
+        for (Map.Entry<String, NganhToHop> entry : nganhToHopByKey.entrySet()) {
+            NganhToHop nganhToHop = entry.getValue();
+            String maToHop = nganhToHop.getToHop() != null
+                    ? normalizeCode(nganhToHop.getToHop().getMaTohop())
+                    : null;
+
+            ToHopSource toHopSource = data.toHopByMa.get(maToHop);
+            if (toHopSource == null || toHopSource.monSpecs.isEmpty()) {
+                throw new IllegalStateException(
+                        "Khong tim thay cau hinh mon cho to hop '" + maToHop + "'"
+                );
+            }
+
+            for (ToHopMonSource monSpec : toHopSource.monSpecs) {
+                Mon mon = monByMa.get(monSpec.maMon);
+                if (mon == null) {
+                    throw new IllegalStateException(
+                            "Khong tim thay mon '" + monSpec.maMon + "' trong xt_mon"
+                    );
+                }
+
+                NganhToHopMon nthm = new NganhToHopMon();
+                nthm.setNganhToHop(nganhToHop);
+                nthm.setMon(mon);
+                nthm.setHeSo(monSpec.heSo);
+                nthm.setIsMonChinh(monSpec.isMonChinh);
+                em.persist(nthm);
+                count++;
+            }
         }
 
         return count;
+    }
+
+    private String buildNganhToHopKey(String maNganh, String maToHop) {
+        return normalizeCode(maNganh) + "__" + normalizeCode(maToHop);
     }
 
     private int importNganhPhuongThuc(EntityManager em, PhuongThuc ptThpt, Map<String, Nganh> nganhByMa) {
@@ -381,7 +434,9 @@ public class XetTuyenDanhMucImporter {
             throw new IllegalStateException("Khong phan tich duoc danh sach mon trong to hop: " + rawToHop);
         }
 
-        List<String> monCodes = new ArrayList<>();
+        List<ToHopMonSource> monSpecs = new ArrayList<>();
+        short maxHeSo = 1;
+
         for (String token : body.split(",")) {
             String part = token == null ? "" : token.trim();
             if (part.isEmpty()) continue;
@@ -395,17 +450,55 @@ public class XetTuyenDanhMucImporter {
                         "Mon '" + maMon + "' trong to hop '" + ma + "' chua co trong xt_mon"
                 );
             }
-            monCodes.add(maMon);
+
+            Short heSo = parseHeSoToken(part, ma, rawToHop);
+            if (heSo > maxHeSo) {
+                maxHeSo = heSo;
+            }
+
+            ToHopMonSource monSource = new ToHopMonSource();
+            monSource.maMon = maMon;
+            monSource.heSo = heSo;
+            monSpecs.add(monSource);
         }
 
-        if (monCodes.size() != 3) {
+        if (monSpecs.size() != 3) {
             throw new IllegalStateException("To hop '" + ma + "' khong co dung 3 mon: " + rawToHop);
+        }
+
+        List<String> monCodes = new ArrayList<>();
+        for (ToHopMonSource monSpec : monSpecs) {
+            monSpec.isMonChinh = monSpec.heSo != null
+                    && monSpec.heSo.shortValue() == maxHeSo
+                    && maxHeSo > 1;
+            monCodes.add(monSpec.maMon);
         }
 
         ToHopSource src = new ToHopSource();
         src.maToHop = ma;
         src.monCodes = monCodes;
+        src.monSpecs = monSpecs;
         return src;
+    }
+
+    private Short parseHeSoToken(String token, String maToHop, String rawToHop) {
+        int dashIdx = token.indexOf('-');
+        if (dashIdx < 0 || dashIdx == token.length() - 1) {
+            return 1;
+        }
+
+        String heSoText = token.substring(dashIdx + 1).trim();
+        if (isBlank(heSoText)) {
+            return 1;
+        }
+
+        try {
+            return Short.parseShort(cleanNumberText(heSoText));
+        } catch (Exception ex) {
+            throw new IllegalStateException(
+                    "Khong doc duoc he so mon trong to hop '" + maToHop + "': " + rawToHop
+            );
+        }
     }
 
     private String buildToHopName(List<String> monCodes, Map<String, Mon> monByMa) {
@@ -502,6 +595,13 @@ public class XetTuyenDanhMucImporter {
     private static class ToHopSource {
         private String maToHop;
         private List<String> monCodes = new ArrayList<>();
+        private List<ToHopMonSource> monSpecs = new ArrayList<>();
+    }
+
+    private static class ToHopMonSource {
+        private String maMon;
+        private Short heSo = 1;
+        private Boolean isMonChinh = false;
     }
 
     private static class NganhToHopLinkSource {
@@ -516,6 +616,7 @@ public class XetTuyenDanhMucImporter {
         private final int toHopCount;
         private final int toHopMonCount;
         private final int nganhToHopCount;
+        private final int nganhToHopMonCount;
         private final int nganhPhuongThucCount;
 
         public ImportResult(String directoryPath,
@@ -523,12 +624,14 @@ public class XetTuyenDanhMucImporter {
                             int toHopCount,
                             int toHopMonCount,
                             int nganhToHopCount,
+                            int nganhToHopMonCount,
                             int nganhPhuongThucCount) {
             this.directoryPath = directoryPath;
             this.nganhCount = nganhCount;
             this.toHopCount = toHopCount;
             this.toHopMonCount = toHopMonCount;
             this.nganhToHopCount = nganhToHopCount;
+            this.nganhToHopMonCount = nganhToHopMonCount;
             this.nganhPhuongThucCount = nganhPhuongThucCount;
         }
 
@@ -539,6 +642,7 @@ public class XetTuyenDanhMucImporter {
                     + "So to hop: " + toHopCount + "\n"
                     + "So dong to hop - mon: " + toHopMonCount + "\n"
                     + "So lien ket nganh - to hop: " + nganhToHopCount + "\n"
+                    + "So dong nganh - to hop - mon: " + nganhToHopMonCount + "\n"
                     + "So dong nganh - phuong thuc: " + nganhPhuongThucCount;
         }
     }
