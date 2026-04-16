@@ -11,6 +11,8 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import javax.persistence.criteria.JoinType;
+import java.util.Comparator;
 
 public class BangQuyDoiDao extends BaseDao<BangQuyDoi> implements IBangQuyDoiDao {
 
@@ -65,22 +67,85 @@ public class BangQuyDoiDao extends BaseDao<BangQuyDoi> implements IBangQuyDoiDao
         CriteriaBuilder cb = cb();
         CriteriaQuery<BangQuyDoi> cq = cb.createQuery(BangQuyDoi.class);
         Root<BangQuyDoi> root = cq.from(BangQuyDoi.class);
+
         Join<BangQuyDoi, ?> phuongThuc = root.join("phuongThuc");
+        Join<BangQuyDoi, ?> toHopJoin = root.join("toHop", JoinType.LEFT);
+        Join<BangQuyDoi, ?> monJoin = root.join("mon", JoinType.LEFT);
+
         List<Predicate> preds = new ArrayList<>();
         preds.add(cb.equal(phuongThuc.get("phuongthucId"), phuongthucId));
-        preds.add(cb.le(root.get("diemTu"), diemGoc));
-        preds.add(cb.ge(root.get("diemDen"), diemGoc));
+
+        // Nguon tai lieu la (a < x <= b), nen lower bound phai la exclusive
+        preds.add(cb.lessThan(root.get("diemTu"), diemGoc));
+        preds.add(cb.greaterThanOrEqualTo(root.get("diemDen"), diemGoc));
+
+        // toHop: uu tien match dung, neu khong co thi cho phep ban ghi toHop null
         if (tohopId != null) {
-            Join<BangQuyDoi, ?> toHop = root.join("toHop");
-            preds.add(cb.equal(toHop.get("tohopId"), tohopId));
+            preds.add(
+                    cb.or(
+                            cb.equal(toHopJoin.get("tohopId"), tohopId),
+                            cb.isNull(root.get("toHop"))
+                    )
+            );
+        } else {
+            preds.add(cb.isNull(root.get("toHop")));
         }
+
+        // mon: uu tien match dung, neu khong co thi cho phep ban ghi mon null
         if (monId != null) {
-            Join<BangQuyDoi, ?> mon = root.join("mon");
-            preds.add(cb.equal(mon.get("monId"), monId));
+            preds.add(
+                    cb.or(
+                            cb.equal(monJoin.get("monId"), monId),
+                            cb.isNull(root.get("mon"))
+                    )
+            );
+        } else {
+            preds.add(cb.isNull(root.get("mon")));
         }
+
         cq.select(root).where(preds.toArray(new Predicate[0]));
-        cq.orderBy(cb.desc(root.get("diemTu")));
-        List<BangQuyDoi> list = em().createQuery(cq).setMaxResults(1).getResultList();
-        return list.isEmpty() ? null : list.get(0);
+
+        List<BangQuyDoi> list = em().createQuery(cq).getResultList();
+        if (list.isEmpty()) return null;
+
+        list.sort(
+                Comparator
+                        .comparingInt((BangQuyDoi b) -> specificityScore(b, tohopId, monId))
+                        .reversed()
+                        .thenComparing(BangQuyDoi::getDiemTu, Comparator.nullsLast(BigDecimal::compareTo))
+                        .reversed()
+        );
+
+        return list.get(0);
+    }
+
+    private int specificityScore(BangQuyDoi b, Integer tohopId, Integer monId) {
+        int score = 0;
+
+        if (tohopId != null) {
+            if (b.getToHop() != null && tohopId.equals(b.getToHop().getTohopId())) {
+                score += 10;
+            } else if (b.getToHop() == null) {
+                score += 0;
+            } else {
+                return -1000;
+            }
+        } else if (b.getToHop() == null) {
+            score += 1;
+        }
+
+        if (monId != null) {
+            if (b.getMon() != null && monId.equals(b.getMon().getMonId())) {
+                score += 5;
+            } else if (b.getMon() == null) {
+                score += 0;
+            } else {
+                return -1000;
+            }
+        } else if (b.getMon() == null) {
+            score += 1;
+        }
+
+        return score;
     }
 }

@@ -120,9 +120,8 @@ public abstract class BaseCrudPanel<T> extends BasePanel {
 
         JPanel paging = null;
         if (usePagination) {
-            SpinnerModel spinnerModel = new SpinnerNumberModel(1, 1, 100, 1);
-            pageSpinner = new JSpinner(spinnerModel);
-            paging = ToolbarFactory.createPagingPanel(spinnerModel, () -> {
+            pageSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 100, 1));
+            paging = ToolbarFactory.createPagingPanel(pageSpinner, () -> {
                 currentPage = (Integer) pageSpinner.getValue();
                 loadData();
             });

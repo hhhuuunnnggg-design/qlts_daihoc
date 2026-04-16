@@ -62,25 +62,30 @@ public final class ToolbarFactory {
     /**
      * Tạo panel phân trang đơn giản với spinner + nút prev/next.
      */
-    public static JPanel createPagingPanel(SpinnerModel pageModel, Runnable onPageChange) {
+    public static JPanel createPagingPanel(JSpinner spinner, Runnable onPageChange) {
         JPanel paging = new JPanel(new FlowLayout(FlowLayout.RIGHT, 6, 4));
         paging.add(new JLabel("Trang:"));
-        JSpinner spinner = new JSpinner(pageModel);
+
         spinner.addChangeListener(e -> onPageChange.run());
         paging.add(spinner);
 
         JButton btnPrev = new JButton("<<");
         btnPrev.addActionListener(e -> {
             int current = (Integer) spinner.getValue();
-            if (current > 1) spinner.setValue(current - 1);
+            if (current > 1) {
+                spinner.setValue(current - 1);
+            }
         });
         paging.add(btnPrev);
 
         JButton btnNext = new JButton(">>");
         btnNext.addActionListener(e -> {
-            int max = (Integer) ((SpinnerNumberModel) spinner.getModel()).getMaximum();
+            SpinnerNumberModel model = (SpinnerNumberModel) spinner.getModel();
+            int max = ((Number) model.getMaximum()).intValue();
             int current = (Integer) spinner.getValue();
-            if (current < max) spinner.setValue(current + 1);
+            if (current < max) {
+                spinner.setValue(current + 1);
+            }
         });
         paging.add(btnNext);
 
@@ -90,7 +95,23 @@ public final class ToolbarFactory {
     /** Cập nhật spinner model với trang hiện tại và tổng số trang */
     public static void updatePagingSpinner(JSpinner spinner, int currentPage, int totalItems, int pageSize) {
         int totalPages = Math.max(1, (int) Math.ceil((double) totalItems / pageSize));
-        spinner.setModel(new SpinnerNumberModel(currentPage, 1, totalPages, 1));
+
+        SpinnerNumberModel model;
+        if (spinner.getModel() instanceof SpinnerNumberModel) {
+            model = (SpinnerNumberModel) spinner.getModel();
+            model.setMinimum(1);
+            model.setMaximum(totalPages);
+            model.setStepSize(1);
+        } else {
+            model = new SpinnerNumberModel(1, 1, totalPages, 1);
+            spinner.setModel(model);
+        }
+
+        int safePage = Math.max(1, Math.min(currentPage, totalPages));
+        Integer currentValue = (Integer) spinner.getValue();
+        if (!currentValue.equals(safePage)) {
+            spinner.setValue(safePage);
+        }
     }
 
     // ─── Helper class ─────────────────────────────────────────────────────
