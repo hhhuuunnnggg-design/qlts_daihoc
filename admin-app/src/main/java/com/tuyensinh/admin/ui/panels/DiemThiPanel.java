@@ -83,10 +83,15 @@ public class DiemThiPanel extends BaseCrudPanel<DiemThi> {
 
         toolbar.add(Box.createHorizontalStrut(16));
 
-        JButton btnImport = new JButton("Import tu Ds thi sinh.xlsx");
+        JButton btnImport = new JButton("Import diem THPT + NK");
         btnImport.setToolTipText("Mo man hinh import diem thi tu file Ds thi sinh.xlsx");
         btnImport.addActionListener(e -> mainFrame.showPanel("diem_import"));
         toolbar.add(btnImport);
+
+        JButton btnImportDGNLVSAT = new JButton("Import diem DGNL/VSAT");
+        btnImportDGNLVSAT.setToolTipText("Mo man hinh import file Diem DGNL VSAT - 0908.xlsx");
+        btnImportDGNLVSAT.addActionListener(e -> mainFrame.showPanel("diem_dgnl_vsat_import"));
+        toolbar.add(btnImportDGNLVSAT);
 
         JButton btnAdd = new JButton("Them diem");
         btnAdd.addActionListener(e -> showAddDialog());

@@ -5,18 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a06fc29a-8649-4298-8c6f-cc2578e07637" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/admin-app/src/main/java/com/tuyensinh/admin/ui/panels/DiemDGNLVSATImportPanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/src/main/java/com/tuyensinh/admin/ui/BaseCrudPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/src/main/java/com/tuyensinh/admin/ui/BaseCrudPanel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/src/main/java/com/tuyensinh/admin/ui/ToolbarFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/src/main/java/com/tuyensinh/admin/ui/ToolbarFactory.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/src/main/java/com/tuyensinh/admin/ui/panels/BangQuyDoiPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/src/main/java/com/tuyensinh/admin/ui/panels/BangQuyDoiPanel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/src/main/java/com/tuyensinh/admin/ui/panels/NguoiDungPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/src/main/java/com/tuyensinh/admin/ui/panels/NguoiDungPanel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/BaseCrudPanel.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/BaseCrudPanel.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/ToolbarFactory$ActionButton.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/ToolbarFactory$ActionButton.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/ToolbarFactory.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/ToolbarFactory.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/BangQuyDoiPanel.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/BangQuyDoiPanel.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/NguoiDungPanel.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/NguoiDungPanel.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/java/com/tuyensinh/dao/BangQuyDoiDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/com/tuyensinh/dao/BangQuyDoiDao.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/BangQuyDoiDao.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/BangQuyDoiDao.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-app/src/main/java/com/tuyensinh/admin/ui/MainFrame.java" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/src/main/java/com/tuyensinh/admin/ui/MainFrame.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-app/src/main/java/com/tuyensinh/admin/ui/panels/DiemThiPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/src/main/java/com/tuyensinh/admin/ui/panels/DiemThiPanel.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -62,7 +56,7 @@
     &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
     &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
     &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;Trung&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
     &quot;last_opened_file_path&quot;: &quot;E:/qlts_daihoc&quot;,
@@ -109,6 +103,8 @@
       <workItem from="1776352111019" duration="414000" />
       <workItem from="1776352651156" duration="159000" />
       <workItem from="1776353416867" duration="75000" />
+      <workItem from="1776353786733" duration="881000" />
+      <workItem from="1777010885524" duration="2996000" />
     </task>
     <servers />
   </component>

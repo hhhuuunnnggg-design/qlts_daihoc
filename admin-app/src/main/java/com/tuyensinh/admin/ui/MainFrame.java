@@ -366,6 +366,7 @@ public class MainFrame extends JFrame {
         JComponent maXetTuyenPanel = new MaXetTuyenPanel(this);
         JComponent diemThiPanel = new DiemThiPanel(this);
         JComponent diemImportPanel = new DiemImportPanel(this);
+        JComponent diemDGNLVSATImportPanel = new DiemDGNLVSATImportPanel(this);
         JComponent diemThongKePanel = new DiemThongKePanel(this);
         JComponent diemCongPanel = new DiemCongPanel(this);
         JComponent nguyenVongPanel = new NguyenVongPanel(this);
@@ -384,6 +385,7 @@ public class MainFrame extends JFrame {
         contentPanel.add(maXetTuyenPanel, "ma_xettuyen");
         contentPanel.add(diemThiPanel, "diemthi");
         contentPanel.add(diemImportPanel, "diem_import");
+        contentPanel.add(diemDGNLVSATImportPanel, "diem_dgnl_vsat_import");
         contentPanel.add(diemThongKePanel, "diem_thongke");
         contentPanel.add(diemCongPanel, "diemcong");
         contentPanel.add(nguyenVongPanel, "nguyenvong");
@@ -402,6 +404,7 @@ public class MainFrame extends JFrame {
         pagePanels.put("ma_xettuyen", maXetTuyenPanel);
         pagePanels.put("diemthi", diemThiPanel);
         pagePanels.put("diem_import", diemImportPanel);
+        pagePanels.put("diem_dgnl_vsat_import", diemDGNLVSATImportPanel);
         pagePanels.put("diem_thongke", diemThongKePanel);
         pagePanels.put("diemcong", diemCongPanel);
         pagePanels.put("nguyenvong", nguyenVongPanel);
@@ -594,7 +597,8 @@ public class MainFrame extends JFrame {
             case "nganhtohop": return "Nganh - To hop";
             case "ma_xettuyen": return "Quan ly ma xet tuyen";
             case "diemthi": return "Quan ly diem thi";
-            case "diem_import": return "Import diem";
+            case "diem_import": return "Import diem THPT + NK";
+            case "diem_dgnl_vsat_import": return "Import diem DGNL / VSAT";
             case "diem_thongke": return "Thong ke diem";
             case "diemcong": return "Quan ly diem cong";
             case "nguyenvong": return "Quan ly nguyen vong";
