@@ -5,12 +5,60 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a06fc29a-8649-4298-8c6f-cc2578e07637" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/admin-app/src/main/java/com/tuyensinh/admin/ui/panels/DiemDGNLVSATImportPanel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/admin-app/src/main/java/com/tuyensinh/admin/ui/MainFrame.java" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/src/main/java/com/tuyensinh/admin/ui/MainFrame.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-app/src/main/java/com/tuyensinh/admin/ui/panels/BangQuyDoiPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/src/main/java/com/tuyensinh/admin/ui/panels/BangQuyDoiPanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-app/src/main/java/com/tuyensinh/admin/ui/panels/DiemDGNLVSATImportPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/src/main/java/com/tuyensinh/admin/ui/panels/DiemDGNLVSATImportPanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-app/src/main/java/com/tuyensinh/admin/ui/panels/DiemImportPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/src/main/java/com/tuyensinh/admin/ui/panels/DiemImportPanel.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/admin-app/src/main/java/com/tuyensinh/admin/ui/panels/DiemThiPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/src/main/java/com/tuyensinh/admin/ui/panels/DiemThiPanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-app/src/main/java/com/tuyensinh/admin/ui/panels/XetTuyenPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/src/main/java/com/tuyensinh/admin/ui/panels/XetTuyenPanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/MainFrame$3.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/MainFrame$3.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/MainFrame$4.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/MainFrame$4.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/MainFrame$5.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/MainFrame$5.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/MainFrame$6.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/MainFrame$6.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/MainFrame$7$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/MainFrame$7$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/MainFrame$7.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/MainFrame$7.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/MainFrame$8.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/MainFrame$8.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/MainFrame.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/MainFrame.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/BangQuyDoiPanel$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/BangQuyDoiPanel$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/BangQuyDoiPanel$ImportResult.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/BangQuyDoiPanel$ImportResult.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/BangQuyDoiPanel.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/BangQuyDoiPanel.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/DiemDGNLVSATImportPanel$ImportSummary.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/DiemDGNLVSATImportPanel$ImportSummary.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/DiemDGNLVSATImportPanel.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/DiemDGNLVSATImportPanel.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/DiemImportPanel.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/DiemImportPanel.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/DiemThiPanel$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/DiemThiPanel$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/DiemThiPanel.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/DiemThiPanel.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/XetTuyenPanel$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/XetTuyenPanel$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/XetTuyenPanel$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/XetTuyenPanel$2.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/XetTuyenPanel$3.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/XetTuyenPanel$4.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/XetTuyenPanel.class" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/target/classes/com/tuyensinh/admin/ui/panels/XetTuyenPanel.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/com/tuyensinh/dao/BangQuyDoiDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/com/tuyensinh/dao/BangQuyDoiDao.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/com/tuyensinh/dao/DiemThiDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/com/tuyensinh/dao/DiemThiDao.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/com/tuyensinh/dao/MaXetTuyenMapDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/com/tuyensinh/dao/MaXetTuyenMapDao.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/com/tuyensinh/dao/NganhDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/com/tuyensinh/dao/NganhDao.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/com/tuyensinh/dao/NguyenVongDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/com/tuyensinh/dao/NguyenVongDao.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/com/tuyensinh/dao/ToHopDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/com/tuyensinh/dao/ToHopDao.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/com/tuyensinh/entity/BangQuyDoi.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/com/tuyensinh/entity/BangQuyDoi.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/com/tuyensinh/entity/DiemThi.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/com/tuyensinh/entity/DiemThi.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/com/tuyensinh/entity/NguyenVong.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/com/tuyensinh/entity/NguyenVong.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/com/tuyensinh/service/TinhDiemService.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/com/tuyensinh/service/TinhDiemService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/com/tuyensinh/service/XetTuyenEngine.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/com/tuyensinh/service/XetTuyenEngine.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/BangQuyDoiDao.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/BangQuyDoiDao.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/DiemThiDao.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/DiemThiDao.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/MaXetTuyenMapDao.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/MaXetTuyenMapDao.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/NguyenVongDao.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/NguyenVongDao.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/ToHopDao.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/dao/ToHopDao.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/entity/BangQuyDoi.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/entity/BangQuyDoi.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/entity/DiemThi.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/entity/DiemThi.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/entity/NguyenVong$KetQua.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/entity/NguyenVong$KetQua.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/entity/NguyenVong.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/entity/NguyenVong.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/service/TinhDiemService$KetQuaDiem.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/service/TinhDiemService$KetQuaDiem.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/service/TinhDiemService.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/service/TinhDiemService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/service/XetTuyenEngine$DotXetTuyenResult.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/service/XetTuyenEngine$DotXetTuyenResult.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/service/XetTuyenEngine$KetQuaXetTuyen.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/service/XetTuyenEngine$KetQuaXetTuyen.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/service/XetTuyenEngine.class" beforeDir="false" afterPath="$PROJECT_DIR$/core/target/classes/com/tuyensinh/service/XetTuyenEngine.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sql/schema_full.sql" beforeDir="false" afterPath="$PROJECT_DIR$/sql/schema_full.sql" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -104,7 +152,10 @@
       <workItem from="1776352651156" duration="159000" />
       <workItem from="1776353416867" duration="75000" />
       <workItem from="1776353786733" duration="881000" />
-      <workItem from="1777010885524" duration="2996000" />
+      <workItem from="1777010885524" duration="7979000" />
+      <workItem from="1777184656356" duration="10329000" />
+      <workItem from="1777231404103" duration="13717000" />
+      <workItem from="1777323100295" duration="6275000" />
     </task>
     <servers />
   </component>

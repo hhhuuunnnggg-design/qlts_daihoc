@@ -37,10 +37,10 @@ public class DiemDGNLVSATImportPanel extends JPanel {
     /**
      * Luu y:
      * - nam_thi trong file nguon la 2025
-     * - nhung nam_tuyensinh trong he thong hien dang xet theo chu ky 2026
+     * - nhung nam_tuyensinh trong he thong hien dang xet theo chu ky 2025
      * => phai luu nam_tuyensinh = 2026 de TinhDiemService / XetTuyenEngine tim thay
      */
-    private static final short DEFAULT_NAM_TUYEN_SINH = 2026;
+    private static final short DEFAULT_NAM_TUYEN_SINH = 2025;
     private static final String DEFAULT_GHI_CHU_DGNL = "Import tu Diem DGNL VSAT - 0908.xlsx - DGNL";
     private static final String DEFAULT_GHI_CHU_VSAT = "Import tu Diem DGNL VSAT - 0908.xlsx - VSAT";
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("d/M/yyyy");
@@ -105,7 +105,7 @@ public class DiemDGNLVSATImportPanel extends JPanel {
                         "   - Neu 1 thi sinh thi lai cung mon -> lay DIEM cao nhat\n" +
                         "   - Luu 1 xt_diemthi/phuong thuc VSAT cho moi thi sinh\n" +
                         "   - Luu nhieu xt_diemthi_chitiet theo cac mon tot nhat\n\n" +
-                        "3) Nam tuyen sinh luu trong he thong = 2026\n" +
+                        "3) Nam tuyen sinh luu trong he thong = 2025\n" +
                         "   (khong luu theo NAMTHI=2025 trong file nguon)\n\n" +
                         "Map mon VSAT:\n" +
                         "- TO_VS, M1 -> TO\n" +
@@ -744,7 +744,7 @@ public class DiemDGNLVSATImportPanel extends JPanel {
                     + "Luu y:\n"
                     + "- DGNL: moi thi sinh chi luu 1 diem tot nhat (mon NL1)\n"
                     + "- VSAT: moi thi sinh chi luu 1 bo diem VSAT, moi mon lay diem cao nhat\n"
-                    + "- nam_tuyensinh da luu = 2026";
+                    + "- nam_tuyensinh da luu = 2025";
         }
     }
 }

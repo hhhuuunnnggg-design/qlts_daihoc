@@ -112,8 +112,10 @@ public class BangQuyDoiDao extends BaseDao<BangQuyDoi> implements IBangQuyDoiDao
                 Comparator
                         .comparingInt((BangQuyDoi b) -> specificityScore(b, tohopId, monId))
                         .reversed()
-                        .thenComparing(BangQuyDoi::getDiemTu, Comparator.nullsLast(BigDecimal::compareTo))
-                        .reversed()
+                        .thenComparing(
+                                BangQuyDoi::getDiemTu,
+                                Comparator.nullsLast(Comparator.reverseOrder())
+                        )
         );
 
         return list.get(0);

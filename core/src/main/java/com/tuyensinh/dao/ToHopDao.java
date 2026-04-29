@@ -37,13 +37,16 @@ public class ToHopDao extends BaseDao<ToHop> implements IToHopDao {
     }
 
     public List<ToHopMon> findMonByToHopId(Integer tohopId) {
-        CriteriaBuilder cb = cb();
-        CriteriaQuery<ToHopMon> cq = cb.createQuery(ToHopMon.class);
-        Root<ToHopMon> root = cq.from(ToHopMon.class);
-        Join<ToHopMon, ToHop> toHop = root.join("toHop");
-        cq.select(root).where(cb.equal(toHop.get("tohopId"), tohopId));
-        cq.orderBy(cb.asc(root.get("thuTu")));
-        return em().createQuery(cq).getResultList();
+        // Fetch luon mon de TinhDiemService doc thm.getMon() ngoai query khong bi LazyInitializationException.
+        return em().createQuery(
+                        "select thm " +
+                                "from ToHopMon thm " +
+                                "join fetch thm.toHop th " +
+                                "join fetch thm.mon m " +
+                                "where th.tohopId = :tohopId " +
+                                "order by thm.thuTu", ToHopMon.class)
+                .setParameter("tohopId", tohopId)
+                .getResultList();
     }
 
     public void saveToHopMon(ToHopMon entity) {

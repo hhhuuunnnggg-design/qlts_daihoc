@@ -318,7 +318,7 @@ CREATE TABLE xt_bangquydoi (
     diem_den           DECIMAL(6,2)    NOT NULL,
     diem_quydoi_tu     DECIMAL(6,2)    NOT NULL,
     diem_quydoi_den    DECIMAL(6,2)    NOT NULL,
-    phan_vi            INT             NULL,
+    phan_vi            VARCHAR(45)     NULL,
     ma_quydoi          VARCHAR(50)     NOT NULL,
     PRIMARY KEY (bangquydoi_id),
     UNIQUE KEY uk_bangquydoi_ma (ma_quydoi),

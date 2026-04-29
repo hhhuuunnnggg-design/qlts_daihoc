@@ -34,6 +34,30 @@ public class DiemThiDao extends BaseDao<DiemThi> implements IDiemThiDao {
         return list.isEmpty() ? Optional.empty() : Optional.of(list.get(0));
     }
 
+    /**
+     * Load mot phieu diem kem day du diem chi tiet + mon.
+     * Dung cho TinhDiemService de tranh LazyInitializationException khi lay danhSachDiemChiTiet.
+     */
+    public Optional<DiemThi> findByThiSinhAndPhuongThucWithDetails(Integer thisinhId, Short phuongthucId, Short namTuyensinh) {
+        List<DiemThi> list = em().createQuery(
+                        "select distinct d " +
+                                "from DiemThi d " +
+                                "join fetch d.thiSinh ts " +
+                                "join fetch d.phuongThuc pt " +
+                                "left join fetch d.danhSachDiemChiTiet ct " +
+                                "left join fetch ct.mon m " +
+                                "where ts.thisinhId = :thisinhId " +
+                                "and pt.phuongthucId = :phuongthucId " +
+                                "and d.namTuyensinh = :nam", DiemThi.class)
+                .setParameter("thisinhId", thisinhId)
+                .setParameter("phuongthucId", phuongthucId)
+                .setParameter("nam", namTuyensinh)
+                .setMaxResults(1)
+                .getResultList();
+
+        return list.isEmpty() ? Optional.empty() : Optional.of(list.get(0));
+    }
+
     public List<DiemThi> findByThiSinhId(Integer thisinhId) {
         CriteriaBuilder cb = cb();
         CriteriaQuery<DiemThi> cq = cb.createQuery(DiemThi.class);

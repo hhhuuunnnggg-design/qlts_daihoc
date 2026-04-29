@@ -142,6 +142,7 @@ public class MainFrame extends JFrame {
         addNavItem("Bang quy doi", "bangquydoi", null);
         addNavSpacer(12);
         addNavItem("Nguyen vong", "nguyenvong", null);
+        addNavItem("Xet tuyen", "xettuyen", null);
 
         // ---- Sidebar bottom: user info + logout ----
         JPanel sidebarBottom = new JPanel();
@@ -261,6 +262,7 @@ public class MainFrame extends JFrame {
         sidebar.add(navItems.get("bangquydoi"));
         sidebar.add(Box.createVerticalStrut(12));
         sidebar.add(navItems.get("nguyenvong"));
+        sidebar.add(navItems.get("xettuyen"));
         sidebar.add(Box.createVerticalStrut(8));
         sidebar.add(navLabelSys);
         sidebar.add(Box.createVerticalStrut(4));

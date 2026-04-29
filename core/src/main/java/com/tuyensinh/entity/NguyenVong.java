@@ -62,6 +62,13 @@ public class NguyenVong {
     @Column(name = "ket_qua", length = 45)
     private String ketQua;
 
+    /**
+     * Nguon diem sau khi so sanh THPT / VSAT / DGNL.
+     * Gia tri du kien: THPT, VSAT, DGNL.
+     */
+    @Column(name = "phuong_thuc_diem_tot_nhat", length = 20)
+    private String phuongThucDiemTotNhat;
+
     @Column(name = "ghi_chu", length = 255)
     private String ghiChu;
 

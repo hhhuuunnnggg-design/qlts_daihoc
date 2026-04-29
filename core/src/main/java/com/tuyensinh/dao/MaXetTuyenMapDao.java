@@ -116,6 +116,47 @@ public class MaXetTuyenMapDao extends BaseDao<MaXetTuyenMap> implements IMaXetTu
         return em().createQuery(cq).getResultList();
     }
 
+    /**
+     * Load day du nganh, phuong thuc, nganh-to-hop, to-hop va he so mon.
+     * Dung trong TinhDiemService de so sanh THPT/VSAT/DGNL ma khong bi proxy detached.
+     */
+    public MaXetTuyenMap findByIdWithDetails(Integer id) {
+        if (id == null) return null;
+        List<MaXetTuyenMap> list = em().createQuery(
+                        "select distinct m " +
+                                "from MaXetTuyenMap m " +
+                                "left join fetch m.nganh n " +
+                                "left join fetch m.phuongThuc pt " +
+                                "left join fetch m.nganhToHop nth " +
+                                "left join fetch nth.toHop th " +
+                                "left join fetch nth.danhSachNganhToHopMon nthm " +
+                                "left join fetch nthm.mon mon " +
+                                "where m.maXettuyenId = :id", MaXetTuyenMap.class)
+                .setParameter("id", id)
+                .getResultList();
+        return list.isEmpty() ? null : list.get(0);
+    }
+
+    public List<MaXetTuyenMap> findByMaXetTuyenWithDetails(String maXetTuyen) {
+        if (maXetTuyen == null || maXetTuyen.trim().isEmpty()) {
+            return java.util.Collections.emptyList();
+        }
+
+        return em().createQuery(
+                        "select distinct m " +
+                                "from MaXetTuyenMap m " +
+                                "left join fetch m.nganh n " +
+                                "left join fetch m.phuongThuc pt " +
+                                "left join fetch m.nganhToHop nth " +
+                                "left join fetch nth.toHop th " +
+                                "left join fetch nth.danhSachNganhToHopMon nthm " +
+                                "left join fetch nthm.mon mon " +
+                                "where upper(m.maXetTuyen) = :ma " +
+                                "order by pt.phuongthucId, m.maTohopNguon", MaXetTuyenMap.class)
+                .setParameter("ma", maXetTuyen.trim().toUpperCase())
+                .getResultList();
+    }
+
     public void deleteAll() {
         var entityManager = em();
         entityManager.getTransaction().begin();

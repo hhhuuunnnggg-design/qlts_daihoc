@@ -46,8 +46,8 @@ public class BangQuyDoi {
     @Column(name = "diem_quydoi_den", nullable = false, precision = 6, scale = 2)
     private BigDecimal diemQuydoiDen;
 
-    @Column(name = "phan_vi")
-    private Integer phanVi;
+    @Column(name = "phan_vi", length = 45)
+    private String phanVi;
 
     @Column(name = "ma_quydoi", nullable = false, unique = true, length = 50)
     private String maQuydoi;

@@ -37,7 +37,7 @@ public class DiemThi {
     private String sobaodanh;
 
     @Column(name = "nam_tuyensinh", nullable = false)
-    private Short namTuyensinh = 2026;
+    private Short namTuyensinh = 2025;
 
     @Column(name = "ghi_chu", length = 255)
     private String ghiChu;

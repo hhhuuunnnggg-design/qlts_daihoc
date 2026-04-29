@@ -162,6 +162,7 @@ public class BangQuyDoiPanel extends BaseCrudPanel<BangQuyDoi> {
         JTextField txtDen = new JTextField("30", 10);
         JTextField txtQdTu = new JTextField("0", 10);
         JTextField txtQdDen = new JTextField("30", 10);
+        JTextField txtPhanVi = new JTextField("", 10);
 
         int r = JOptionPane.showConfirmDialog(this, new Object[]{
                 "Ma quy doi (*):", txtMa,
@@ -169,7 +170,8 @@ public class BangQuyDoiPanel extends BaseCrudPanel<BangQuyDoi> {
                 "To hop:", cboTh,
                 "Mon:", cboMon,
                 "Diem tu:", txtTu, "Den:", txtDen,
-                "Diem quy doi tu:", txtQdTu, "Den:", txtQdDen
+                "Diem quy doi tu:", txtQdTu, "Den:", txtQdDen,
+                "Phan vi:", txtPhanVi
         }, "Them bang quy doi", JOptionPane.OK_CANCEL_OPTION);
         if (r != JOptionPane.OK_OPTION) return;
 
@@ -187,6 +189,7 @@ public class BangQuyDoiPanel extends BaseCrudPanel<BangQuyDoi> {
         bqd.setDiemDen(parseBigDecimal(txtDen.getText()));
         bqd.setDiemQuydoiTu(parseBigDecimal(txtQdTu.getText()));
         bqd.setDiemQuydoiDen(parseBigDecimal(txtQdDen.getText()));
+        bqd.setPhanVi(parseNullableString(txtPhanVi.getText()));
 
         try {
             service.save(bqd);
@@ -209,11 +212,13 @@ public class BangQuyDoiPanel extends BaseCrudPanel<BangQuyDoi> {
         JTextField txtDen = new JTextField(bqd.getDiemDen() != null ? bqd.getDiemDen().toString() : "30", 10);
         JTextField txtQdTu = new JTextField(bqd.getDiemQuydoiTu() != null ? bqd.getDiemQuydoiTu().toString() : "0", 10);
         JTextField txtQdDen = new JTextField(bqd.getDiemQuydoiDen() != null ? bqd.getDiemQuydoiDen().toString() : "30", 10);
+        JTextField txtPhanVi = new JTextField(bqd.getPhanVi() != null ? bqd.getPhanVi() : "", 10);
 
         int r = JOptionPane.showConfirmDialog(this, new Object[]{
                 "Ma: " + bqd.getMaQuydoi(),
                 "Diem tu:", txtTu, "Den:", txtDen,
-                "Diem quy doi tu:", txtQdTu, "Den:", txtQdDen
+                "Diem quy doi tu:", txtQdTu, "Den:", txtQdDen,
+                "Phan vi:", txtPhanVi
         }, "Sua bang quy doi", JOptionPane.OK_CANCEL_OPTION);
         if (r != JOptionPane.OK_OPTION) return;
 
@@ -221,6 +226,7 @@ public class BangQuyDoiPanel extends BaseCrudPanel<BangQuyDoi> {
         bqd.setDiemDen(parseBigDecimal(txtDen.getText()));
         bqd.setDiemQuydoiTu(parseBigDecimal(txtQdTu.getText()));
         bqd.setDiemQuydoiDen(parseBigDecimal(txtQdDen.getText()));
+        bqd.setPhanVi(parseNullableString(txtPhanVi.getText()));
 
         try {
             service.update(bqd);
@@ -333,7 +339,7 @@ public class BangQuyDoiPanel extends BaseCrudPanel<BangQuyDoi> {
                     BigDecimal diemDen = parseNullableBigDecimal(getCellString(row, idxDen, formatter));
                     BigDecimal diemQdTu = parseNullableBigDecimal(getCellString(row, idxQdTu, formatter));
                     BigDecimal diemQdDen = parseNullableBigDecimal(getCellString(row, idxQdDen, formatter));
-                    Integer phanVi = parseNullableInteger(getCellString(row, idxPhanVi, formatter));
+                    String phanVi = parseNullableString(getCellString(row, idxPhanVi, formatter));
 
                     if (isBlank(maQuyDoi) && isBlank(maPhuongThuc) && diemTu == null && diemDen == null && diemQdTu == null && diemQdDen == null) {
                         continue;
@@ -445,9 +451,9 @@ public class BangQuyDoiPanel extends BaseCrudPanel<BangQuyDoi> {
         return new BigDecimal(normalized);
     }
 
-    private Integer parseNullableInteger(String s) {
+    private String parseNullableString(String s) {
         if (isBlank(s)) return null;
-        return Integer.parseInt(s.trim());
+        return s.trim();
     }
 
     private static class ImportResult {

@@ -66,6 +66,9 @@ public class DiemThiPanel extends BaseCrudPanel<DiemThi> {
         phuongThucFilter = new JComboBox<>();
         phuongThucFilter.addItem(null);
         for (PhuongThuc pt : phuongThucDao.findAll()) {
+            if (PhuongThuc.XTT.equalsIgnoreCase(pt.getMaPhuongthuc())) {
+                continue;
+            }
             phuongThucFilter.addItem(pt);
         }
         phuongThucFilter.addActionListener(e -> loadData());
@@ -166,10 +169,15 @@ public class DiemThiPanel extends BaseCrudPanel<DiemThi> {
         JTextField txtSbd = new JTextField(20);
         JTextField txtCccd = new JTextField(20);
         JComboBox<PhuongThuc> cboPt = new JComboBox<>();
-        for (PhuongThuc pt : phuongThucDao.findAll()) cboPt.addItem(pt);
+        for (PhuongThuc pt : phuongThucDao.findAll()) {
+            if (PhuongThuc.XTT.equalsIgnoreCase(pt.getMaPhuongthuc())) {
+                continue;
+            }
+            cboPt.addItem(pt);
+        }
         configurePhuongThucCombo(cboPt);
 
-        JSpinner spnNam = new JSpinner(new SpinnerNumberModel(2026, 2020, 2030, 1));
+        JSpinner spnNam = new JSpinner(new SpinnerNumberModel(2025, 2020, 2030, 1));
         JTextField txtGhiChu = new JTextField(20);
 
         int r = JOptionPane.showConfirmDialog(this,
@@ -216,7 +224,7 @@ public class DiemThiPanel extends BaseCrudPanel<DiemThi> {
         JTextField txtSbd = new JTextField(dt.getSobaodanh() != null ? dt.getSobaodanh() : "");
         JTextField txtGhiChu = new JTextField(dt.getGhiChu() != null ? dt.getGhiChu() : "");
         JSpinner spnNam = new JSpinner(new SpinnerNumberModel(
-            dt.getNamTuyensinh() != null ? dt.getNamTuyensinh().intValue() : 2026, 2020, 2030, 1));
+            dt.getNamTuyensinh() != null ? dt.getNamTuyensinh().intValue() : 2025, 2020, 2030, 1));
 
         int r = JOptionPane.showConfirmDialog(this,
             new Object[]{

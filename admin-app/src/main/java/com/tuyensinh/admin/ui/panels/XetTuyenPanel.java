@@ -2,6 +2,7 @@ package com.tuyensinh.admin.ui.panels;
 
 import com.tuyensinh.admin.ui.*;
 import com.tuyensinh.admin.ui.MainFrame;
+import com.tuyensinh.dao.BaseDao;
 import com.tuyensinh.entity.*;
 import com.tuyensinh.service.*;
 import javax.swing.*;
@@ -22,6 +23,8 @@ public class XetTuyenPanel extends BaseCrudPanel<NguyenVong> {
     private JComboBox<Nganh> cboNganh;
     private JTextArea taResult;
     private JButton btnXetTuyen;
+    private JButton btnXetTuyenMau;
+    private JButton btnXetTuyenToanBo;
     private JButton btnTinhDiem;
     private JButton btnDiemUuTien;
 
@@ -34,7 +37,7 @@ public class XetTuyenPanel extends BaseCrudPanel<NguyenVong> {
     @Override
     protected String[] getTableColumns() {
         return new String[]{"ID", "Ho Ten", "CCCD", "Nganh", "To Hop", "P. Thuc",
-                            "Diem TH", "Diem Cong", "Diem XT", "Ket Qua"};
+                "Diem TH", "Diem Cong", "Diem XT", "Nguon diem", "Ket Qua"};
     }
 
     @Override
@@ -58,37 +61,26 @@ public class XetTuyenPanel extends BaseCrudPanel<NguyenVong> {
     protected void buildToolbar() {
         JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
 
-        toolbar.add(new JLabel("Phuong thuc:"));
-        cboPhuongThuc = new JComboBox<>();
-        cboPhuongThuc.addItem(null);
-        for (PhuongThuc pt : xetTuyenService.findActivePhuongThuc()) {
-            cboPhuongThuc.addItem(pt);
-        }
-        cboPhuongThuc.addActionListener(e -> loadData());
-        toolbar.add(cboPhuongThuc);
+        JLabel lblInfo = new JLabel(
+                "Xet tuyen toan bo: tu tinh diem tot nhat THPT/VSAT/DGNL va xet theo thu tu nguyen vong"
+        );
+        lblInfo.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        toolbar.add(lblInfo);
 
-        toolbar.add(new JLabel("  Nganh:"));
-        cboNganh = new JComboBox<>();
-        cboNganh.addItem(null);
-        for (Nganh n : xetTuyenService.findActiveNganh()) {
-            cboNganh.addItem(n);
-        }
-        cboNganh.addActionListener(e -> loadData());
-        toolbar.add(cboNganh);
+        toolbar.add(Box.createHorizontalStrut(16));
 
-        toolbar.add(Box.createHorizontalStrut(12));
+        btnXetTuyenToanBo = new JButton("Xet tuyen toan bo");
+        btnXetTuyenToanBo.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        btnXetTuyenToanBo.setToolTipText(
+                "Chay xet tuyen toan bo du lieu, moi thi sinh chi trung tuyen 1 nguyen vong cao nhat"
+        );
+        btnXetTuyenToanBo.addActionListener(e -> xetTuyenToanBo());
+        toolbar.add(btnXetTuyenToanBo);
 
-        btnTinhDiem = new JButton("Tinh diem");
-        btnTinhDiem.addActionListener(e -> tinhDiemAll());
-        toolbar.add(btnTinhDiem);
-
-        btnDiemUuTien = new JButton("Diem uu tien");
-        btnDiemUuTien.addActionListener(e -> diemUuTienAuto());
-        toolbar.add(btnDiemUuTien);
-
-        btnXetTuyen = new JButton("Xet tuyen");
-        btnXetTuyen.addActionListener(e -> xetTuyen());
-        toolbar.add(btnXetTuyen);
+        JButton btnLamMoi = new JButton("Lam moi");
+        btnLamMoi.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        btnLamMoi.addActionListener(e -> lamMoiDuLieu());
+        toolbar.add(btnLamMoi);
 
         add(toolbar, BorderLayout.NORTH);
     }
@@ -102,62 +94,81 @@ public class XetTuyenPanel extends BaseCrudPanel<NguyenVong> {
 
     @Override
     public void loadData() {
-        model.setRowCount(0);
-        PhuongThuc pt = (PhuongThuc) cboPhuongThuc.getSelectedItem();
-        Nganh nganh = (Nganh) cboNganh.getSelectedItem();
+        // BaseDao dung ThreadLocal EntityManager. Neu khong dong EM cu,
+        // Hibernate co the tra du lieu cache cu nen nut Lam moi nhin nhu khong cap nhat.
+        BaseDao.closeCurrentEm();
 
-        List<NguyenVong> list;
-        if (nganh != null && pt != null) {
-            list = nguyenVongService.findAll().stream()
-                .filter(nv -> nganh.getNganhId().equals(nv.getNganh().getNganhId())
-                    && pt.getPhuongthucId().equals(nv.getPhuongThuc().getPhuongthucId()))
-                .toList();
-        } else if (pt != null) {
-            list = nguyenVongService.findAll().stream()
-                .filter(nv -> pt.getPhuongthucId().equals(nv.getPhuongThuc().getPhuongthucId()))
-                .toList();
-        } else {
-            list = nguyenVongService.findAll();
-        }
+        model.setRowCount(0);
+
+        List<NguyenVong> list = nguyenVongService.findAll();
 
         for (NguyenVong nv : list) {
             ThiSinh ts = nv.getThiSinh();
             String ketQua = nv.getKetQua();
 
             model.addRow(new Object[]{
-                nv.getNguyenvongId(),
-                ts != null ? ts.getHoVaTen() : "",
-                ts != null ? ts.getCccd() : "",
-                nv.getNganh() != null ? nv.getNganh().getMaNganh() : "",
-                nv.getNganhToHop() != null && nv.getNganhToHop().getToHop() != null
-                    ? nv.getNganhToHop().getToHop().getMaTohop() : "",
-                nv.getPhuongThuc() != null ? nv.getPhuongThuc().getMaPhuongthuc() : "",
-                nv.getDiemThxt() != null ? formatDiem(nv.getDiemThxt()) : "",
-                nv.getDiemCong() != null ? formatDiem(nv.getDiemCong()) : "",
-                nv.getDiemXettuyen() != null ? formatDiem(nv.getDiemXettuyen()) : "",
-                ketQua != null ? ketQua : "CHO_XET"
+                    nv.getNguyenvongId(),
+                    ts != null ? ts.getHoVaTen() : "",
+                    ts != null ? ts.getCccd() : "",
+                    nv.getNganh() != null ? nv.getNganh().getMaNganh() : "",
+                    nv.getNganhToHop() != null && nv.getNganhToHop().getToHop() != null
+                            ? nv.getNganhToHop().getToHop().getMaTohop() : "",
+                    nv.getPhuongThuc() != null ? nv.getPhuongThuc().getMaPhuongthuc() : "",
+                    nv.getDiemThxt() != null ? formatDiem(nv.getDiemThxt()) : "",
+                    nv.getDiemCong() != null ? formatDiem(nv.getDiemCong()) : "",
+                    nv.getDiemXettuyen() != null ? formatDiem(nv.getDiemXettuyen()) : "",
+                    nv.getPhuongThucDiemTotNhat() != null ? nv.getPhuongThucDiemTotNhat() : "",
+                    ketQua != null ? ketQua : "CHO_XET"
             });
         }
 
-        // Doi mau dong theo ket qua
         table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value,
-                    boolean isSelected, boolean hasFocus, int row, int col) {
+                                                           boolean isSelected, boolean hasFocus, int row, int col) {
                 Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
-                Object kq = model.getValueAt(row, 9);
+                Object kq = model.getValueAt(row, 10);
+
                 if (!isSelected) {
-                    if ("TRUNG_TUYEN".equals(kq)) c.setBackground(new Color(220, 255, 220));
-                    else if ("TRUOT".equals(kq)) c.setBackground(new Color(255, 220, 220));
-                    else if ("PHOI_DU_KIEN".equals(kq)) c.setBackground(new Color(255, 255, 200));
-                    else if ("CHO_XET".equals(kq)) c.setBackground(new Color(255, 250, 205));
-                    else c.setBackground(Color.WHITE);
+                    if ("TRUNG_TUYEN".equals(kq)) {
+                        c.setBackground(new Color(220, 255, 220));
+                    } else if ("TRUOT".equals(kq)) {
+                        c.setBackground(new Color(255, 220, 220));
+                    } else if ("PHOI_DU_KIEN".equals(kq)) {
+                        c.setBackground(new Color(255, 255, 200));
+                    } else if ("CHO_XET".equals(kq)) {
+                        c.setBackground(new Color(255, 250, 205));
+                    } else {
+                        c.setBackground(Color.WHITE);
+                    }
                 }
+
                 return c;
             }
         });
 
         updateTotalLabel(list.size(), "ban ghi");
+
+        if (table != null) {
+            table.clearSelection();
+            table.revalidate();
+            table.repaint();
+        }
+    }
+
+    private void lamMoiDuLieu() {
+        try {
+            setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+            loadData();
+            if (taResult != null) {
+                taResult.append("\n[Lam moi] Da nap lai du lieu moi nhat tu DB.\n");
+                taResult.setCaretPosition(taResult.getDocument().getLength());
+            }
+        } catch (Exception ex) {
+            showError(this, ex.getMessage());
+        } finally {
+            setCursor(Cursor.getDefaultCursor());
+        }
     }
 
     private String formatDiem(BigDecimal d) {
@@ -165,190 +176,118 @@ public class XetTuyenPanel extends BaseCrudPanel<NguyenVong> {
         return d.setScale(2, java.math.RoundingMode.HALF_UP).toPlainString();
     }
 
-    /** Tinh diem cho tat ca nguyen vong hien tai (theo loc). */
-    private void tinhDiemAll() {
-        PhuongThuc pt = (PhuongThuc) cboPhuongThuc.getSelectedItem();
-        Nganh nganh = (Nganh) cboNganh.getSelectedItem();
+    /**
+     * Xet tuyen toan bo theo thu tu nguyen vong:
+     * - Tinh diem tot nhat THPT/VSAT/DGNL cho tung nguyen vong.
+     * - Chay xet tuyen toan cuc, moi thi sinh chi TRUNG_TUYEN 1 nguyen vong cao nhat.
+     * - Neu dang chon phuong thuc/nganh thi chi chay trong bo loc do; neu muon chay that toan bo thi bo chon nganh.
+     */
+    private void xetTuyenToanBo() {
+        int confirm = JOptionPane.showConfirmDialog(this,
+                "Chạy xét tuyển toàn bộ sẽ cập nhật các cột sau trong DB:\n"
+                        + "- diem_thxt\n"
+                        + "- diem_cong\n"
+                        + "- diem_uutien\n"
+                        + "- diem_xettuyen\n"
+                        + "- phuong_thuc_diem_tot_nhat\n"
+                        + "- ket_qua\n\n"
+                        + "Engine sẽ xét theo thứ tự nguyện vọng.\n"
+                        + "Mỗi thí sinh chỉ được TRÚNG TUYỂN 1 nguyện vọng cao nhất.\n\n"
+                        + "Bạn nên backup DB hoặc reset dữ liệu test trước khi chạy.\n\n"
+                        + "Tiếp tục?",
+                "Xác nhận xét tuyển toàn bộ",
+                JOptionPane.OK_CANCEL_OPTION);
 
-        if (pt == null || nganh == null) {
-            showMessage(this, "Chon phuong thuc VA nganh truoc!");
-            return;
-        }
-
-        int[] counts = {0, 0, 0};
-        List<NguyenVong> nvs = nguyenVongService.findAll().stream()
-            .filter(nv -> nganh.getNganhId().equals(nv.getNganh().getNganhId())
-                && pt.getPhuongthucId().equals(nv.getPhuongThuc().getPhuongthucId()))
-            .toList();
-
-        if (nvs.isEmpty()) {
-            showMessage(this, "Khong co nguyen vong nao!");
-            return;
-        }
-
-        SwingWorker<Void, Integer> worker = new SwingWorker<>() {
-            @Override
-            protected Void doInBackground() {
-                for (NguyenVong nv : nvs) {
-                    try {
-                        engine.tinhDiemNguyenVong(nv);
-                        counts[0]++; // thanh cong
-                    } catch (Exception e) {
-                        counts[1]++; // loi
-                    }
-                }
-                return null;
-            }
-
-            @Override
-            protected void done() {
-                showSuccess(XetTuyenPanel.this,
-                    "Tinh diem xong!\nThanh cong: " + counts[0] + "\nLoi: " + counts[1]);
-                loadData();
-            }
-        };
-        worker.execute();
-    }
-
-    /** Tu dong dien diem uu tien (Khu Vuc + Doi Tuong) cho tat ca thi sinh. */
-    private void diemUuTienAuto() {
-        int r = JOptionPane.showConfirmDialog(this,
-            "Tu dong dien diem uu tien cho tat ca thi sinh?\n"
-            + "Diem = Muc KV (neu co) + Muc DT (neu co)\n"
-            + "Chi tao diem cong cho nhung nguyen vong da co.",
-            "Xac nhan", JOptionPane.OK_CANCEL_OPTION);
-        if (r != JOptionPane.OK_OPTION) return;
-
-        SwingWorker<Void, Void> worker = new SwingWorker<>() {
-            int tao = 0, capNhat = 0;
-            @Override
-            protected Void doInBackground() throws Exception {
-                List<ThiSinh> allTs = new ThiSinhService().findAll();
-                for (ThiSinh ts : allTs) {
-                    java.util.List<DiemCong> dcs = tinhDiemService.taoDiemCongTuDong(ts, null);
-                    for (DiemCong dc : dcs) {
-                        if (dc.getDiemcongId() == null) {
-                            diemCongService.save(dc);
-                            tao++;
-                        } else {
-                            diemCongService.update(dc);
-                            capNhat++;
-                        }
-                    }
-                }
-                return null;
-            }
-
-            @Override
-            protected void done() {
-                showSuccess(XetTuyenPanel.this,
-                    "Diem uu tien hoan tat!\nTao moi: " + tao + "\nCap nhat: " + capNhat);
-            }
-        };
-        worker.execute();
-    }
-
-    /** Chay xet tuyen: tinh diem + xep hang + danh gia ket qua. */
-    private void xetTuyen() {
-        PhuongThuc pt = (PhuongThuc) cboPhuongThuc.getSelectedItem();
-        Nganh nganh = (Nganh) cboNganh.getSelectedItem();
-
-        if (pt == null || nganh == null) {
-            showMessage(this, "Chon phuong thuc VA nganh truoc!");
+        if (confirm != JOptionPane.OK_OPTION) {
             return;
         }
 
         taResult.setText("");
 
-        SwingWorker<String, String> worker = new SwingWorker<>() {
-            java.util.List<String> logLines = new java.util.ArrayList<>();
-
-            private void log(String s) { logLines.add(s); publish(s); }
-
+        SwingWorker<XetTuyenEngine.XetTuyenToanCucResult, String> worker = new SwingWorker<>() {
             @Override
-            protected String doInBackground() {
-                log("=== XET TUYEN ===");
-                log("Phuong thuc: " + pt.getTenPhuongthuc() + " (" + pt.getMaPhuongthuc() + ")");
-                log("Nganh: " + nganh.getTenNganh() + " (" + nganh.getMaNganh() + ")");
-                log("Chi tieu: " + nganh.getChiTieu());
-                log("Diem san: " + (nganh.getDiemSan() != null ? nganh.getDiemSan() : "Chua dat"));
-                log("-----------------------");
+            protected XetTuyenEngine.XetTuyenToanCucResult doInBackground() {
+                publish("=== XET TUYEN TOAN BO ===");
+                publish("Pham vi: tat ca phuong thuc, tat ca nganh, tat ca nguyen vong");
+                publish("Dang tinh diem tot nhat THPT / VSAT / DGNL...");
+                publish("Dang xet tuyen theo thu tu nguyen vong...");
+                publish("");
 
-                // 1. Tinh diem
-                List<NguyenVong> nvs = nguyenVongService.findAll().stream()
-                    .filter(nv -> nganh.getNganhId().equals(nv.getNganh().getNganhId())
-                        && pt.getPhuongthucId().equals(nv.getPhuongThuc().getPhuongthucId()))
-                    .toList();
+                XetTuyenEngine.XetTuyenToanCucResult r =
+                        engine.xetTuyenToanCucTheoThuTuNguyenVong(
+                                null,
+                                null,
+                                true
+                        );
 
-                int coDiem = 0, khongDiem = 0;
-                for (NguyenVong nv : nvs) {
-                    try {
-                        TinhDiemService.KetQuaDiem kq = engine.tinhDiemNguyenVong(nv);
-                        if (kq != null && kq.diemXettuyen != null
-                                && kq.diemXettuyen.compareTo(BigDecimal.ZERO) > 0) {
-                            coDiem++;
-                        } else {
-                            khongDiem++;
-                        }
-                    } catch (Exception e) {
-                        khongDiem++;
+                publish("-----------------------");
+                publish("Tong nguyen vong: " + r.soNguyenVong);
+                publish("Tong thi sinh: " + r.soThiSinh);
+                publish("Tinh diem OK: " + r.soTinhDiemOk);
+                publish("Tinh diem loi: " + r.soTinhDiemLoi);
+                publish("So vong lap xet NV: " + r.soVongLap);
+                publish("TRUNG_TUYEN: " + r.soTrungTuyen);
+                publish("TRUOT: " + r.soTruot);
+                publish("PHOI_DU_KIEN: " + r.soPhoiDuKien);
+                publish("CHO_XET: " + r.soChoXet);
+
+                publish("");
+                publish("--- Thong ke trung tuyen theo nhom nganh/phuong thuc ---");
+                int shownGroup = 0;
+                for (java.util.Map.Entry<String, Integer> entry : r.thongKeTheoNhom.entrySet()) {
+                    if (shownGroup++ >= 30) {
+                        publish("... va cac nhom khac");
+                        break;
+                    }
+                    publish(entry.getKey() + " = " + entry.getValue());
+                }
+
+                publish("");
+                publish("--- Mau 30 dong dau ---");
+                int shown = 0;
+                for (XetTuyenEngine.KetQuaXetTuyen item : r.danhSach) {
+                    if (shown++ >= 30) break;
+
+                    publish(item.toString());
+
+                    if (item.ghiChu != null && !item.ghiChu.isBlank()) {
+                        publish("    -> " + item.ghiChu);
                     }
                 }
-                log("Tinh diem: " + coDiem + " co diem, " + khongDiem + " khong co diem");
 
-                // 2. Xet tuyen
-                XetTuyenEngine.DotXetTuyenResult result;
-                try {
-                    result = engine.xetTuyenNganhPhuongThuc(nganh.getNganhId(), pt.getPhuongthucId());
-                } catch (Exception e) {
-                    log("LOI: " + e.getMessage());
-                    return "ERROR";
-                }
-
-                log("");
-                log("=== KET QUA ===");
-                log("TRUNG_TUYEN: " + result.soTrungTuyen + " / " + nganh.getChiTieu());
-                log("PHOI_DU_KIEN: " + result.soPhoiDuKien);
-                log("TRUOT: " + result.soTruot);
-                log("CHO_XET: " + result.soChoXet);
-                log("THIEU_DIEM: " + result.soThieuDiem);
-                log("");
-                log("--- Chi tiet (top 20) ---");
-                int count = 0;
-                for (XetTuyenEngine.KetQuaXetTuyen kq : result.danhSach) {
-                    if (count++ >= 20) break;
-                    log(kq.toString());
-                }
-                if (result.danhSach.size() > 20) {
-                    log("... va " + (result.danhSach.size() - 20) + " nguoi nua");
-                }
-                log("");
-                log("DONE.");
-                return "OK";
+                publish("");
+                publish("DONE.");
+                return r;
             }
 
             @Override
             protected void process(java.util.List<String> chunks) {
-                for (String s : chunks) taResult.append(s + "\n");
+                for (String s : chunks) {
+                    taResult.append(s + "\n");
+                }
                 taResult.setCaretPosition(taResult.getDocument().getLength());
             }
 
             @Override
             protected void done() {
                 try {
-                    String status = get();
-                    for (String s : logLines) taResult.append(s + "\n");
-                    taResult.setCaretPosition(taResult.getDocument().getLength());
-                    loadData();
-                    if ("OK".equals(status)) {
-                        JOptionPane.showMessageDialog(XetTuyenPanel.this,
-                            "Xet tuyen hoan tat!");
-                    }
+                    XetTuyenEngine.XetTuyenToanCucResult r = get();
+
+                    lamMoiDuLieu();
+
+                    showSuccess(XetTuyenPanel.this,
+                            "Xét tuyển toàn bộ hoàn tất!\n"
+                                    + "Tổng NV: " + r.soNguyenVong
+                                    + "\nThí sinh: " + r.soThiSinh
+                                    + "\nTrúng tuyển: " + r.soTrungTuyen
+                                    + "\nTính điểm lỗi: " + r.soTinhDiemLoi);
+
                 } catch (Exception ex) {
                     showError(XetTuyenPanel.this, ex.getMessage());
                 }
             }
         };
+
         worker.execute();
     }
 
@@ -376,14 +315,20 @@ public class XetTuyenPanel extends BaseCrudPanel<NguyenVong> {
         taResult.setEditable(false);
         taResult.setLineWrap(true);
         taResult.setText(
-            "Huong dan:\n" +
-            "1. Chon Phuong thuc + Nganh\n" +
-            "2. [Tinh diem] — tinh diem_xettuyen\n" +
-            "3. [Diem uu tien] — dong bo thu cong diem cong (KV/DT/CC/Thanh tich)\n" +
-            "4. [Xet tuyen] — TRUNG_TUYEN / TRUOT / PHOI_DU_KIEN\n" +
-            "Cong thuc: diem_xettuyen = diem_thxt + diem_cong\n" +
-            "  diem_thxt = sum(diem * he_so) - do_lech\n" +
-            "  diem_cong = diem_chungchi + diem_uutien\n\n");
+                "Huong dan:\n" +
+                        "1. Bam [Xet tuyen toan bo]\n" +
+                        "2. He thong tu tinh diem tot nhat cho tung nguyen vong\n" +
+                        "3. Diem tot nhat = max(THPT, VSAT, DGNL sau quy doi) + diem cong/uu tien\n" +
+                        "4. Engine xet theo thu tu nguyen vong cua tung thi sinh\n" +
+                        "5. Moi thi sinh chi duoc TRUNG_TUYEN 1 nguyen vong cao nhat\n\n" +
+                        "Cac cot can kiem tra sau khi chay:\n" +
+                        "- diem_thxt\n" +
+                        "- diem_cong\n" +
+                        "- diem_uutien\n" +
+                        "- diem_xettuyen\n" +
+                        "- phuong_thuc_diem_tot_nhat\n" +
+                        "- ket_qua\n\n"
+        );
         JScrollPane sp = new JScrollPane(taResult);
         sp.setBorder(BorderFactory.createTitledBorder("Log xet tuyen"));
 

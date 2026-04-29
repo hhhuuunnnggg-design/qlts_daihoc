@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 
 public class DiemImportPanel extends JPanel {
 
-    private static final short DEFAULT_NAM_TUYEN_SINH = 2026;
+    private static final short DEFAULT_NAM_TUYEN_SINH = 2025;
     private static final String DEFAULT_SHEET_NAME = "Sheet1";
     private static final String DEFAULT_GHI_CHU = "Import tu Ds thi sinh.xlsx";
 
@@ -85,7 +85,7 @@ public class DiemImportPanel extends JPanel {
                         "- Tim thi sinh theo CCCD trong file\n" +
                         "- Ngoai ngu lay diem tu cot 'NN' va ma mon tu cot 'Ma mon NN'\n" +
                         "- Neu 'KTPL' trong ma 'GDCD' co diem thi map GDCD -> KTPL\n" +
-                        "- Ghi de bo diem cu theo bo khoa: Thi sinh + Phuong thuc + Nam 2026\n" +
+                        "- Ghi de bo diem cu theo bo khoa: Thi sinh + Phuong thuc + Nam 2025\n" +
                         "- Neu dong co ca diem THPT va NK thi tao/ghi de 2 phuong thuc THPT va NK\n"
         );
         taTemplate.setEditable(false);

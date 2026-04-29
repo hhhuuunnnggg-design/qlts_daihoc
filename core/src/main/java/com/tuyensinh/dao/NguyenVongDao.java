@@ -2,9 +2,13 @@ package com.tuyensinh.dao;
 
 import com.tuyensinh.dao.InterfaceDao.INguyenVongDao;
 import com.tuyensinh.entity.NguyenVong;
+import com.tuyensinh.util.HibernateUtil;
+import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Fetch;
+import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.ArrayList;
@@ -89,6 +93,40 @@ public class NguyenVongDao extends BaseDao<NguyenVong> implements INguyenVongDao
         return em().createQuery(cq).getResultList();
     }
 
+    /**
+     * Load day du cac quan he can dung khi tinh diem/xet tuyen.
+     * Neu dung findAll() cu, cac quan he LAZY nhu maXetTuyenMap/nganhToHop/phuongThuc
+     * co the bi detached va gay loi: could not initialize proxy ... no Session.
+     */
+    public List<NguyenVong> findAllForXetTuyen() {
+        CriteriaBuilder cb = cb();
+        CriteriaQuery<NguyenVong> cq = cb.createQuery(NguyenVong.class);
+        Root<NguyenVong> root = cq.from(NguyenVong.class);
+
+        Fetch<?, ?> thiSinhFetch = root.fetch("thiSinh", JoinType.LEFT);
+        thiSinhFetch.fetch("khuVucUutien", JoinType.LEFT);
+        thiSinhFetch.fetch("doiTuongUutien", JoinType.LEFT);
+
+        Fetch<?, ?> maXtFetch = root.fetch("maXetTuyenMap", JoinType.LEFT);
+        maXtFetch.fetch("nganh", JoinType.LEFT);
+        maXtFetch.fetch("phuongThuc", JoinType.LEFT);
+        Fetch<?, ?> maXtNthFetch = maXtFetch.fetch("nganhToHop", JoinType.LEFT);
+        maXtNthFetch.fetch("toHop", JoinType.LEFT);
+
+        root.fetch("nganh", JoinType.LEFT);
+        Fetch<?, ?> nthFetch = root.fetch("nganhToHop", JoinType.LEFT);
+        nthFetch.fetch("toHop", JoinType.LEFT);
+        Fetch<?, ?> nthmFetch = nthFetch.fetch("danhSachNganhToHopMon", JoinType.LEFT);
+        nthmFetch.fetch("mon", JoinType.LEFT);
+        root.fetch("phuongThuc", JoinType.LEFT);
+
+        Join<NguyenVong, ?> thiSinh = root.join("thiSinh", JoinType.LEFT);
+        cq.select(root).distinct(true);
+        cq.orderBy(cb.asc(thiSinh.get("ten")), cb.asc(thiSinh.get("ho")), cb.asc(root.get("thuTu")));
+
+        return em().createQuery(cq).getResultList();
+    }
+
     public int countByNganhAndPhuongThuc(Integer nganhId, Short phuongthucId, String ketQua) {
         CriteriaBuilder cb = cb();
         CriteriaQuery<Long> cq = cb.createQuery(Long.class);
@@ -103,4 +141,56 @@ public class NguyenVongDao extends BaseDao<NguyenVong> implements INguyenVongDao
         Long result = em().createQuery(cq).getSingleResult();
         return result.intValue();
     }
+
+    /**
+     * Cap nhat ket qua xet tuyen theo lo lon trong 1 transaction.
+     * Tranh viec chay hang chuc nghin UPDATE moi dong 1 transaction lam app treo rat lau.
+     */
+    public void updateXetTuyenBatch(List<NguyenVong> list) {
+        if (list == null || list.isEmpty()) return;
+
+        EntityManager em = HibernateUtil.getSessionFactory().createEntityManager();
+        try {
+            em.getTransaction().begin();
+
+            int count = 0;
+            for (NguyenVong nv : list) {
+                if (nv == null || nv.getNguyenvongId() == null) continue;
+
+                em.createQuery(
+                                "UPDATE NguyenVong nv " +
+                                        "SET nv.diemThxt = :diemThxt, " +
+                                        "    nv.diemCong = :diemCong, " +
+                                        "    nv.diemUutien = :diemUutien, " +
+                                        "    nv.diemXettuyen = :diemXettuyen, " +
+                                        "    nv.phuongThucDiemTotNhat = :phuongThucDiemTotNhat, " +
+                                        "    nv.ketQua = :ketQua, " +
+                                        "    nv.ghiChu = :ghiChu " +
+                                        "WHERE nv.nguyenvongId = :id")
+                        .setParameter("diemThxt", nv.getDiemThxt())
+                        .setParameter("diemCong", nv.getDiemCong())
+                        .setParameter("diemUutien", nv.getDiemUutien())
+                        .setParameter("diemXettuyen", nv.getDiemXettuyen())
+                        .setParameter("phuongThucDiemTotNhat", nv.getPhuongThucDiemTotNhat())
+                        .setParameter("ketQua", nv.getKetQua())
+                        .setParameter("ghiChu", nv.getGhiChu())
+                        .setParameter("id", nv.getNguyenvongId())
+                        .executeUpdate();
+
+                count++;
+                if (count % 500 == 0) {
+                    em.flush();
+                    em.clear();
+                }
+            }
+
+            em.getTransaction().commit();
+        } catch (RuntimeException e) {
+            if (em.getTransaction().isActive()) em.getTransaction().rollback();
+            throw e;
+        } finally {
+            em.close();
+        }
+    }
+
 }
