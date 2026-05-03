@@ -30,6 +30,7 @@ public class XetTuyenPanel extends BaseCrudPanel<NguyenVong> {
 
     public XetTuyenPanel(MainFrame mainFrame) {
         super(mainFrame);
+        enablePagination();
         initUI();
         loadData();
     }
@@ -86,13 +87,6 @@ public class XetTuyenPanel extends BaseCrudPanel<NguyenVong> {
     }
 
     @Override
-    protected void buildBottomBar() {
-        totalLabel = new JLabel("Tong: 0 ban ghi");
-        totalLabel.setFont(UIConstants.FONT_SMALL);
-        add(totalLabel, BorderLayout.SOUTH);
-    }
-
-    @Override
     public void loadData() {
         // BaseDao dung ThreadLocal EntityManager. Neu khong dong EM cu,
         // Hibernate co the tra du lieu cache cu nen nut Lam moi nhin nhu khong cap nhat.
@@ -100,7 +94,9 @@ public class XetTuyenPanel extends BaseCrudPanel<NguyenVong> {
 
         model.setRowCount(0);
 
-        List<NguyenVong> list = nguyenVongService.findAll();
+        long total = nguyenVongService.countAll();
+        normalizePage(total);
+        List<NguyenVong> list = nguyenVongService.findPage(currentPage, pageSize);
 
         for (NguyenVong nv : list) {
             ThiSinh ts = nv.getThiSinh();
@@ -147,7 +143,8 @@ public class XetTuyenPanel extends BaseCrudPanel<NguyenVong> {
             }
         });
 
-        updateTotalLabel(list.size(), "ban ghi");
+        updateTotalLabel(total, "ban ghi");
+        updatePagingState(total);
 
         if (table != null) {
             table.clearSelection();
@@ -180,7 +177,6 @@ public class XetTuyenPanel extends BaseCrudPanel<NguyenVong> {
      * Xet tuyen toan bo theo thu tu nguyen vong:
      * - Tinh diem tot nhat THPT/VSAT/DGNL cho tung nguyen vong.
      * - Chay xet tuyen toan cuc, moi thi sinh chi TRUNG_TUYEN 1 nguyen vong cao nhat.
-     * - Neu dang chon phuong thuc/nganh thi chi chay trong bo loc do; neu muon chay that toan bo thi bo chon nganh.
      */
     private void xetTuyenToanBo() {
         int confirm = JOptionPane.showConfirmDialog(this,
@@ -305,11 +301,10 @@ public class XetTuyenPanel extends BaseCrudPanel<NguyenVong> {
     protected void initUI() {
         buildToolbar();
         buildTable();
-        buildBottomBar();
-        buildLogArea();
+        buildBottomArea();
     }
 
-    private void buildLogArea() {
+    private void buildBottomArea() {
         taResult = new JTextArea(6, 0);
         taResult.setFont(new Font("Monospaced", Font.PLAIN, 12));
         taResult.setEditable(false);
@@ -337,7 +332,15 @@ public class XetTuyenPanel extends BaseCrudPanel<NguyenVong> {
 
         totalLabel = new JLabel("Tong: 0 ban ghi");
         totalLabel.setFont(UIConstants.FONT_SMALL);
-        south.add(totalLabel, BorderLayout.SOUTH);
+
+        pageSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 1, 1));
+        JPanel paging = ToolbarFactory.createPagingPanel(pageSpinner, () -> {
+            Object value = pageSpinner.getValue();
+            currentPage = value instanceof Number ? ((Number) value).intValue() : 1;
+            loadData();
+        });
+
+        south.add(ToolbarFactory.createBottomBar(totalLabel, paging), BorderLayout.SOUTH);
 
         add(south, BorderLayout.SOUTH);
     }

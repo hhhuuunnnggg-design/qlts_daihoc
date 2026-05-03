@@ -2,6 +2,8 @@ package com.tuyensinh.dao;
 
 import com.tuyensinh.dao.InterfaceDao.IDiemThiDao;
 import com.tuyensinh.entity.DiemThi;
+import com.tuyensinh.entity.DiemThiChiTiet;
+import com.tuyensinh.entity.Mon;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -197,6 +199,109 @@ public class DiemThiDao extends BaseDao<DiemThi> implements IDiemThiDao {
                 .getResultList();
     }
 
+
+    public DiemThiChiTiet findChiTietById(Long id) {
+        if (id == null) return null;
+        List<DiemThiChiTiet> list = em().createQuery(
+                        "select distinct ct " +
+                                "from DiemThiChiTiet ct " +
+                                "left join fetch ct.diemThi d " +
+                                "left join fetch d.thiSinh ts " +
+                                "left join fetch d.phuongThuc pt " +
+                                "left join fetch ct.mon m " +
+                                "where ct.diemthiCtId = :id", DiemThiChiTiet.class)
+                .setParameter("id", id)
+                .getResultList();
+        return list.isEmpty() ? null : list.get(0);
+    }
+
+    public DiemThiChiTiet findChiTietByDiemThiAndMon(Integer diemthiId, Integer monId) {
+        if (diemthiId == null || monId == null) return null;
+        List<DiemThiChiTiet> list = em().createQuery(
+                        "select distinct ct " +
+                                "from DiemThiChiTiet ct " +
+                                "left join fetch ct.diemThi d " +
+                                "left join fetch ct.mon m " +
+                                "where d.diemthiId = :diemthiId and m.monId = :monId", DiemThiChiTiet.class)
+                .setParameter("diemthiId", diemthiId)
+                .setParameter("monId", monId)
+                .setMaxResults(1)
+                .getResultList();
+        return list.isEmpty() ? null : list.get(0);
+    }
+
+    public DiemThiChiTiet saveChiTiet(DiemThiChiTiet entity) {
+        var em = em();
+        em.getTransaction().begin();
+        try {
+            Integer diemthiId = entity.getDiemThi() != null ? entity.getDiemThi().getDiemthiId() : null;
+            Integer monId = entity.getMon() != null ? entity.getMon().getMonId() : null;
+            if (diemthiId == null || monId == null) {
+                throw new IllegalArgumentException("Phiếu điểm và môn không được để trống.");
+            }
+
+            DiemThi diemThi = em.find(DiemThi.class, diemthiId);
+            Mon mon = em.find(Mon.class, monId);
+            if (diemThi == null) {
+                throw new IllegalArgumentException("Không tìm thấy phiếu điểm ID " + diemthiId);
+            }
+            if (mon == null) {
+                throw new IllegalArgumentException("Không tìm thấy môn ID " + monId);
+            }
+
+            entity.setDiemThi(diemThi);
+            entity.setMon(mon);
+            em.persist(entity);
+            em.getTransaction().commit();
+            return entity;
+        } catch (RuntimeException e) {
+            if (em.getTransaction().isActive()) em.getTransaction().rollback();
+            throw e;
+        }
+    }
+
+    public void updateChiTiet(DiemThiChiTiet entity) {
+        var em = em();
+        em.getTransaction().begin();
+        try {
+            Long id = entity.getDiemthiCtId();
+            Integer monId = entity.getMon() != null ? entity.getMon().getMonId() : null;
+            if (id == null || monId == null) {
+                throw new IllegalArgumentException("Chi tiết điểm và môn không được để trống.");
+            }
+
+            DiemThiChiTiet managed = em.find(DiemThiChiTiet.class, id);
+            Mon mon = em.find(Mon.class, monId);
+            if (managed == null) {
+                throw new IllegalArgumentException("Không tìm thấy chi tiết điểm ID " + id);
+            }
+            if (mon == null) {
+                throw new IllegalArgumentException("Không tìm thấy môn ID " + monId);
+            }
+
+            managed.setMon(mon);
+            managed.setDiemGoc(entity.getDiemGoc());
+            managed.setDiemQuydoi(entity.getDiemQuydoi());
+            managed.setDiemSudung(entity.getDiemSudung());
+            em.getTransaction().commit();
+        } catch (RuntimeException e) {
+            if (em.getTransaction().isActive()) em.getTransaction().rollback();
+            throw e;
+        }
+    }
+
+    public void deleteChiTiet(DiemThiChiTiet entity) {
+        var em = em();
+        em.getTransaction().begin();
+        try {
+            em.remove(em.contains(entity) ? entity : em.merge(entity));
+            em.getTransaction().commit();
+        } catch (RuntimeException e) {
+            if (em.getTransaction().isActive()) em.getTransaction().rollback();
+            throw e;
+        }
+    }
+
     public List<DiemThi> searchByCccdOrSoBaoDanh(String keyword, Short phuongthucId) {
         CriteriaBuilder cb = cb();
         CriteriaQuery<DiemThi> cq = cb.createQuery(DiemThi.class);
@@ -218,4 +323,77 @@ public class DiemThiDao extends BaseDao<DiemThi> implements IDiemThiDao {
         cq.orderBy(cb.asc(thiSinh.get("ten")), cb.asc(thiSinh.get("ho")));
         return em().createQuery(cq).getResultList();
     }
+
+    public List<DiemThi> findPage(int page, int pageSize) {
+        return em().createQuery(
+                        "select d from DiemThi d " +
+                                "left join d.thiSinh ts " +
+                                "left join d.phuongThuc pt " +
+                                "order by ts.ten, ts.ho, pt.phuongthucId, d.diemthiId",
+                        DiemThi.class)
+                .setFirstResult((page - 1) * pageSize)
+                .setMaxResults(pageSize)
+                .getResultList();
+    }
+
+    public long countAll() {
+        return count();
+    }
+
+    public long countByPhuongThuc(Short phuongthucId) {
+        if (phuongthucId == null) return countAll();
+        return em().createQuery(
+                        "select count(d) from DiemThi d join d.phuongThuc pt where pt.phuongthucId = :ptId",
+                        Long.class)
+                .setParameter("ptId", phuongthucId)
+                .getSingleResult();
+    }
+
+    public List<DiemThi> searchByCccdOrSoBaoDanhPage(String keyword, Short phuongthucId, int page, int pageSize) {
+        String kw = "%" + normalizeKeyword(keyword) + "%";
+        String filterPt = phuongthucId != null ? " and pt.phuongthucId = :ptId " : " ";
+        javax.persistence.TypedQuery<DiemThi> query = em().createQuery(
+                        "select d from DiemThi d " +
+                                "left join d.thiSinh ts " +
+                                "left join d.phuongThuc pt " +
+                                "where (lower(coalesce(ts.cccd, '')) like :kw " +
+                                "or lower(coalesce(d.sobaodanh, '')) like :kw " +
+                                "or lower(coalesce(ts.ho, '')) like :kw " +
+                                "or lower(coalesce(ts.ten, '')) like :kw) " +
+                                filterPt +
+                                "order by ts.ten, ts.ho, pt.phuongthucId, d.diemthiId",
+                        DiemThi.class)
+                .setParameter("kw", kw)
+                .setFirstResult((page - 1) * pageSize)
+                .setMaxResults(pageSize);
+        if (phuongthucId != null) {
+            query.setParameter("ptId", phuongthucId);
+        }
+        return query.getResultList();
+    }
+
+    public long countSearchByCccdOrSoBaoDanh(String keyword, Short phuongthucId) {
+        String kw = "%" + normalizeKeyword(keyword) + "%";
+        String filterPt = phuongthucId != null ? " and pt.phuongthucId = :ptId " : " ";
+        javax.persistence.TypedQuery<Long> query = em().createQuery(
+                        "select count(d) from DiemThi d " +
+                                "left join d.thiSinh ts " +
+                                "left join d.phuongThuc pt " +
+                                "where (lower(coalesce(ts.cccd, '')) like :kw " +
+                                "or lower(coalesce(d.sobaodanh, '')) like :kw " +
+                                "or lower(coalesce(ts.ho, '')) like :kw " +
+                                "or lower(coalesce(ts.ten, '')) like :kw) " +
+                                filterPt,
+                        Long.class)
+                .setParameter("kw", kw);
+        if (phuongthucId != null) {
+            query.setParameter("ptId", phuongthucId);
+        }
+        return query.getSingleResult();
+    }
+
+    private String normalizeKeyword(String keyword) {
+        return keyword == null ? "" : keyword.trim().toLowerCase();
+    }
+
 }

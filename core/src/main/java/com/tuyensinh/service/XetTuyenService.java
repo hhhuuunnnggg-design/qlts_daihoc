@@ -184,6 +184,31 @@ public class XetTuyenService implements IXetTuyenService {
         nganhDao.update(toUpdate);
     }
 
+
+    public List<Nganh> searchNganhPage(String keyword, int page, int pageSize) {
+        return nganhDao.searchByMaOrTenPage(keyword, page, pageSize);
+    }
+
+    public long countSearchNganh(String keyword) {
+        return nganhDao.countSearchByMaOrTen(keyword);
+    }
+
+    public List<ToHop> findToHopByPage(int page, int pageSize) {
+        return toHopDao.findPage(page, pageSize);
+    }
+
+    public long countToHop() {
+        return toHopDao.countAll();
+    }
+
+    public List<ToHop> searchToHopPage(String keyword, int page, int pageSize) {
+        return toHopDao.searchByMaOrTenPage(keyword, page, pageSize);
+    }
+
+    public long countSearchToHop(String keyword) {
+        return toHopDao.countSearchByMaOrTen(keyword);
+    }
+
     // --- Diem Thi ---
     public List<DiemThi> findDiemThiByThiSinh(Integer thisinhId) {
         return diemThiDao.findByThiSinhId(thisinhId);
@@ -244,6 +269,24 @@ public class XetTuyenService implements IXetTuyenService {
 
     public int countTrungTuyen(Integer nganhId, Short phuongthucId) {
         return nguyenVongDao.countByNganhAndPhuongThuc(nganhId, phuongthucId, NguyenVong.KetQua.TRUNG_TUYEN);
+    }
+
+
+
+    public List<NguyenVong> findNguyenVongPage(int page, int pageSize) {
+        return nguyenVongDao.findPage(page, pageSize);
+    }
+
+    public long countNguyenVong() {
+        return nguyenVongDao.countAll();
+    }
+
+    public List<NguyenVong> searchNguyenVongPage(String keyword, int page, int pageSize) {
+        return nguyenVongDao.searchPage(keyword, page, pageSize);
+    }
+
+    public long countSearchNguyenVong(String keyword) {
+        return nguyenVongDao.countSearch(keyword);
     }
 
     public int getTotalPages(long total, int pageSize) {

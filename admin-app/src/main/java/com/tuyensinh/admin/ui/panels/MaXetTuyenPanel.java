@@ -81,15 +81,24 @@ public class MaXetTuyenPanel extends BaseCrudPanel<MaXetTuyenMap> {
     protected void buildBottomBar() {
         totalLabel = new JLabel("Tong: 0 ma xet tuyen");
         totalLabel.setFont(UIConstants.FONT_SMALL);
-        add(totalLabel, BorderLayout.SOUTH);
+        pageSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 1, 1));
+        JPanel paging = ToolbarFactory.createPagingPanel(pageSpinner, () -> {
+            currentPage = (Integer) pageSpinner.getValue();
+            loadData();
+        });
+        add(ToolbarFactory.createBottomBar(totalLabel, paging), BorderLayout.SOUTH);
     }
 
     @Override
     public void loadData() {
         model.setRowCount(0);
 
-        String kw = searchTextField != null ? searchTextField.getText().trim() : "";
-        List<MaXetTuyenMap> list = kw.isEmpty() ? service.findAll() : service.search(kw);
+        String kw = getSearchKeyword();
+        long total = kw.isEmpty() ? service.countAll() : service.countSearch(kw);
+        normalizePage(total);
+        List<MaXetTuyenMap> list = kw.isEmpty()
+                ? service.findPage(currentPage, pageSize)
+                : service.searchPage(kw, currentPage, pageSize);
 
         for (MaXetTuyenMap x : list) {
             String maNganh = x.getNganh() != null ? x.getNganh().getMaNganh() : "";
@@ -113,7 +122,8 @@ public class MaXetTuyenPanel extends BaseCrudPanel<MaXetTuyenMap> {
             });
         }
 
-        updateTotalLabel(list.size(), "ma xet tuyen");
+        updateTotalLabel(total, "ma xet tuyen");
+        updatePagingState(total);
     }
 
     @Override

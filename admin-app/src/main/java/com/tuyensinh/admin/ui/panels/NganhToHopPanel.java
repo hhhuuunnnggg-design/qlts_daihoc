@@ -2,6 +2,7 @@ package com.tuyensinh.admin.ui.panels;
 
 import com.tuyensinh.admin.ui.BaseCrudPanel;
 import com.tuyensinh.admin.ui.MainFrame;
+import com.tuyensinh.admin.ui.ToolbarFactory;
 import com.tuyensinh.admin.ui.UIConstants;
 import com.tuyensinh.entity.Nganh;
 import com.tuyensinh.entity.NganhToHop;
@@ -23,6 +24,7 @@ public class NganhToHopPanel extends BaseCrudPanel<NganhToHop> {
         super(mainFrame);
         this.xetTuyenService = new XetTuyenService();
         this.service = new NganhToHopService();
+        enablePagination();
         initCrudUI();
         loadData();
     }
@@ -65,20 +67,26 @@ public class NganhToHopPanel extends BaseCrudPanel<NganhToHop> {
     protected void buildBottomBar() {
         totalLabel = new JLabel("Tong: 0 lien ket");
         totalLabel.setFont(UIConstants.FONT_SMALL);
-        add(totalLabel, BorderLayout.SOUTH);
+        pageSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 1, 1));
+        JPanel paging = ToolbarFactory.createPagingPanel(pageSpinner, () -> {
+            currentPage = (Integer) pageSpinner.getValue();
+            loadData();
+        });
+        add(ToolbarFactory.createBottomBar(totalLabel, paging), BorderLayout.SOUTH);
     }
 
     @Override
     public void loadData() {
         model.setRowCount(0);
 
-        String kw = searchTextField != null ? searchTextField.getText().trim().toLowerCase() : "";
-        List<NganhToHop> list = service.findAll();
+        String kw = getSearchKeyword();
+        long total = kw.isEmpty() ? service.countAll() : service.countSearch(kw);
+        normalizePage(total);
+        List<NganhToHop> list = kw.isEmpty()
+                ? service.findPage(currentPage, pageSize)
+                : service.searchPage(kw, currentPage, pageSize);
 
-        int count = 0;
         for (NganhToHop nt : list) {
-            if (!matchKeyword(nt, kw)) continue;
-
             model.addRow(new Object[]{
                     nt.getNganhTohopId(),
                     nt.getNganh() != null ? safe(nt.getNganh().getMaNganh()) : "",
@@ -87,10 +95,10 @@ public class NganhToHopPanel extends BaseCrudPanel<NganhToHop> {
                     nt.getToHop() != null ? safe(nt.getToHop().getTenTohop()) : "",
                     nt.getDoLech() != null ? nt.getDoLech() : BigDecimal.ZERO
             });
-            count++;
         }
 
-        updateTotalLabel(count, "lien ket");
+        updateTotalLabel(total, "lien ket");
+        updatePagingState(total);
     }
 
     @Override

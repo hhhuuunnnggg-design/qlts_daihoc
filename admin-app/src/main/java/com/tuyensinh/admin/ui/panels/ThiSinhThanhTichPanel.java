@@ -25,6 +25,7 @@ public class ThiSinhThanhTichPanel extends BaseCrudPanel<ThiSinhThanhTich> {
         super(mainFrame);
         this.service = new ThiSinhThanhTichService();
         this.thiSinhService = new ThiSinhService();
+        enablePagination();
         initCrudUI();
         loadData();
     }
@@ -57,7 +58,12 @@ public class ThiSinhThanhTichPanel extends BaseCrudPanel<ThiSinhThanhTich> {
     protected void buildBottomBar() {
         totalLabel = new JLabel("Tong: 0 thanh tich");
         totalLabel.setFont(UIConstants.FONT_SMALL);
-        add(totalLabel, BorderLayout.SOUTH);
+        pageSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 1, 1));
+        JPanel paging = ToolbarFactory.createPagingPanel(pageSpinner, () -> {
+            currentPage = (Integer) pageSpinner.getValue();
+            loadData();
+        });
+        add(ToolbarFactory.createBottomBar(totalLabel, paging), BorderLayout.SOUTH);
     }
 
     @Override
@@ -80,19 +86,12 @@ public class ThiSinhThanhTichPanel extends BaseCrudPanel<ThiSinhThanhTich> {
     public void loadData() {
         model.setRowCount(0);
 
-        String keyword = normalize(searchTextField != null ? searchTextField.getText() : "");
-        List<ThiSinhThanhTich> list = service.findAll();
-
-        if (!keyword.isEmpty()) {
-            list = list.stream()
-                    .filter(tt -> matchesKeyword(tt, keyword))
-                    .collect(Collectors.toList());
-        }
-
-        list.sort(Comparator.comparing(
-                ThiSinhThanhTich::getThanhtichId,
-                Comparator.nullsLast(Integer::compareTo)
-        ));
+        String keyword = normalize(getSearchKeyword());
+        long total = keyword.isEmpty() ? service.countAll() : service.countSearch(keyword);
+        normalizePage(total);
+        List<ThiSinhThanhTich> list = keyword.isEmpty()
+                ? service.findPage(currentPage, pageSize)
+                : service.searchPage(keyword, currentPage, pageSize);
 
         for (ThiSinhThanhTich tt : list) {
             ThiSinh ts = tt.getThiSinh();
@@ -113,7 +112,8 @@ public class ThiSinhThanhTichPanel extends BaseCrudPanel<ThiSinhThanhTich> {
             });
         }
 
-        updateTotalLabel(list.size(), "thanh tich");
+        updateTotalLabel(total, "thanh tich");
+        updatePagingState(total);
     }
 
     @Override

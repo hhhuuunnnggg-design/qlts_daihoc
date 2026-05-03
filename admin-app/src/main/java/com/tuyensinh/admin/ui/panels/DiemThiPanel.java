@@ -7,6 +7,7 @@ import com.tuyensinh.service.*;
 import com.tuyensinh.dao.PhuongThucDao;
 import javax.swing.*;
 import java.awt.*;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import javax.swing.table.DefaultTableModel;
@@ -21,6 +22,7 @@ public class DiemThiPanel extends BaseCrudPanel<DiemThi> {
     private ThiSinhService thiSinhService;
     private DiemThiService diemThiService;
     private PhuongThucDao phuongThucDao;
+    private MonService monService;
     private JTable detailTable;
     private DefaultTableModel detailModel;
 
@@ -31,6 +33,7 @@ public class DiemThiPanel extends BaseCrudPanel<DiemThi> {
         thiSinhService = new ThiSinhService();
         diemThiService = new DiemThiService();
         phuongThucDao = new PhuongThucDao();
+        monService = new MonService();
         initUI();
         loadData();
     }
@@ -71,17 +74,17 @@ public class DiemThiPanel extends BaseCrudPanel<DiemThi> {
             }
             phuongThucFilter.addItem(pt);
         }
-        phuongThucFilter.addActionListener(e -> loadData());
+        phuongThucFilter.addActionListener(e -> { currentPage = 1; loadData(); });
         configurePhuongThucCombo(phuongThucFilter);
         toolbar.add(phuongThucFilter);
 
         toolbar.add(new JLabel("  Tim kiem:"));
         searchTextField = new JTextField(15);
-        searchTextField.addActionListener(e -> loadData());
+        searchTextField.addActionListener(e -> doSearch());
         toolbar.add(searchTextField);
 
         JButton btnSearch = new JButton("Tim");
-        btnSearch.addActionListener(e -> loadData());
+        btnSearch.addActionListener(e -> doSearch());
         toolbar.add(btnSearch);
 
         toolbar.add(Box.createHorizontalStrut(16));
@@ -108,6 +111,23 @@ public class DiemThiPanel extends BaseCrudPanel<DiemThi> {
         btnDelete.addActionListener(e -> doDelete());
         toolbar.add(btnDelete);
 
+        toolbar.add(Box.createHorizontalStrut(16));
+
+        JButton btnAddDetail = new JButton("Them mon diem");
+        btnAddDetail.setToolTipText("Them 1 dong xt_diemthi_chitiet cho phieu diem dang chon");
+        btnAddDetail.addActionListener(e -> showAddDetailDialog());
+        toolbar.add(btnAddDetail);
+
+        JButton btnEditDetail = new JButton("Sua diem mon");
+        btnEditDetail.setToolTipText("Sua diem goc/quy doi/su dung cua mon dang chon o bang chi tiet");
+        btnEditDetail.addActionListener(e -> showEditDetailDialog());
+        toolbar.add(btnEditDetail);
+
+        JButton btnDeleteDetail = new JButton("Xoa mon diem");
+        btnDeleteDetail.setToolTipText("Xoa dong diem chi tiet dang chon");
+        btnDeleteDetail.addActionListener(e -> deleteDetail());
+        toolbar.add(btnDeleteDetail);
+
         add(toolbar, BorderLayout.NORTH);
     }
 
@@ -115,7 +135,12 @@ public class DiemThiPanel extends BaseCrudPanel<DiemThi> {
     protected void buildBottomBar() {
         totalLabel = new JLabel("Tong: 0 ban ghi");
         totalLabel.setFont(UIConstants.FONT_SMALL);
-        add(totalLabel, BorderLayout.SOUTH);
+        pageSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 1, 1));
+        JPanel paging = ToolbarFactory.createPagingPanel(pageSpinner, () -> {
+            currentPage = (Integer) pageSpinner.getValue();
+            loadData();
+        });
+        add(ToolbarFactory.createBottomBar(totalLabel, paging), BorderLayout.SOUTH);
     }
 
     @Override
@@ -127,16 +152,23 @@ public class DiemThiPanel extends BaseCrudPanel<DiemThi> {
         }
 
         PhuongThuc pt = (PhuongThuc) phuongThucFilter.getSelectedItem();
-        String kw = searchTextField != null ? searchTextField.getText().trim() : "";
+        String kw = getSearchKeyword();
+        Short ptId = pt != null ? pt.getPhuongthucId() : null;
 
+        long total;
         List<DiemThi> list;
         if (!kw.isEmpty()) {
-            Short ptId = pt != null ? pt.getPhuongthucId() : null;
-            list = diemThiService.searchDiemThi(kw, ptId);
-        } else if (pt != null) {
-            list = diemThiService.findByPhuongThuc(pt.getPhuongthucId());
+            total = diemThiService.countSearchDiemThi(kw, ptId);
+            normalizePage(total);
+            list = diemThiService.searchDiemThiPage(kw, ptId, currentPage, pageSize);
+        } else if (ptId != null) {
+            total = diemThiService.countByPhuongThuc(ptId);
+            normalizePage(total);
+            list = diemThiService.findByPhuongThucPage(ptId, currentPage, pageSize);
         } else {
-            list = diemThiService.findAll();
+            total = diemThiService.countAll();
+            normalizePage(total);
+            list = diemThiService.findPage(currentPage, pageSize);
         }
 
         for (DiemThi dt : list) {
@@ -151,7 +183,8 @@ public class DiemThiPanel extends BaseCrudPanel<DiemThi> {
                 dt.getGhiChu()
             });
         }
-        updateTotalLabel(list.size(), "ban ghi");
+        updateTotalLabel(total, "ban ghi");
+        updatePagingState(total);
     }
 
     @Override
@@ -204,7 +237,7 @@ public class DiemThiPanel extends BaseCrudPanel<DiemThi> {
         dt.setThiSinh(optTs.get());
         dt.setPhuongThuc(pt);
         dt.setSobaodanh(txtSbd.getText().trim().isEmpty() ? null : txtSbd.getText().trim());
-        dt.setNamTuyensinh((Short) spnNam.getValue());
+        dt.setNamTuyensinh(((Number) spnNam.getValue()).shortValue());
         dt.setGhiChu(txtGhiChu.getText().trim().isEmpty() ? null : txtGhiChu.getText().trim());
 
         try {
@@ -237,7 +270,7 @@ public class DiemThiPanel extends BaseCrudPanel<DiemThi> {
         if (r != JOptionPane.OK_OPTION) return;
 
         dt.setSobaodanh(txtSbd.getText().trim().isEmpty() ? null : txtSbd.getText().trim());
-        dt.setNamTuyensinh((Short) spnNam.getValue());
+        dt.setNamTuyensinh(((Number) spnNam.getValue()).shortValue());
         dt.setGhiChu(txtGhiChu.getText().trim().isEmpty() ? null : txtGhiChu.getText().trim());
 
         try {
@@ -280,9 +313,19 @@ public class DiemThiPanel extends BaseCrudPanel<DiemThi> {
         });
 
         detailModel = TableFactory.newReadOnlyModel(
-                new String[]{"Ma mon", "Ten mon", "Diem goc", "Diem quy doi", "Diem su dung"});
+                new String[]{"ID", "Ma mon", "Ten mon", "Diem goc", "Diem quy doi", "Diem su dung"});
         detailTable = TableFactory.create(detailModel);
-        detailTable.setEnabled(false);
+        detailTable.getColumnModel().getColumn(0).setMinWidth(0);
+        detailTable.getColumnModel().getColumn(0).setMaxWidth(0);
+        detailTable.getColumnModel().getColumn(0).setPreferredWidth(0);
+        detailTable.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                if (e.getClickCount() == 2 && detailTable.getSelectedRow() >= 0) {
+                    showEditDetailDialog();
+                }
+            }
+        });
 
         JScrollPane topScroll = TableFactory.wrap(table);
         topScroll.setBorder(BorderFactory.createTitledBorder("Danh sach diem thi"));
@@ -317,6 +360,7 @@ public class DiemThiPanel extends BaseCrudPanel<DiemThi> {
 
         for (DiemThiChiTiet ct : details) {
             detailModel.addRow(new Object[]{
+                    ct.getDiemthiCtId(),
                     ct.getMon() != null ? ct.getMon().getMaMon() : "",
                     ct.getMon() != null ? ct.getMon().getTenMon() : "",
                     ct.getDiemGoc(),
@@ -325,4 +369,231 @@ public class DiemThiPanel extends BaseCrudPanel<DiemThi> {
             });
         }
     }
+
+    private void showAddDetailDialog() {
+        DiemThi dt = getSelectedEntity();
+        if (dt == null) {
+            showMessage(this, "Hay chon 1 phieu diem truoc!");
+            return;
+        }
+
+        JComboBox<Mon> cboMon = buildMonCombo(null);
+        JTextField txtDiemGoc = new JTextField(10);
+        JTextField txtDiemQuydoi = new JTextField(10);
+        JTextField txtDiemSudung = new JTextField(10);
+
+        int r = JOptionPane.showConfirmDialog(
+                this,
+                new Object[]{
+                        "Mon (*):", cboMon,
+                        "Diem goc:", txtDiemGoc,
+                        "Diem quy doi:", txtDiemQuydoi,
+                        "Diem su dung:", txtDiemSudung
+                },
+                "Them diem chi tiet",
+                JOptionPane.OK_CANCEL_OPTION
+        );
+        if (r != JOptionPane.OK_OPTION) return;
+
+        Mon mon = (Mon) cboMon.getSelectedItem();
+        if (mon == null) {
+            showMessage(this, "Chua chon mon!");
+            return;
+        }
+
+        if (diemThiService.findChiTietByDiemThiAndMon(dt.getDiemthiId(), mon.getMonId()) != null) {
+            showMessage(this, "Phieu diem nay da co diem mon " + mon.getMaMon() + ". Hay dung nut Sua diem mon.");
+            return;
+        }
+
+        try {
+            DiemThiChiTiet ct = new DiemThiChiTiet();
+            ct.setDiemThi(dt);
+            ct.setMon(mon);
+            applyScoreFields(ct, txtDiemGoc, txtDiemQuydoi, txtDiemSudung);
+
+            if (ct.getDiemGoc() == null && ct.getDiemQuydoi() == null && ct.getDiemSudung() == null) {
+                showMessage(this, "Can nhap it nhat 1 cot diem.");
+                return;
+            }
+
+            diemThiService.saveChiTiet(ct);
+            showSuccess(this, "Them diem chi tiet thanh cong!");
+            loadDetailTable();
+        } catch (Exception ex) {
+            showError(this, ex.getMessage());
+        }
+    }
+
+    private void showEditDetailDialog() {
+        DiemThiChiTiet ct = getSelectedDetail();
+        if (ct == null) {
+            showMessage(this, "Hay chon 1 dong diem chi tiet!");
+            return;
+        }
+
+        JComboBox<Mon> cboMon = buildMonCombo(ct.getMon());
+        JTextField txtDiemGoc = new JTextField(formatScoreForEdit(ct.getDiemGoc()), 10);
+        JTextField txtDiemQuydoi = new JTextField(formatScoreForEdit(ct.getDiemQuydoi()), 10);
+        JTextField txtDiemSudung = new JTextField(formatScoreForEdit(ct.getDiemSudung()), 10);
+
+        int r = JOptionPane.showConfirmDialog(
+                this,
+                new Object[]{
+                        "Mon (*):", cboMon,
+                        "Diem goc:", txtDiemGoc,
+                        "Diem quy doi:", txtDiemQuydoi,
+                        "Diem su dung:", txtDiemSudung
+                },
+                "Sua diem chi tiet",
+                JOptionPane.OK_CANCEL_OPTION
+        );
+        if (r != JOptionPane.OK_OPTION) return;
+
+        Mon selectedMon = (Mon) cboMon.getSelectedItem();
+        if (selectedMon == null) {
+            showMessage(this, "Chua chon mon!");
+            return;
+        }
+
+        try {
+            boolean changedMon = ct.getMon() == null
+                    || !selectedMon.getMonId().equals(ct.getMon().getMonId());
+            if (changedMon) {
+                DiemThi parent = ct.getDiemThi();
+                Integer parentId = parent != null ? parent.getDiemthiId() : getSelectedId();
+                DiemThiChiTiet duplicate = diemThiService.findChiTietByDiemThiAndMon(parentId, selectedMon.getMonId());
+                if (duplicate != null && !duplicate.getDiemthiCtId().equals(ct.getDiemthiCtId())) {
+                    showMessage(this, "Phieu diem nay da co diem mon " + selectedMon.getMaMon() + ".");
+                    return;
+                }
+                ct.setMon(selectedMon);
+            }
+
+            applyScoreFields(ct, txtDiemGoc, txtDiemQuydoi, txtDiemSudung);
+            if (ct.getDiemGoc() == null && ct.getDiemQuydoi() == null && ct.getDiemSudung() == null) {
+                showMessage(this, "Can nhap it nhat 1 cot diem.");
+                return;
+            }
+
+            diemThiService.updateChiTiet(ct);
+            showSuccess(this, "Cap nhat diem chi tiet thanh cong!");
+            loadDetailTable();
+        } catch (Exception ex) {
+            showError(this, ex.getMessage());
+        }
+    }
+
+    private void deleteDetail() {
+        DiemThiChiTiet ct = getSelectedDetail();
+        if (ct == null) {
+            showMessage(this, "Hay chon 1 dong diem chi tiet!");
+            return;
+        }
+
+        String monName = ct.getMon() != null
+                ? ct.getMon().getMaMon() + " - " + ct.getMon().getTenMon()
+                : String.valueOf(ct.getDiemthiCtId());
+
+        int confirm = JOptionPane.showConfirmDialog(
+                this,
+                "Ban co chac muon xoa diem mon nay?\n" + monName,
+                "Xac nhan",
+                JOptionPane.YES_NO_OPTION
+        );
+        if (confirm != JOptionPane.YES_OPTION) return;
+
+        try {
+            diemThiService.deleteChiTiet(ct);
+            showSuccess(this, "Xoa diem chi tiet thanh cong!");
+            loadDetailTable();
+        } catch (Exception ex) {
+            showError(this, ex.getMessage());
+        }
+    }
+
+    private DiemThiChiTiet getSelectedDetail() {
+        if (detailTable == null || detailModel == null) return null;
+        int row = detailTable.getSelectedRow();
+        if (row < 0) return null;
+
+        Object idValue = detailModel.getValueAt(row, 0);
+        Long id = null;
+        if (idValue instanceof Long) {
+            id = (Long) idValue;
+        } else if (idValue instanceof Number) {
+            id = ((Number) idValue).longValue();
+        } else if (idValue != null) {
+            try {
+                id = Long.parseLong(idValue.toString());
+            } catch (NumberFormatException ignored) {
+            }
+        }
+        return id == null ? null : diemThiService.findChiTietById(id);
+    }
+
+    private JComboBox<Mon> buildMonCombo(Mon selected) {
+        JComboBox<Mon> combo = new JComboBox<>();
+        for (Mon mon : monService.findAll()) {
+            combo.addItem(mon);
+        }
+        combo.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+                                                          boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value instanceof Mon) {
+                    Mon mon = (Mon) value;
+                    setText(mon.getMaMon() + " - " + mon.getTenMon());
+                }
+                return this;
+            }
+        });
+
+        if (selected != null && selected.getMonId() != null) {
+            for (int i = 0; i < combo.getItemCount(); i++) {
+                Mon item = combo.getItemAt(i);
+                if (item != null && selected.getMonId().equals(item.getMonId())) {
+                    combo.setSelectedIndex(i);
+                    break;
+                }
+            }
+        }
+        return combo;
+    }
+
+    private void applyScoreFields(DiemThiChiTiet ct,
+                                  JTextField txtDiemGoc,
+                                  JTextField txtDiemQuydoi,
+                                  JTextField txtDiemSudung) {
+        BigDecimal diemGoc = parseScore(txtDiemGoc.getText());
+        BigDecimal diemQuydoi = parseScore(txtDiemQuydoi.getText());
+        BigDecimal diemSudung = parseScore(txtDiemSudung.getText());
+
+        if (diemQuydoi == null) {
+            diemQuydoi = diemGoc;
+        }
+        if (diemSudung == null) {
+            diemSudung = diemQuydoi != null ? diemQuydoi : diemGoc;
+        }
+
+        ct.setDiemGoc(diemGoc);
+        ct.setDiemQuydoi(diemQuydoi);
+        ct.setDiemSudung(diemSudung);
+    }
+
+    private BigDecimal parseScore(String text) {
+        if (text == null || text.trim().isEmpty()) return null;
+        String normalized = text.trim().replace(',', '.');
+        try {
+            return new BigDecimal(normalized);
+        } catch (NumberFormatException ex) {
+            throw new IllegalArgumentException("Diem khong hop le: " + text);
+        }
+    }
+
+    private String formatScoreForEdit(BigDecimal value) {
+        return value == null ? "" : value.stripTrailingZeros().toPlainString();
+    }
+
 }

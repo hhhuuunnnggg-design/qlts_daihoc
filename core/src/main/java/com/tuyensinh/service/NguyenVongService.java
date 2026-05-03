@@ -41,4 +41,21 @@ public class NguyenVongService implements INguyenVongService {
     public int countByNganhAndPhuongThuc(Integer nganhId, Short phuongthucId, String ketQua) {
         return dao.countByNganhAndPhuongThuc(nganhId, phuongthucId, ketQua);
     }
+
+    public List<NguyenVong> findPage(int page, int pageSize) {
+        return dao.findPage(page, pageSize);
+    }
+
+    public long countAll() {
+        return dao.countAll();
+    }
+
+    public List<NguyenVong> searchPage(String keyword, int page, int pageSize) {
+        return dao.searchPage(keyword, page, pageSize);
+    }
+
+    public long countSearch(String keyword) {
+        return dao.countSearch(keyword);
+    }
+
 }

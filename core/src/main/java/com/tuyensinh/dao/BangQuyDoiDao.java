@@ -150,4 +150,65 @@ public class BangQuyDoiDao extends BaseDao<BangQuyDoi> implements IBangQuyDoiDao
 
         return score;
     }
+
+    public List<BangQuyDoi> findPage(int page, int pageSize) {
+        return em().createQuery(
+                        "select b from BangQuyDoi b " +
+                                "left join b.phuongThuc pt " +
+                                "left join b.toHop th " +
+                                "left join b.mon m " +
+                                "order by pt.phuongthucId, b.diemTu, b.bangquydoiId",
+                        BangQuyDoi.class)
+                .setFirstResult((page - 1) * pageSize)
+                .setMaxResults(pageSize)
+                .getResultList();
+    }
+
+    public long countAll() {
+        return count();
+    }
+
+    public List<BangQuyDoi> searchPage(String keyword, int page, int pageSize) {
+        String kw = "%" + normalizeKeyword(keyword) + "%";
+        return em().createQuery(
+                        "select b from BangQuyDoi b " +
+                                "left join b.phuongThuc pt " +
+                                "left join b.toHop th " +
+                                "left join b.mon m " +
+                                "where lower(coalesce(b.maQuydoi, '')) like :kw " +
+                                "or lower(coalesce(pt.maPhuongthuc, '')) like :kw " +
+                                "or lower(coalesce(pt.tenPhuongthuc, '')) like :kw " +
+                                "or lower(coalesce(th.maTohop, '')) like :kw " +
+                                "or lower(coalesce(m.maMon, '')) like :kw " +
+                                "or lower(coalesce(b.phanVi, '')) like :kw " +
+                                "order by pt.phuongthucId, b.diemTu, b.bangquydoiId",
+                        BangQuyDoi.class)
+                .setParameter("kw", kw)
+                .setFirstResult((page - 1) * pageSize)
+                .setMaxResults(pageSize)
+                .getResultList();
+    }
+
+    public long countSearch(String keyword) {
+        String kw = "%" + normalizeKeyword(keyword) + "%";
+        return em().createQuery(
+                        "select count(b) from BangQuyDoi b " +
+                                "left join b.phuongThuc pt " +
+                                "left join b.toHop th " +
+                                "left join b.mon m " +
+                                "where lower(coalesce(b.maQuydoi, '')) like :kw " +
+                                "or lower(coalesce(pt.maPhuongthuc, '')) like :kw " +
+                                "or lower(coalesce(pt.tenPhuongthuc, '')) like :kw " +
+                                "or lower(coalesce(th.maTohop, '')) like :kw " +
+                                "or lower(coalesce(m.maMon, '')) like :kw " +
+                                "or lower(coalesce(b.phanVi, '')) like :kw",
+                        Long.class)
+                .setParameter("kw", kw)
+                .getSingleResult();
+    }
+
+    private String normalizeKeyword(String keyword) {
+        return keyword == null ? "" : keyword.trim().toLowerCase();
+    }
+
 }

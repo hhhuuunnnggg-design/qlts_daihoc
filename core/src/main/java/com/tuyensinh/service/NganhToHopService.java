@@ -33,4 +33,21 @@ public class NganhToHopService implements INganhToHopService {
     public void delete(NganhToHop entity) {
         dao.delete(entity);
     }
+
+    public List<NganhToHop> findPage(int page, int pageSize) {
+        return dao.findPage(page, pageSize);
+    }
+
+    public long countAll() {
+        return dao.countAll();
+    }
+
+    public List<NganhToHop> searchPage(String keyword, int page, int pageSize) {
+        return dao.searchPage(keyword, page, pageSize);
+    }
+
+    public long countSearch(String keyword) {
+        return dao.countSearch(keyword);
+    }
+
 }

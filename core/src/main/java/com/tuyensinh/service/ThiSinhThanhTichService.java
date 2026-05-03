@@ -54,4 +54,21 @@ public class ThiSinhThanhTichService implements IThiSinhThanhTichService {
     public void delete(ThiSinhThanhTich entity) {
         dao.delete(entity);
     }
+
+    public List<ThiSinhThanhTich> findPage(int page, int pageSize) {
+        return dao.findPage(page, pageSize);
+    }
+
+    public long countAll() {
+        return dao.countAll();
+    }
+
+    public List<ThiSinhThanhTich> searchPage(String keyword, int page, int pageSize) {
+        return dao.searchPage(keyword, page, pageSize);
+    }
+
+    public long countSearch(String keyword) {
+        return dao.countSearch(keyword);
+    }
+
 }

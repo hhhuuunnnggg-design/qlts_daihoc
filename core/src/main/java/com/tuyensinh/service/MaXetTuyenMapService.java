@@ -73,4 +73,27 @@ public class MaXetTuyenMapService {
     public List<NganhToHop> findNganhToHopByNganh(Integer nganhId) {
         return nganhToHopDao.findByNganhId(nganhId);
     }
+
+    public List<MaXetTuyenMap> findPage(int page, int pageSize) {
+        return dao.findPage(page, pageSize);
+    }
+
+    public long countAll() {
+        return dao.countAll();
+    }
+
+    public List<MaXetTuyenMap> searchPage(String keyword, int page, int pageSize) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return dao.findPage(page, pageSize);
+        }
+        return dao.searchPage(keyword, page, pageSize);
+    }
+
+    public long countSearch(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return dao.countAll();
+        }
+        return dao.countSearch(keyword);
+    }
+
 }

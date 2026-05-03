@@ -45,6 +45,7 @@ public class BangQuyDoiPanel extends BaseCrudPanel<BangQuyDoi> {
         phuongThucDao = new PhuongThucDao();
         toHopDao = new ToHopDao();
         monDao = new MonDao();
+        enablePagination();
         initUI();
         loadData();
     }
@@ -108,16 +109,25 @@ public class BangQuyDoiPanel extends BaseCrudPanel<BangQuyDoi> {
 
     @Override
     protected void buildBottomBar() {
-        totalLabel = new JLabel("Tong: 0");
+        totalLabel = new JLabel("Tong: 0 ban ghi");
         totalLabel.setFont(UIConstants.FONT_SMALL);
-        add(totalLabel, BorderLayout.SOUTH);
+        pageSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 1, 1));
+        JPanel paging = ToolbarFactory.createPagingPanel(pageSpinner, () -> {
+            currentPage = (Integer) pageSpinner.getValue();
+            loadData();
+        });
+        add(ToolbarFactory.createBottomBar(totalLabel, paging), BorderLayout.SOUTH);
     }
 
     @Override
     public void loadData() {
         model.setRowCount(0);
-        String kw = searchTextField.getText().trim();
-        List<BangQuyDoi> list = kw.isEmpty() ? service.findAll() : service.search(kw);
+        String kw = getSearchKeyword();
+        long total = kw.isEmpty() ? service.countAll() : service.countSearch(kw);
+        normalizePage(total);
+        List<BangQuyDoi> list = kw.isEmpty()
+                ? service.findPage(currentPage, pageSize)
+                : service.searchPage(kw, currentPage, pageSize);
 
         for (BangQuyDoi bqd : list) {
             model.addRow(new Object[]{
@@ -133,7 +143,8 @@ public class BangQuyDoiPanel extends BaseCrudPanel<BangQuyDoi> {
                     bqd.getPhanVi()
             });
         }
-        updateTotalLabel(list.size(), "ban ghi");
+        updateTotalLabel(total, "ban ghi");
+        updatePagingState(total);
     }
 
     @Override

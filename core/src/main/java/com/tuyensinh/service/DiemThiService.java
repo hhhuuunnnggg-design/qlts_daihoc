@@ -53,6 +53,27 @@ public class DiemThiService implements IDiemThiService {
     public List<Object[]> thongKeDiemTheoMon(Short phuongthucId) {
         return dao.thongKeDiemTheoMon(phuongthucId);
     }
+
+    public DiemThiChiTiet findChiTietById(Long id) {
+        return dao.findChiTietById(id);
+    }
+
+    public DiemThiChiTiet findChiTietByDiemThiAndMon(Integer diemthiId, Integer monId) {
+        return dao.findChiTietByDiemThiAndMon(diemthiId, monId);
+    }
+
+    public DiemThiChiTiet saveChiTiet(DiemThiChiTiet entity) {
+        return dao.saveChiTiet(entity);
+    }
+
+    public void updateChiTiet(DiemThiChiTiet entity) {
+        dao.updateChiTiet(entity);
+    }
+
+    public void deleteChiTiet(DiemThiChiTiet entity) {
+        dao.deleteChiTiet(entity);
+    }
+
     @Override
     public DiemThi importOrReplaceScoreSheet(ThiSinh thiSinh,
                                              PhuongThuc phuongThuc,
@@ -113,4 +134,29 @@ public class DiemThiService implements IDiemThiService {
     public List<DiemThi> findByThiSinhIdWithDetails(Integer thisinhId) {
         return dao.findByThiSinhIdWithDetails(thisinhId);
     }
+
+    public List<DiemThi> findPage(int page, int pageSize) {
+        return dao.findPage(page, pageSize);
+    }
+
+    public long countAll() {
+        return dao.countAll();
+    }
+
+    public List<DiemThi> findByPhuongThucPage(Short phuongthucId, int page, int pageSize) {
+        return dao.findByPhuongThucAndPage(phuongthucId, page, pageSize);
+    }
+
+    public long countByPhuongThuc(Short phuongthucId) {
+        return dao.countByPhuongThuc(phuongthucId);
+    }
+
+    public List<DiemThi> searchDiemThiPage(String keyword, Short phuongthucId, int page, int pageSize) {
+        return dao.searchByCccdOrSoBaoDanhPage(keyword, phuongthucId, page, pageSize);
+    }
+
+    public long countSearchDiemThi(String keyword, Short phuongthucId) {
+        return dao.countSearchByCccdOrSoBaoDanh(keyword, phuongthucId);
+    }
+
 }

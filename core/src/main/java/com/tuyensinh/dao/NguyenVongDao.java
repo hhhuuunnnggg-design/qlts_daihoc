@@ -142,6 +142,86 @@ public class NguyenVongDao extends BaseDao<NguyenVong> implements INguyenVongDao
         return result.intValue();
     }
 
+    /** Phan trang that o DB cho cac panel hien thi danh sach nguyen vong/xet tuyen. */
+    public List<NguyenVong> findPage(int page, int pageSize) {
+        return em().createQuery(
+                        "select nv from NguyenVong nv " +
+                                "left join fetch nv.thiSinh ts " +
+                                "left join fetch nv.nganh n " +
+                                "left join fetch nv.nganhToHop nt " +
+                                "left join fetch nt.toHop th " +
+                                "left join fetch nv.phuongThuc pt " +
+                                "order by ts.ten, ts.ho, nv.thuTu, nv.nguyenvongId",
+                        NguyenVong.class)
+                .setFirstResult((Math.max(1, page) - 1) * pageSize)
+                .setMaxResults(pageSize)
+                .getResultList();
+    }
+
+    public long countAll() {
+        return em().createQuery("select count(nv) from NguyenVong nv", Long.class)
+                .getSingleResult();
+    }
+
+    public List<NguyenVong> searchPage(String keyword, int page, int pageSize) {
+        String kw = "%" + normalizeKeyword(keyword) + "%";
+        return em().createQuery(
+                        "select nv from NguyenVong nv " +
+                                "left join fetch nv.thiSinh ts " +
+                                "left join fetch nv.nganh n " +
+                                "left join fetch nv.nganhToHop nt " +
+                                "left join fetch nt.toHop th " +
+                                "left join fetch nv.phuongThuc pt " +
+                                "where lower(coalesce(ts.cccd, '')) like :kw " +
+                                "or lower(coalesce(ts.sobaodanh, '')) like :kw " +
+                                "or lower(coalesce(ts.ho, '')) like :kw " +
+                                "or lower(coalesce(ts.ten, '')) like :kw " +
+                                "or lower(coalesce(n.maNganh, '')) like :kw " +
+                                "or lower(coalesce(n.tenNganh, '')) like :kw " +
+                                "or lower(coalesce(th.maTohop, '')) like :kw " +
+                                "or lower(coalesce(th.tenTohop, '')) like :kw " +
+                                "or lower(coalesce(pt.maPhuongthuc, '')) like :kw " +
+                                "or lower(coalesce(pt.tenPhuongthuc, '')) like :kw " +
+                                "or lower(coalesce(nv.ketQua, '')) like :kw " +
+                                "or lower(coalesce(nv.phuongThucDiemTotNhat, '')) like :kw " +
+                                "order by ts.ten, ts.ho, nv.thuTu, nv.nguyenvongId",
+                        NguyenVong.class)
+                .setParameter("kw", kw)
+                .setFirstResult((Math.max(1, page) - 1) * pageSize)
+                .setMaxResults(pageSize)
+                .getResultList();
+    }
+
+    public long countSearch(String keyword) {
+        String kw = "%" + normalizeKeyword(keyword) + "%";
+        return em().createQuery(
+                        "select count(nv) from NguyenVong nv " +
+                                "left join nv.thiSinh ts " +
+                                "left join nv.nganh n " +
+                                "left join nv.nganhToHop nt " +
+                                "left join nt.toHop th " +
+                                "left join nv.phuongThuc pt " +
+                                "where lower(coalesce(ts.cccd, '')) like :kw " +
+                                "or lower(coalesce(ts.sobaodanh, '')) like :kw " +
+                                "or lower(coalesce(ts.ho, '')) like :kw " +
+                                "or lower(coalesce(ts.ten, '')) like :kw " +
+                                "or lower(coalesce(n.maNganh, '')) like :kw " +
+                                "or lower(coalesce(n.tenNganh, '')) like :kw " +
+                                "or lower(coalesce(th.maTohop, '')) like :kw " +
+                                "or lower(coalesce(th.tenTohop, '')) like :kw " +
+                                "or lower(coalesce(pt.maPhuongthuc, '')) like :kw " +
+                                "or lower(coalesce(pt.tenPhuongthuc, '')) like :kw " +
+                                "or lower(coalesce(nv.ketQua, '')) like :kw " +
+                                "or lower(coalesce(nv.phuongThucDiemTotNhat, '')) like :kw",
+                        Long.class)
+                .setParameter("kw", kw)
+                .getSingleResult();
+    }
+
+    private String normalizeKeyword(String keyword) {
+        return keyword == null ? "" : keyword.trim().toLowerCase();
+    }
+
     /**
      * Cap nhat ket qua xet tuyen theo lo lon trong 1 transaction.
      * Tranh viec chay hang chuc nghin UPDATE moi dong 1 transaction lam app treo rat lau.
@@ -192,5 +272,4 @@ public class NguyenVongDao extends BaseDao<NguyenVong> implements INguyenVongDao
             em.close();
         }
     }
-
 }

@@ -170,4 +170,71 @@ public class MaXetTuyenMapDao extends BaseDao<MaXetTuyenMap> implements IMaXetTu
             throw e;
         }
     }
+
+    public List<MaXetTuyenMap> findPage(int page, int pageSize) {
+        return em().createQuery(
+                        "select m from MaXetTuyenMap m " +
+                                "left join m.phuongThuc pt " +
+                                "order by m.maXetTuyen, pt.phuongthucId, m.maTohopNguon, m.maXettuyenId",
+                        MaXetTuyenMap.class)
+                .setFirstResult((page - 1) * pageSize)
+                .setMaxResults(pageSize)
+                .getResultList();
+    }
+
+    public long countAll() {
+        return count();
+    }
+
+    public List<MaXetTuyenMap> searchPage(String keyword, int page, int pageSize) {
+        String kw = "%" + normalizeKeyword(keyword) + "%";
+        return em().createQuery(
+                        "select m from MaXetTuyenMap m " +
+                                "left join m.nganh n " +
+                                "left join m.phuongThuc pt " +
+                                "left join m.nganhToHop nt " +
+                                "left join nt.toHop th " +
+                                "where lower(coalesce(m.maXetTuyen, '')) like :kw " +
+                                "or lower(coalesce(m.tenChuongTrinh, '')) like :kw " +
+                                "or lower(coalesce(m.maTohopNguon, '')) like :kw " +
+                                "or lower(coalesce(m.ghiChu, '')) like :kw " +
+                                "or lower(coalesce(n.maNganh, '')) like :kw " +
+                                "or lower(coalesce(n.tenNganh, '')) like :kw " +
+                                "or lower(coalesce(pt.maPhuongthuc, '')) like :kw " +
+                                "or lower(coalesce(pt.tenPhuongthuc, '')) like :kw " +
+                                "or lower(coalesce(th.maTohop, '')) like :kw " +
+                                "order by m.maXetTuyen, pt.phuongthucId, m.maTohopNguon, m.maXettuyenId",
+                        MaXetTuyenMap.class)
+                .setParameter("kw", kw)
+                .setFirstResult((page - 1) * pageSize)
+                .setMaxResults(pageSize)
+                .getResultList();
+    }
+
+    public long countSearch(String keyword) {
+        String kw = "%" + normalizeKeyword(keyword) + "%";
+        return em().createQuery(
+                        "select count(m) from MaXetTuyenMap m " +
+                                "left join m.nganh n " +
+                                "left join m.phuongThuc pt " +
+                                "left join m.nganhToHop nt " +
+                                "left join nt.toHop th " +
+                                "where lower(coalesce(m.maXetTuyen, '')) like :kw " +
+                                "or lower(coalesce(m.tenChuongTrinh, '')) like :kw " +
+                                "or lower(coalesce(m.maTohopNguon, '')) like :kw " +
+                                "or lower(coalesce(m.ghiChu, '')) like :kw " +
+                                "or lower(coalesce(n.maNganh, '')) like :kw " +
+                                "or lower(coalesce(n.tenNganh, '')) like :kw " +
+                                "or lower(coalesce(pt.maPhuongthuc, '')) like :kw " +
+                                "or lower(coalesce(pt.tenPhuongthuc, '')) like :kw " +
+                                "or lower(coalesce(th.maTohop, '')) like :kw",
+                        Long.class)
+                .setParameter("kw", kw)
+                .getSingleResult();
+    }
+
+    private String normalizeKeyword(String keyword) {
+        return keyword == null ? "" : keyword.trim().toLowerCase();
+    }
+
 }

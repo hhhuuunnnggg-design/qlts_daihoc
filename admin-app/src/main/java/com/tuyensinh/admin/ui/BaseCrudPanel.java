@@ -3,6 +3,8 @@ package com.tuyensinh.admin.ui;
 import javax.swing.*;
 import javax.swing.table.*;
 import java.awt.*;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Lớp nền generic cho tất cả panel CRUD có bảng.
@@ -80,6 +82,59 @@ public abstract class BaseCrudPanel<T> extends BasePanel {
         if (table != null) {
             table.getColumnModel().getColumn(0).setPreferredWidth(40);
         }
+    }
+
+
+    // ═══════════════════════════════════════════════════════════════════
+    //  PAGINATION HELPERS
+    // ═══════════════════════════════════════════════════════════════════
+
+    /** Bật phân trang 20 dòng/trang cho panel trước khi gọi initUI()/initCrudUI(). */
+    protected void enablePagination() {
+        usePagination = true;
+        pageSize = 20;
+        currentPage = 1;
+    }
+
+    /** Chuẩn hóa currentPage để không vượt quá số trang thực tế. */
+    protected int normalizePage(long total) {
+        int totalPages = Math.max(1, (int) Math.ceil((double) total / pageSize));
+        if (currentPage < 1) currentPage = 1;
+        if (currentPage > totalPages) currentPage = totalPages;
+        return totalPages;
+    }
+
+    /** Cập nhật spinner phân trang sau khi load dữ liệu. */
+    protected void updatePagingState(long total) {
+        normalizePage(total);
+        if (pageSpinner != null) {
+            ToolbarFactory.updatePagingSpinner(
+                    pageSpinner,
+                    currentPage,
+                    (int) Math.min(Integer.MAX_VALUE, total),
+                    pageSize
+            );
+        }
+    }
+
+    /**
+     * Chỉ dùng cho bảng nhỏ hoặc chỗ chưa có DAO phân trang thật.
+     * Bảng lớn nên dùng findPage/count ở DAO để tránh load toàn bộ dữ liệu.
+     */
+    protected <E> List<E> paginateInMemory(List<E> raw) {
+        if (raw == null || raw.isEmpty()) {
+            currentPage = 1;
+            return Collections.emptyList();
+        }
+        normalizePage(raw.size());
+        int from = (currentPage - 1) * pageSize;
+        int to = Math.min(from + pageSize, raw.size());
+        if (from >= raw.size()) return Collections.emptyList();
+        return raw.subList(from, to);
+    }
+
+    protected String getSearchKeyword() {
+        return searchTextField != null ? searchTextField.getText().trim() : "";
     }
 
     // ═══════════════════════════════════════════════════════════════════

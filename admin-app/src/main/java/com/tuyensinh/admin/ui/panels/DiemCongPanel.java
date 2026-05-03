@@ -44,6 +44,7 @@ public class DiemCongPanel extends BaseCrudPanel<DiemCong> {
         tinhDiemService = new TinhDiemService();
         diemCongChiTietService = new DiemCongChiTietService();
         phuongThucDao = new com.tuyensinh.dao.PhuongThucDao();
+        enablePagination();
         initUI();
         loadData();
     }
@@ -74,8 +75,16 @@ public class DiemCongPanel extends BaseCrudPanel<DiemCong> {
     @Override
     protected void buildToolbar() {
         JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
-        toolbar.add(new JLabel("Quan ly diem cong (diem uu tien, diem chung chi)"));
-        toolbar.add(Box.createHorizontalStrut(20));
+        toolbar.add(new JLabel("Tim kiem:"));
+        searchTextField = new JTextField(20);
+        searchTextField.addActionListener(e -> doSearch());
+        toolbar.add(searchTextField);
+
+        JButton btnSearch = new JButton("Tim kiem");
+        btnSearch.addActionListener(e -> doSearch());
+        toolbar.add(btnSearch);
+
+        toolbar.add(Box.createHorizontalStrut(16));
 
         JButton btnAutoAll = new JButton("Tao tat ca diem cong");
         btnAutoAll.addActionListener(e -> showGenerateAllDialog());
@@ -98,15 +107,26 @@ public class DiemCongPanel extends BaseCrudPanel<DiemCong> {
 
     @Override
     protected void buildBottomBar() {
-        totalLabel = new JLabel("Tong: 0");
+        totalLabel = new JLabel("Tong: 0 ban ghi");
         totalLabel.setFont(UIConstants.FONT_SMALL);
-        add(totalLabel, BorderLayout.SOUTH);
+        pageSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 1, 1));
+        JPanel paging = ToolbarFactory.createPagingPanel(pageSpinner, () -> {
+            currentPage = (Integer) pageSpinner.getValue();
+            loadData();
+        });
+        add(ToolbarFactory.createBottomBar(totalLabel, paging), BorderLayout.SOUTH);
     }
 
     @Override
     public void loadData() {
         model.setRowCount(0);
-        var list = diemCongService.findAll();
+        String kw = getSearchKeyword();
+        long total = kw.isEmpty() ? diemCongService.countAll() : diemCongService.countSearch(kw);
+        normalizePage(total);
+        List<DiemCong> list = kw.isEmpty()
+                ? diemCongService.findPage(currentPage, pageSize)
+                : diemCongService.searchPage(kw, currentPage, pageSize);
+
         for (DiemCong dc : list) {
             ThiSinh ts = dc.getThiSinh();
             model.addRow(new Object[]{
@@ -122,7 +142,8 @@ public class DiemCongPanel extends BaseCrudPanel<DiemCong> {
                     dc.getTongDiemCong()
             });
         }
-        updateTotalLabel(list.size(), "ban ghi");
+        updateTotalLabel(total, "ban ghi");
+        updatePagingState(total);
 
         if (model.getRowCount() > 0) {
             table.setRowSelectionInterval(0, 0);

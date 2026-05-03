@@ -124,4 +124,34 @@ public class NganhDao extends BaseDao<Nganh> implements INganhDao {
         }
     }
 
+
+    public List<Nganh> searchByMaOrTenPage(String keyword, int page, int pageSize) {
+        String kw = "%" + normalizeKeyword(keyword) + "%";
+        return em().createQuery(
+                        "select n from Nganh n " +
+                                "where lower(coalesce(n.maNganh, '')) like :kw " +
+                                "or lower(coalesce(n.tenNganh, '')) like :kw " +
+                                "order by n.maNganh, n.nganhId",
+                        Nganh.class)
+                .setParameter("kw", kw)
+                .setFirstResult((page - 1) * pageSize)
+                .setMaxResults(pageSize)
+                .getResultList();
+    }
+
+    public long countSearchByMaOrTen(String keyword) {
+        String kw = "%" + normalizeKeyword(keyword) + "%";
+        return em().createQuery(
+                        "select count(n) from Nganh n " +
+                                "where lower(coalesce(n.maNganh, '')) like :kw " +
+                                "or lower(coalesce(n.tenNganh, '')) like :kw",
+                        Long.class)
+                .setParameter("kw", kw)
+                .getSingleResult();
+    }
+
+    private String normalizeKeyword(String keyword) {
+        return keyword == null ? "" : keyword.trim().toLowerCase();
+    }
+
 }

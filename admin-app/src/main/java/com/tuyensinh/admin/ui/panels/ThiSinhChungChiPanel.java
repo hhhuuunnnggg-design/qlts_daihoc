@@ -12,10 +12,7 @@ import com.tuyensinh.service.ThiSinhService;
 import javax.swing.*;
 import java.awt.*;
 import java.math.BigDecimal;
-import java.util.Comparator;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class ThiSinhChungChiPanel extends BaseCrudPanel<ThiSinhChungChi> {
 
@@ -26,6 +23,7 @@ public class ThiSinhChungChiPanel extends BaseCrudPanel<ThiSinhChungChi> {
         super(mainFrame);
         this.service = new ThiSinhChungChiService();
         this.thiSinhService = new ThiSinhService();
+        enablePagination();
         initCrudUI();
         loadData();
     }
@@ -48,17 +46,13 @@ public class ThiSinhChungChiPanel extends BaseCrudPanel<ThiSinhChungChi> {
                 new ToolbarFactory.ActionButton("Import Excel", this::showImportDialog),
                 new ToolbarFactory.ActionButton("Them moi", this::showAddDialog),
                 new ToolbarFactory.ActionButton("Sua", this::showEditDialog),
-                new ToolbarFactory.ActionButton("Xoa", this::doDelete)
+                new ToolbarFactory.ActionButton("Xoa", this::doDelete),
+                new ToolbarFactory.ActionButton("Xac minh", this::xacMinhSelected),
+                new ToolbarFactory.ActionButton("Tu choi", this::tuChoiSelected),
+                new ToolbarFactory.ActionButton("Cho xac minh", this::choXacMinhSelected)
         );
         this.searchTextField = searchFieldOut[0];
         add(toolbar, BorderLayout.NORTH);
-    }
-
-    @Override
-    protected void buildBottomBar() {
-        totalLabel = new JLabel("Tong: 0 chung chi");
-        totalLabel.setFont(UIConstants.FONT_SMALL);
-        add(totalLabel, BorderLayout.SOUTH);
     }
 
     @Override
@@ -81,18 +75,12 @@ public class ThiSinhChungChiPanel extends BaseCrudPanel<ThiSinhChungChi> {
         model.setRowCount(0);
 
         String keyword = normalize(searchTextField != null ? searchTextField.getText() : "");
-        List<ThiSinhChungChi> list = service.findAll();
+        long total = keyword.isEmpty() ? service.countAll() : service.countSearch(keyword);
+        normalizePage(total);
 
-        if (!keyword.isEmpty()) {
-            list = list.stream()
-                    .filter(cc -> matchesKeyword(cc, keyword))
-                    .collect(Collectors.toList());
-        }
-
-        list.sort(Comparator.comparing(
-                ThiSinhChungChi::getChungchiId,
-                Comparator.nullsLast(Integer::compareTo)
-        ));
+        java.util.List<ThiSinhChungChi> list = keyword.isEmpty()
+                ? service.findPage(currentPage, pageSize)
+                : service.searchPage(keyword, currentPage, pageSize);
 
         for (ThiSinhChungChi cc : list) {
             ThiSinh ts = cc.getThiSinh();
@@ -112,7 +100,8 @@ public class ThiSinhChungChiPanel extends BaseCrudPanel<ThiSinhChungChi> {
             });
         }
 
-        updateTotalLabel(list.size(), "chung chi");
+        updateTotalLabel(total, "chung chi");
+        updatePagingState(total);
     }
 
     @Override
@@ -309,6 +298,46 @@ public class ThiSinhChungChiPanel extends BaseCrudPanel<ThiSinhChungChi> {
         }
     }
 
+    private void xacMinhSelected() {
+        updateTrangThaiXacMinh("DA_XAC_MINH", true,
+                "Da xac minh chung chi va cho phep ap dung khi tinh diem cong/quy doi.");
+    }
+
+    private void tuChoiSelected() {
+        updateTrangThaiXacMinh("TU_CHOI", false,
+                "Da tu choi chung chi. Chung chi nay se khong duoc ap dung khi tinh diem.");
+    }
+
+    private void choXacMinhSelected() {
+        updateTrangThaiXacMinh("CHUA_XAC_MINH", true,
+                "Da dua chung chi ve trang thai cho xac minh. Chung chi chua duoc ap dung khi tinh diem.");
+    }
+
+    private void updateTrangThaiXacMinh(String trangThai, boolean hopLe, String successMessage) {
+        ThiSinhChungChi entity = getSelectedEntity();
+        if (entity == null) {
+            showSelectRow();
+            return;
+        }
+
+        int confirm = JOptionPane.showConfirmDialog(
+                this,
+                "Cap nhat chung chi ID " + entity.getChungchiId() + " sang trang thai " + trangThai + "?",
+                "Xac nhan cap nhat xac minh",
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.QUESTION_MESSAGE
+        );
+        if (confirm != JOptionPane.OK_OPTION) return;
+
+        try {
+            service.updateXacMinh(entity.getChungchiId(), trangThai, hopLe);
+            showSuccess(this, successMessage);
+            loadData();
+        } catch (Exception ex) {
+            showError(this, ex.getMessage());
+        }
+    }
+
     private void showImportDialog() {
         JDialog dialog = new JDialog(
                 (Frame) SwingUtilities.getWindowAncestor(this),
@@ -332,23 +361,6 @@ public class ThiSinhChungChiPanel extends BaseCrudPanel<ThiSinhChungChi> {
 
         Optional<ThiSinh> bySbd = thiSinhService.findBySoBaoDanh(key);
         return bySbd.orElse(null);
-    }
-
-    private boolean matchesKeyword(ThiSinhChungChi cc, String keyword) {
-        ThiSinh ts = cc.getThiSinh();
-
-        return contains(ts != null ? ts.getCccd() : null, keyword)
-                || contains(ts != null ? ts.getSobaodanh() : null, keyword)
-                || contains(ts != null ? ts.getHoVaTen() : null, keyword)
-                || contains(cc.getLoaiChungChi(), keyword)
-                || contains(cc.getTenChungChi(), keyword)
-                || contains(cc.getBacChungChi(), keyword)
-                || contains(cc.getTrangThaiXacMinh(), keyword)
-                || contains(cc.getGhiChu(), keyword);
-    }
-
-    private boolean contains(String source, String keyword) {
-        return normalize(source).contains(keyword);
     }
 
     private String normalize(String s) {

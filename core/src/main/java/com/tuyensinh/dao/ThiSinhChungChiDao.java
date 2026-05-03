@@ -30,6 +30,10 @@ public class ThiSinhChungChiDao extends BaseDao<ThiSinhChungChi> implements IThi
         return em().createQuery(cq).getResultList();
     }
 
+    /**
+     * Nghiep vu tinh diem chi duoc lay chung chi da hop le va da xac minh.
+     * Neu van lay CHUA_XAC_MINH thi cot xac minh tren giao dien gan nhu khong co tac dung.
+     */
     @Override
     public List<ThiSinhChungChi> findHopLeByThiSinhId(Integer thisinhId) {
         CriteriaBuilder cb = cb();
@@ -41,7 +45,8 @@ public class ThiSinhChungChiDao extends BaseDao<ThiSinhChungChi> implements IThi
                 .where(
                         cb.and(
                                 cb.equal(thiSinhJoin.get("thisinhId"), thisinhId),
-                                cb.isTrue(root.get("isHopLe"))
+                                cb.isTrue(root.get("isHopLe")),
+                                cb.equal(root.get("trangThaiXacMinh"), "DA_XAC_MINH")
                         )
                 )
                 .orderBy(cb.desc(root.get("ngayCap")), cb.asc(root.get("chungchiId")));
@@ -65,5 +70,65 @@ public class ThiSinhChungChiDao extends BaseDao<ThiSinhChungChi> implements IThi
                 );
 
         return em().createQuery(cq).getResultList();
+    }
+
+    public List<ThiSinhChungChi> findPage(int page, int pageSize) {
+        return em().createQuery(
+                        "select cc from ThiSinhChungChi cc " +
+                                "left join fetch cc.thiSinh ts " +
+                                "order by cc.chungchiId",
+                        ThiSinhChungChi.class)
+                .setFirstResult((Math.max(1, page) - 1) * pageSize)
+                .setMaxResults(pageSize)
+                .getResultList();
+    }
+
+    public long countAll() {
+        return count();
+    }
+
+    public List<ThiSinhChungChi> searchPage(String keyword, int page, int pageSize) {
+        String kw = "%" + normalizeKeyword(keyword) + "%";
+        return em().createQuery(
+                        "select cc from ThiSinhChungChi cc " +
+                                "left join fetch cc.thiSinh ts " +
+                                "where lower(coalesce(ts.cccd, '')) like :kw " +
+                                "or lower(coalesce(ts.sobaodanh, '')) like :kw " +
+                                "or lower(coalesce(ts.ho, '')) like :kw " +
+                                "or lower(coalesce(ts.ten, '')) like :kw " +
+                                "or lower(coalesce(cc.loaiChungChi, '')) like :kw " +
+                                "or lower(coalesce(cc.tenChungChi, '')) like :kw " +
+                                "or lower(coalesce(cc.bacChungChi, '')) like :kw " +
+                                "or lower(coalesce(cc.trangThaiXacMinh, '')) like :kw " +
+                                "or lower(coalesce(cc.ghiChu, '')) like :kw " +
+                                "order by cc.chungchiId",
+                        ThiSinhChungChi.class)
+                .setParameter("kw", kw)
+                .setFirstResult((Math.max(1, page) - 1) * pageSize)
+                .setMaxResults(pageSize)
+                .getResultList();
+    }
+
+    public long countSearch(String keyword) {
+        String kw = "%" + normalizeKeyword(keyword) + "%";
+        return em().createQuery(
+                        "select count(cc) from ThiSinhChungChi cc " +
+                                "left join cc.thiSinh ts " +
+                                "where lower(coalesce(ts.cccd, '')) like :kw " +
+                                "or lower(coalesce(ts.sobaodanh, '')) like :kw " +
+                                "or lower(coalesce(ts.ho, '')) like :kw " +
+                                "or lower(coalesce(ts.ten, '')) like :kw " +
+                                "or lower(coalesce(cc.loaiChungChi, '')) like :kw " +
+                                "or lower(coalesce(cc.tenChungChi, '')) like :kw " +
+                                "or lower(coalesce(cc.bacChungChi, '')) like :kw " +
+                                "or lower(coalesce(cc.trangThaiXacMinh, '')) like :kw " +
+                                "or lower(coalesce(cc.ghiChu, '')) like :kw",
+                        Long.class)
+                .setParameter("kw", kw)
+                .getSingleResult();
+    }
+
+    private String normalizeKeyword(String keyword) {
+        return keyword == null ? "" : keyword.trim().toLowerCase();
     }
 }

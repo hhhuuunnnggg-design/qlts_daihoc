@@ -41,4 +41,21 @@ public class BangQuyDoiService implements IBangQuyDoiService {
     public void delete(BangQuyDoi entity) {
         dao.delete(entity);
     }
+
+    public List<BangQuyDoi> findPage(int page, int pageSize) {
+        return dao.findPage(page, pageSize);
+    }
+
+    public long countAll() {
+        return dao.countAll();
+    }
+
+    public List<BangQuyDoi> searchPage(String keyword, int page, int pageSize) {
+        return dao.searchPage(keyword, page, pageSize);
+    }
+
+    public long countSearch(String keyword) {
+        return dao.countSearch(keyword);
+    }
+
 }

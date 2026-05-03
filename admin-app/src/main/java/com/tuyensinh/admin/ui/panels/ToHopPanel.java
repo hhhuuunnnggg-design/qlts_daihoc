@@ -12,8 +12,10 @@ import com.tuyensinh.service.ToHopService;
 import com.tuyensinh.service.XetTuyenService;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.io.File;
 import java.util.List;
 
 public class ToHopPanel extends BaseCrudPanel<ToHop> {
@@ -28,6 +30,7 @@ public class ToHopPanel extends BaseCrudPanel<ToHop> {
         super(mainFrame);
         service = new XetTuyenService();
         toHopService = new ToHopService();
+        enablePagination();
         initUI();
         loadData();
     }
@@ -66,6 +69,7 @@ public class ToHopPanel extends BaseCrudPanel<ToHop> {
         JPanel toolbar = ToolbarFactory.createSearchToolbar(
                 searchFieldOut,
                 this::doSearch,
+                new ToolbarFactory.ActionButton("Import Excel", this::importToHopExcel),
                 new ToolbarFactory.ActionButton("Them to hop", this::showAddDialog),
                 new ToolbarFactory.ActionButton("Sua to hop", this::showEditDialog),
                 new ToolbarFactory.ActionButton("Xoa to hop", this::doDelete),
@@ -75,6 +79,39 @@ public class ToHopPanel extends BaseCrudPanel<ToHop> {
         );
         this.searchTextField = searchFieldOut[0];
         add(toolbar, BorderLayout.NORTH);
+    }
+
+
+    private void importToHopExcel() {
+        JFileChooser chooser = new JFileChooser();
+        chooser.setDialogTitle("Chon file tohopmon.xlsx de import rieng to hop");
+        chooser.setFileFilter(new FileNameExtensionFilter("Excel Workbook (*.xlsx)", "xlsx"));
+
+        int result = chooser.showOpenDialog(this);
+        if (result != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
+
+        File file = chooser.getSelectedFile();
+        int confirm = JOptionPane.showConfirmDialog(
+                this,
+                "Import rieng to hop se cap nhat xt_tohop va nap lai xt_tohop_mon cho cac to hop co trong file.\n"
+                        + "Chuc nang nay khong xoa nganh, nguyen vong, diem thi hay diem cong.\n\n"
+                        + "File: " + file.getAbsolutePath() + "\n\nBan muon tiep tuc?",
+                "Xac nhan import to hop",
+                JOptionPane.YES_NO_OPTION
+        );
+        if (confirm != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        try {
+            ToHopExcelImporter.ImportResult importResult = new ToHopExcelImporter().importFromFile(file);
+            showSuccess(this, importResult.toHumanMessage());
+            loadData();
+        } catch (Exception ex) {
+            showError(this, ex.getMessage());
+        }
     }
 
     private void buildMainContent() {
@@ -124,15 +161,24 @@ public class ToHopPanel extends BaseCrudPanel<ToHop> {
     protected void buildBottomBar() {
         totalLabel = new JLabel("Tong: 0 to hop");
         totalLabel.setFont(UIConstants.FONT_SMALL);
-        add(totalLabel, BorderLayout.SOUTH);
+        pageSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 1, 1));
+        JPanel paging = ToolbarFactory.createPagingPanel(pageSpinner, () -> {
+            currentPage = (Integer) pageSpinner.getValue();
+            loadData();
+        });
+        add(ToolbarFactory.createBottomBar(totalLabel, paging), BorderLayout.SOUTH);
     }
 
     @Override
     public void loadData() {
         model.setRowCount(0);
 
-        String kw = searchTextField != null ? searchTextField.getText().trim() : "";
-        List<ToHop> list = kw.isEmpty() ? service.findAllToHop() : service.searchToHop(kw);
+        String kw = getSearchKeyword();
+        long total = kw.isEmpty() ? toHopService.countAll() : toHopService.countSearch(kw);
+        normalizePage(total);
+        List<ToHop> list = kw.isEmpty()
+                ? toHopService.findPage(currentPage, pageSize)
+                : toHopService.searchPage(kw, currentPage, pageSize);
 
         for (ToHop th : list) {
             List<ToHopMon> monList = toHopService.getMonByToHop(th.getTohopId());
@@ -166,7 +212,8 @@ public class ToHopPanel extends BaseCrudPanel<ToHop> {
             });
         }
 
-        updateTotalLabel(list.size(), "to hop");
+        updateTotalLabel(total, "to hop");
+        updatePagingState(total);
 
         if (model.getRowCount() > 0) {
             if (table.getSelectedRow() < 0) {

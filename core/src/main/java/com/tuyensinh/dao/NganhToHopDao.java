@@ -64,4 +64,58 @@ public class NganhToHopDao extends BaseDao<NganhToHop> implements INganhToHopDao
         cq.select(root).orderBy(cb.asc(nganh.get("maNganh")), cb.asc(toHop.get("maTohop")));
         return em().createQuery(cq).getResultList();
     }
+
+    public List<NganhToHop> findPage(int page, int pageSize) {
+        return em().createQuery(
+                        "select nt from NganhToHop nt " +
+                                "left join nt.nganh n " +
+                                "left join nt.toHop th " +
+                                "order by n.maNganh, th.maTohop, nt.nganhTohopId",
+                        NganhToHop.class)
+                .setFirstResult((page - 1) * pageSize)
+                .setMaxResults(pageSize)
+                .getResultList();
+    }
+
+    public long countAll() {
+        return count();
+    }
+
+    public List<NganhToHop> searchPage(String keyword, int page, int pageSize) {
+        String kw = "%" + normalizeKeyword(keyword) + "%";
+        return em().createQuery(
+                        "select nt from NganhToHop nt " +
+                                "left join nt.nganh n " +
+                                "left join nt.toHop th " +
+                                "where lower(coalesce(n.maNganh, '')) like :kw " +
+                                "or lower(coalesce(n.tenNganh, '')) like :kw " +
+                                "or lower(coalesce(th.maTohop, '')) like :kw " +
+                                "or lower(coalesce(th.tenTohop, '')) like :kw " +
+                                "order by n.maNganh, th.maTohop, nt.nganhTohopId",
+                        NganhToHop.class)
+                .setParameter("kw", kw)
+                .setFirstResult((page - 1) * pageSize)
+                .setMaxResults(pageSize)
+                .getResultList();
+    }
+
+    public long countSearch(String keyword) {
+        String kw = "%" + normalizeKeyword(keyword) + "%";
+        return em().createQuery(
+                        "select count(nt) from NganhToHop nt " +
+                                "left join nt.nganh n " +
+                                "left join nt.toHop th " +
+                                "where lower(coalesce(n.maNganh, '')) like :kw " +
+                                "or lower(coalesce(n.tenNganh, '')) like :kw " +
+                                "or lower(coalesce(th.maTohop, '')) like :kw " +
+                                "or lower(coalesce(th.tenTohop, '')) like :kw",
+                        Long.class)
+                .setParameter("kw", kw)
+                .getSingleResult();
+    }
+
+    private String normalizeKeyword(String keyword) {
+        return keyword == null ? "" : keyword.trim().toLowerCase();
+    }
+
 }

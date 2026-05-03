@@ -49,4 +49,31 @@ public class ThiSinhChungChiService implements IThiSinhChungChiService {
     public void delete(ThiSinhChungChi entity) {
         dao.delete(entity);
     }
+
+    public List<ThiSinhChungChi> findPage(int page, int pageSize) {
+        return dao.findPage(page, pageSize);
+    }
+
+    public long countAll() {
+        return dao.countAll();
+    }
+
+    public List<ThiSinhChungChi> searchPage(String keyword, int page, int pageSize) {
+        return dao.searchPage(keyword, page, pageSize);
+    }
+
+    public long countSearch(String keyword) {
+        return dao.countSearch(keyword);
+    }
+
+    public void updateXacMinh(Integer chungchiId, String trangThaiXacMinh, boolean hopLe) {
+        ThiSinhChungChi entity = dao.findById(chungchiId);
+        if (entity == null) {
+            throw new IllegalArgumentException("Khong tim thay chung chi id=" + chungchiId);
+        }
+        entity.setTrangThaiXacMinh(trangThaiXacMinh);
+        entity.setIsHopLe(hopLe);
+        dao.update(entity);
+    }
+
 }

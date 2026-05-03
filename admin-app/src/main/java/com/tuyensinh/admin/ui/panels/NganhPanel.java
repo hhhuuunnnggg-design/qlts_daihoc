@@ -20,6 +20,7 @@ public class NganhPanel extends BaseCrudPanel<Nganh> {
     public NganhPanel(MainFrame mainFrame) {
         super(mainFrame);
         service = new XetTuyenService();
+        enablePagination();
         initUI();
         loadData();
     }
@@ -63,14 +64,25 @@ public class NganhPanel extends BaseCrudPanel<Nganh> {
     protected void buildBottomBar() {
         totalLabel = new JLabel("Tong: 0 nganh");
         totalLabel.setFont(UIConstants.FONT_SMALL);
-        add(totalLabel, BorderLayout.SOUTH);
+        pageSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 1, 1));
+        JPanel paging = ToolbarFactory.createPagingPanel(pageSpinner, () -> {
+            currentPage = (Integer) pageSpinner.getValue();
+            loadData();
+        });
+        add(ToolbarFactory.createBottomBar(totalLabel, paging), BorderLayout.SOUTH);
     }
 
     @Override
     public void loadData() {
         model.setRowCount(0);
-        String kw = searchTextField.getText().trim();
-        var list = kw.isEmpty() ? service.findAllNganh() : service.searchNganh(kw);
+        String kw = getSearchKeyword();
+
+        long total = kw.isEmpty() ? service.countNganh() : service.countSearchNganh(kw);
+        normalizePage(total);
+        var list = kw.isEmpty()
+                ? service.findNganhByPage(currentPage, pageSize)
+                : service.searchNganhPage(kw, currentPage, pageSize);
+
         for (Nganh n : list) {
             ToHop goc = n.getToHopGoc();
             String maGoc = goc != null ? goc.getMaTohop() : "";
@@ -85,7 +97,8 @@ public class NganhPanel extends BaseCrudPanel<Nganh> {
                 n.getIsActive() ? "Active" : "Inactive"
             });
         }
-        updateTotalLabel(list.size(), "nganh");
+        updateTotalLabel(total, "nganh");
+        updatePagingState(total);
     }
 
     @Override

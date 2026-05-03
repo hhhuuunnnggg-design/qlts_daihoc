@@ -83,4 +83,75 @@ public class DiemCongDao extends BaseDao<DiemCong> implements IDiemCongDao {
         List<DiemCong> list = em().createQuery(cq).setMaxResults(1).getResultList();
         return list.isEmpty() ? Optional.empty() : Optional.of(list.get(0));
     }
+
+    public List<DiemCong> findPage(int page, int pageSize) {
+        return em().createQuery(
+                        "select dc from DiemCong dc " +
+                                "left join dc.thiSinh ts " +
+                                "left join dc.nganhToHop nt " +
+                                "left join nt.nganh n " +
+                                "left join nt.toHop th " +
+                                "left join dc.phuongThuc pt " +
+                                "order by ts.ten, ts.ho, n.maNganh, th.maTohop, pt.phuongthucId, dc.diemcongId",
+                        DiemCong.class)
+                .setFirstResult((page - 1) * pageSize)
+                .setMaxResults(pageSize)
+                .getResultList();
+    }
+
+    public long countAll() {
+        return count();
+    }
+
+    public List<DiemCong> searchPage(String keyword, int page, int pageSize) {
+        String kw = "%" + normalizeKeyword(keyword) + "%";
+        return em().createQuery(
+                        "select dc from DiemCong dc " +
+                                "left join dc.thiSinh ts " +
+                                "left join dc.nganhToHop nt " +
+                                "left join nt.nganh n " +
+                                "left join nt.toHop th " +
+                                "left join dc.phuongThuc pt " +
+                                "where lower(coalesce(ts.cccd, '')) like :kw " +
+                                "or lower(coalesce(ts.sobaodanh, '')) like :kw " +
+                                "or lower(coalesce(ts.ho, '')) like :kw " +
+                                "or lower(coalesce(ts.ten, '')) like :kw " +
+                                "or lower(coalesce(n.maNganh, '')) like :kw " +
+                                "or lower(coalesce(n.tenNganh, '')) like :kw " +
+                                "or lower(coalesce(th.maTohop, '')) like :kw " +
+                                "or lower(coalesce(pt.maPhuongthuc, '')) like :kw " +
+                                "order by ts.ten, ts.ho, n.maNganh, th.maTohop, pt.phuongthucId, dc.diemcongId",
+                        DiemCong.class)
+                .setParameter("kw", kw)
+                .setFirstResult((page - 1) * pageSize)
+                .setMaxResults(pageSize)
+                .getResultList();
+    }
+
+    public long countSearch(String keyword) {
+        String kw = "%" + normalizeKeyword(keyword) + "%";
+        return em().createQuery(
+                        "select count(dc) from DiemCong dc " +
+                                "left join dc.thiSinh ts " +
+                                "left join dc.nganhToHop nt " +
+                                "left join nt.nganh n " +
+                                "left join nt.toHop th " +
+                                "left join dc.phuongThuc pt " +
+                                "where lower(coalesce(ts.cccd, '')) like :kw " +
+                                "or lower(coalesce(ts.sobaodanh, '')) like :kw " +
+                                "or lower(coalesce(ts.ho, '')) like :kw " +
+                                "or lower(coalesce(ts.ten, '')) like :kw " +
+                                "or lower(coalesce(n.maNganh, '')) like :kw " +
+                                "or lower(coalesce(n.tenNganh, '')) like :kw " +
+                                "or lower(coalesce(th.maTohop, '')) like :kw " +
+                                "or lower(coalesce(pt.maPhuongthuc, '')) like :kw",
+                        Long.class)
+                .setParameter("kw", kw)
+                .getSingleResult();
+    }
+
+    private String normalizeKeyword(String keyword) {
+        return keyword == null ? "" : keyword.trim().toLowerCase();
+    }
+
 }

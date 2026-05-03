@@ -51,4 +51,21 @@ public class ToHopService implements IToHopService {
     public void deleteToHopMon(ToHopMon entity) {
         dao.deleteToHopMon(entity);
     }
+
+    public List<ToHop> findPage(int page, int pageSize) {
+        return dao.findPage(page, pageSize);
+    }
+
+    public long countAll() {
+        return dao.countAll();
+    }
+
+    public List<ToHop> searchPage(String keyword, int page, int pageSize) {
+        return dao.searchByMaOrTenPage(keyword, page, pageSize);
+    }
+
+    public long countSearch(String keyword) {
+        return dao.countSearchByMaOrTen(keyword);
+    }
+
 }

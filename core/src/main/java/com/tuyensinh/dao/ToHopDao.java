@@ -93,4 +93,47 @@ public class ToHopDao extends BaseDao<ToHop> implements IToHopDao {
         cq.orderBy(cb.asc(root.get("maTohop")));
         return em().createQuery(cq).getResultList();
     }
+
+    public List<ToHop> findPage(int page, int pageSize) {
+        return em().createQuery(
+                        "select th from ToHop th order by th.maTohop, th.tohopId",
+                        ToHop.class)
+                .setFirstResult((page - 1) * pageSize)
+                .setMaxResults(pageSize)
+                .getResultList();
+    }
+
+    public long countAll() {
+        return count();
+    }
+
+    public List<ToHop> searchByMaOrTenPage(String keyword, int page, int pageSize) {
+        String kw = "%" + normalizeKeyword(keyword) + "%";
+        return em().createQuery(
+                        "select th from ToHop th " +
+                                "where lower(coalesce(th.maTohop, '')) like :kw " +
+                                "or lower(coalesce(th.tenTohop, '')) like :kw " +
+                                "order by th.maTohop, th.tohopId",
+                        ToHop.class)
+                .setParameter("kw", kw)
+                .setFirstResult((page - 1) * pageSize)
+                .setMaxResults(pageSize)
+                .getResultList();
+    }
+
+    public long countSearchByMaOrTen(String keyword) {
+        String kw = "%" + normalizeKeyword(keyword) + "%";
+        return em().createQuery(
+                        "select count(th) from ToHop th " +
+                                "where lower(coalesce(th.maTohop, '')) like :kw " +
+                                "or lower(coalesce(th.tenTohop, '')) like :kw",
+                        Long.class)
+                .setParameter("kw", kw)
+                .getSingleResult();
+    }
+
+    private String normalizeKeyword(String keyword) {
+        return keyword == null ? "" : keyword.trim().toLowerCase();
+    }
+
 }

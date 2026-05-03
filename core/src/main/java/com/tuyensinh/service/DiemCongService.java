@@ -121,4 +121,21 @@ public class DiemCongService implements IDiemCongService {
 
         dao.update(dc);
     }
+
+    public List<DiemCong> findPage(int page, int pageSize) {
+        return dao.findPage(page, pageSize);
+    }
+
+    public long countAll() {
+        return dao.countAll();
+    }
+
+    public List<DiemCong> searchPage(String keyword, int page, int pageSize) {
+        return dao.searchPage(keyword, page, pageSize);
+    }
+
+    public long countSearch(String keyword) {
+        return dao.countSearch(keyword);
+    }
+
 }
