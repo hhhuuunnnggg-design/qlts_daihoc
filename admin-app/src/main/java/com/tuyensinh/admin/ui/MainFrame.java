@@ -30,7 +30,7 @@ public class MainFrame extends JFrame {
     }
 
     private void initUI() {
-        setTitle("Quan ly Tuyen Sinh Dai Hoc 2026");
+        setTitle("Quản lý Tuyển Sinh Đại Học 2026");
         setSize(1280, 800);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -62,8 +62,8 @@ public class MainFrame extends JFrame {
         sidebarHeader.setOpaque(false);
         sidebarHeader.setLayout(new BoxLayout(sidebarHeader, BoxLayout.Y_AXIS));
         sidebarHeader.setBorder(new EmptyBorder(20, 20, 16, 20));
-        sidebarHeader.setAlignmentX(Component.LEFT_ALIGNMENT);
-        sidebarHeader.setMaximumSize(new Dimension(240, 90));
+        sidebarHeader.setAlignmentX(Component.CENTER_ALIGNMENT);
+        sidebarHeader.setMaximumSize(new Dimension(Integer.MAX_VALUE, 90));
 
         // Logo icon
         JPanel logoIcon = new JPanel() {
@@ -98,13 +98,15 @@ public class MainFrame extends JFrame {
         logoIcon.setOpaque(false);
         logoIcon.setMaximumSize(new Dimension(44, 44));
         logoIcon.setAlignmentX(Component.CENTER_ALIGNMENT);
+        logoIcon.setPreferredSize(new Dimension(44, 44));
+        logoIcon.setMinimumSize(new Dimension(44, 44));
 
-        JLabel sidebarTitle = new JLabel("TUYEN SINH");
+        JLabel sidebarTitle = new JLabel("TUYỂN SINH");
         sidebarTitle.setFont(new Font("Segoe UI", Font.BOLD, 15));
         sidebarTitle.setForeground(Color.WHITE);
         sidebarTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JLabel sidebarSub = new JLabel("DAI HOC 2026");
+        JLabel sidebarSub = new JLabel("ĐẠI HỌC 2026");
         sidebarSub.setFont(new Font("Segoe UI", Font.BOLD, 11));
         sidebarSub.setForeground(new Color(180, 200, 255));
         sidebarSub.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -117,32 +119,33 @@ public class MainFrame extends JFrame {
         // ---- Divider ----
         JSeparator sidebarSep = new JSeparator();
         sidebarSep.setForeground(new Color(255, 255, 255, 30));
-        sidebarSep.setMaximumSize(new Dimension(240, 1));
+        sidebarSep.setMaximumSize(new Dimension(Integer.MAX_VALUE, 1));
         sidebarSep.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         // ---- Nav section labels ----
-        JLabel navLabelMain = makeNavSectionLabel("QUAN LY");
-        JLabel navLabelSys = makeNavSectionLabel("HE THONG");
+
+        JLabel navLabelMain = makeNavSectionLabel("QUẢN LÝ ");
+        JLabel navLabelSys = makeNavSectionLabel("HỆ THỐNG");
 
         // ---- Navigation Items ----
         // Main nav
-        addNavItem("Trang chu", "home", null);
-        addNavItem("Nguoi dung", "nguoidung", null);
-        addNavItem("Thi sinh", "thisinh", null);
-        addNavItem("Chung chi ngoai ngu", "thisinh_chungchi", null);
-        addNavItem("Thanh tich uu tien", "thisinh_thanhtich", null);
+        addNavItem("Trang chủ", "home", null);
+        addNavItem("Người dùng", "nguoidung", null);
+        addNavItem("Thí sinh", "thisinh", null);
+        addNavItem("Chứng chỉ ngoại ngữ", "thisinh_chungchi", null);
+        addNavItem("Thành tích ưu tiên", "thisinh_thanhtich", null);
         addNavSpacer(12);
-        addNavItem("Nganh", "nganh", null);
-        addNavItem("To hop", "tohop", null);
-        addNavItem("Nganh - To hop", "nganhtohop", null);
-        addNavItem("Ma xet tuyen", "ma_xettuyen", null);
+        addNavItem("Ngành", "nganh", null);
+        addNavItem("Tổ hợp", "tohop", null);
+        addNavItem("Ngành - Tổ hợp", "nganhtohop", null);
+        addNavItem("Mã xét tuyển", "ma_xettuyen", null);
         addNavSpacer(12);
-        addNavItem("Diem thi", "diemthi", null);
-        addNavItem("Diem cong", "diemcong", null);
-        addNavItem("Bang quy doi", "bangquydoi", null);
+        addNavItem("Điểm thi", "diemthi", null);
+        addNavItem("Điểm cộng", "diemcong", null);
+        addNavItem("Bảng quy đổi", "bangquydoi", null);
         addNavSpacer(12);
-        addNavItem("Nguyen vong", "nguyenvong", null);
-        addNavItem("Xet tuyen", "xettuyen", null);
+        addNavItem("Nguyện vọng", "nguyenvong", null);
+        addNavItem("Xét tuyển", "xettuyen", null);
 
         // ---- Sidebar bottom: user info + logout ----
         JPanel sidebarBottom = new JPanel();
@@ -176,7 +179,8 @@ public class MainFrame extends JFrame {
 
         String userName = MainApp.currentUser != null ? MainApp.currentUser.getUsername() : "Admin";
         String userRole = MainApp.currentUser != null && MainApp.currentUser.getVaiTro() != null
-            ? MainApp.currentUser.getVaiTro().getTenVaitro() : "Quan tri";
+                ? MainApp.currentUser.getVaiTro().getTenVaitro()
+                : "Quản Trị";
 
         JLabel userAvatar = new JLabel() {
             @Override
@@ -215,7 +219,7 @@ public class MainFrame extends JFrame {
         userInfo.add(userRoleLbl);
 
         // Logout button
-        JButton btnLogout = new JButton("Dang xuat");
+        JButton btnLogout = new JButton("Đăng xuất");
         btnLogout.setIconTextGap(6);
         btnLogout.setHorizontalTextPosition(SwingConstants.CENTER);
         btnLogout.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -227,7 +231,7 @@ public class MainFrame extends JFrame {
         btnLogout.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnLogout.addActionListener(e -> {
             int confirm = JOptionPane.showConfirmDialog(MainFrame.this,
-                "Ban muon dang xuat?", "Xac nhan", JOptionPane.YES_NO_OPTION);
+                    "Bạn muốn đăng xuất?", "Xác nhận", JOptionPane.YES_NO_OPTION);
             if (confirm == JOptionPane.YES_OPTION) {
                 MainApp.logout();
             }
@@ -279,14 +283,13 @@ public class MainFrame extends JFrame {
         JPanel topLeft = new JPanel(new FlowLayout(FlowLayout.LEFT, 16, 0));
         topLeft.setOpaque(false);
         topLeft.setBorder(null);
-
         JLabel lblMenuToggle = new JLabel("☰");
-        lblMenuToggle.setFont(new Font("Segoe UI", Font.PLAIN, 18));
+        lblMenuToggle.setFont(new Font("Segoe UI Symbol", Font.PLAIN, 18)); // 🔥 đổi font
         lblMenuToggle.setForeground(new Color(80, 80, 80));
         lblMenuToggle.setCursor(new Cursor(Cursor.HAND_CURSOR));
         lblMenuToggle.setBorder(new EmptyBorder(0, 0, 0, 8));
 
-        lblPageTitle = new JLabel("Trang chu");
+        lblPageTitle = new JLabel("Trang chủ");
         lblPageTitle.setFont(new Font("Segoe UI", Font.BOLD, 18));
         lblPageTitle.setForeground(new Color(30, 30, 30));
 
@@ -304,8 +307,9 @@ public class MainFrame extends JFrame {
                 setFocusPainted(false);
                 setContentAreaFilled(false);
                 setCursor(new Cursor(Cursor.HAND_CURSOR));
-                setToolTipText("Thong bao");
+                setToolTipText("Thông báo");
             }
+
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
@@ -327,6 +331,7 @@ public class MainFrame extends JFrame {
                 setCursor(new Cursor(Cursor.HAND_CURSOR));
                 setToolTipText(userName);
             }
+
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
@@ -434,12 +439,12 @@ public class MainFrame extends JFrame {
     }
 
     private JLabel makeNavSectionLabel(String text) {
-        JLabel lbl = new JLabel("  " + text);
-        lbl.setFont(new Font("Segoe UI", Font.BOLD, 10));
-        lbl.setForeground(new Color(255, 255, 255, 60));
-        lbl.setMaximumSize(new Dimension(240, 20));
-        lbl.setAlignmentX(Component.LEFT_ALIGNMENT);
-        return lbl;
+        JLabel label = new JLabel(text.toUpperCase()); // in hoa
+        label.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        label.setForeground(new Color(200, 210, 230)); // màu nhạt hơn, dịu mắt
+        label.setAlignmentX(Component.LEFT_ALIGNMENT);
+        label.setBorder(new EmptyBorder(12, 16, 4, 0)); // padding trên & trái
+        return label;
     }
 
     private void addNavItem(String text, String pageKey, String icon) {
@@ -460,10 +465,12 @@ public class MainFrame extends JFrame {
                         hovered = true;
                         repaint();
                     }
+
                     public void mouseExited(java.awt.event.MouseEvent e) {
                         hovered = false;
                         repaint();
                     }
+
                     public void mouseClicked(java.awt.event.MouseEvent e) {
                         setActiveNav(pageKey);
                         showPanel(pageKey);
@@ -505,21 +512,27 @@ public class MainFrame extends JFrame {
                 super.paintComponent(g);
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                int cy = getHeight() / 2; // chính giữa trục Y
                 g2.setColor(new Color(255, 255, 255, 160));
-                g2.fillOval(5, 13, 6, 6);
+                g2.fillOval(2, cy - 3, 6, 6); // 6 là đường kính, nên -3 để căn giữa
                 g2.dispose();
             }
         };
         iconArea.setOpaque(false);
+
         iconArea.setMaximumSize(new Dimension(16, 42));
+        iconArea.setAlignmentY(Component.CENTER_ALIGNMENT);
 
         JLabel textLbl = new JLabel(text);
         textLbl.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         textLbl.setForeground(Color.WHITE);
-        textLbl.setBorder(new EmptyBorder(0, 10, 0, 0));
+        textLbl.setBorder(new EmptyBorder(0, 1, 0, 0));
+        textLbl.setAlignmentY(Component.CENTER_ALIGNMENT);
 
+        navItem.setLayout(new BoxLayout(navItem, BoxLayout.X_AXIS));
         navItem.add(iconArea);
         navItem.add(textLbl);
+        navItem.setBorder(new EmptyBorder(0, 0, 0, 30));
         navItems.put(pageKey, navItem);
     }
 
@@ -588,25 +601,44 @@ public class MainFrame extends JFrame {
 
     private String getPageTitle(String name) {
         switch (name) {
-            case "home": return "Trang chu";
-            case "nguoidung": return "Quan ly nguoi dung";
-            case "thisinh": return "Quan ly thi sinh";
-            case "thisinh_chungchi": return "Quan ly chung chi ngoai ngu";
-            case "thisinh_thanhtich": return "Quan ly thanh tich uu tien";
-            case "thisinh_import": return "Import thi sinh";
-            case "nganh": return "Quan ly nganh";
-            case "tohop": return "Quan ly to hop mon";
-            case "nganhtohop": return "Nganh - To hop";
-            case "ma_xettuyen": return "Quan ly ma xet tuyen";
-            case "diemthi": return "Quan ly diem thi";
-            case "diem_import": return "Import diem THPT + NK";
-            case "diem_dgnl_vsat_import": return "Import diem DGNL / VSAT";
-            case "diem_thongke": return "Thong ke diem";
-            case "diemcong": return "Quan ly diem cong";
-            case "nguyenvong": return "Quan ly nguyen vong";
-            case "xettuyen": return "Xet tuyen";
-            case "bangquydoi": return "Bang quy doi";
-            default: return name;
+            case "home":
+                return "Trang chủ";
+            case "nguoidung":
+                return "Quản lý người dùng";
+            case "thisinh":
+                return "Quản lý thí sinh";
+            case "thisinh_chungchi":
+                return "Quản lý chứng chỉ ngoại ngữ";
+            case "thisinh_thanhtich":
+                return "Quản lý thành tích ưu tiên";
+            case "thisinh_import":
+                return "Import thi sinh";
+            case "nganh":
+                return "Quản lý ngành";
+            case "tohop":
+                return "Quản lý tổ hợp môn";
+            case "nganhtohop":
+                return "Ngành - Tổ hợp";
+            case "ma_xettuyen":
+                return "Quản lý mã xét tuyển";
+            case "diemthi":
+                return "Quản lý điểm thi";
+            case "diem_import":
+                return "Import điểm";
+            case "diem_dgnl_vsat_import":
+                return "Import điểm DGNL / VSAT";
+            case "diem_thongke":
+                return "Thống kê điểm";
+            case "diemcong":
+                return "Quản lý điểm cộng";
+            case "nguyenvong":
+                return "Quản lý nguyện vọng";
+            case "xettuyen":
+                return "Xét tuyển";
+            case "bangquydoi":
+                return "Bảng quy đổi";
+            default:
+                return name;
         }
     }
 

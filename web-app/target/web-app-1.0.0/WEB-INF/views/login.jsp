@@ -70,18 +70,6 @@
         .btn-primary:hover {
             background: #0a58ca;
         }
-        .register-link {
-            text-align: center;
-            margin-top: 1.5rem;
-        }
-        .register-link a {
-            color: #0d6efd;
-            text-decoration: none;
-            font-weight: 500;
-        }
-        .register-link a:hover {
-            text-decoration: underline;
-        }
         .alert {
             border-radius: 8px;
         }
@@ -129,12 +117,10 @@
                         </button>
                     </div>
                 </form>
-
-                <div class="register-link">
-                    <p class="text-muted mb-0">
-                        Bạn chưa có tài khoản?
-                        <a href="${pageContext.request.contextPath}/register">Đăng ký ngay</a>
-                    </p>
+                <div class="text-center mt-3">
+                    <small class="text-muted">
+                        Tài khoản do nhà trường/admin cấp. Vui lòng dùng CCCD và mật khẩu được cấp để đăng nhập.
+                    </small>
                 </div>
             </div>
         </div>

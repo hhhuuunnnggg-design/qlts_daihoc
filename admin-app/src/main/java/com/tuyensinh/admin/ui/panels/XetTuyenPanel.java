@@ -1,7 +1,6 @@
 package com.tuyensinh.admin.ui.panels;
 
 import com.tuyensinh.admin.ui.*;
-import com.tuyensinh.admin.ui.MainFrame;
 import com.tuyensinh.dao.BaseDao;
 import com.tuyensinh.entity.*;
 import com.tuyensinh.service.*;
@@ -37,8 +36,8 @@ public class XetTuyenPanel extends BaseCrudPanel<NguyenVong> {
 
     @Override
     protected String[] getTableColumns() {
-        return new String[]{"ID", "Ho Ten", "CCCD", "Nganh", "To Hop", "P. Thuc",
-                "Diem TH", "Diem Cong", "Diem XT", "Nguon diem", "Ket Qua"};
+        return new String[] { "ID", "Ho Ten", "CCCD", "Nganh", "To Hop", "P. Thuc",
+                "Diem TH", "Diem Cong", "Diem XT", "Nguon diem", "Ket Qua" };
     }
 
     @Override
@@ -63,8 +62,7 @@ public class XetTuyenPanel extends BaseCrudPanel<NguyenVong> {
         JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
 
         JLabel lblInfo = new JLabel(
-                "Xet tuyen toan bo: tu tinh diem tot nhat THPT/VSAT/DGNL va xet theo thu tu nguyen vong"
-        );
+                "Xet tuyen toan bo: tu tinh diem tot nhat THPT/VSAT/DGNL va xet theo thu tu nguyen vong");
         lblInfo.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         toolbar.add(lblInfo);
 
@@ -73,8 +71,7 @@ public class XetTuyenPanel extends BaseCrudPanel<NguyenVong> {
         btnXetTuyenToanBo = new JButton("Xet tuyen toan bo");
         btnXetTuyenToanBo.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnXetTuyenToanBo.setToolTipText(
-                "Chay xet tuyen toan bo du lieu, moi thi sinh chi trung tuyen 1 nguyen vong cao nhat"
-        );
+                "Chay xet tuyen toan bo du lieu, moi thi sinh chi trung tuyen 1 nguyen vong cao nhat");
         btnXetTuyenToanBo.addActionListener(e -> xetTuyenToanBo());
         toolbar.add(btnXetTuyenToanBo);
 
@@ -89,7 +86,8 @@ public class XetTuyenPanel extends BaseCrudPanel<NguyenVong> {
     @Override
     public void loadData() {
         // BaseDao dung ThreadLocal EntityManager. Neu khong dong EM cu,
-        // Hibernate co the tra du lieu cache cu nen nut Lam moi nhin nhu khong cap nhat.
+        // Hibernate co the tra du lieu cache cu nen nut Lam moi nhin nhu khong cap
+        // nhat.
         BaseDao.closeCurrentEm();
 
         model.setRowCount(0);
@@ -102,13 +100,14 @@ public class XetTuyenPanel extends BaseCrudPanel<NguyenVong> {
             ThiSinh ts = nv.getThiSinh();
             String ketQua = nv.getKetQua();
 
-            model.addRow(new Object[]{
+            model.addRow(new Object[] {
                     nv.getNguyenvongId(),
                     ts != null ? ts.getHoVaTen() : "",
                     ts != null ? ts.getCccd() : "",
                     nv.getNganh() != null ? nv.getNganh().getMaNganh() : "",
                     nv.getNganhToHop() != null && nv.getNganhToHop().getToHop() != null
-                            ? nv.getNganhToHop().getToHop().getMaTohop() : "",
+                            ? nv.getNganhToHop().getToHop().getMaTohop()
+                            : "",
                     nv.getPhuongThuc() != null ? nv.getPhuongThuc().getMaPhuongthuc() : "",
                     nv.getDiemThxt() != null ? formatDiem(nv.getDiemThxt()) : "",
                     nv.getDiemCong() != null ? formatDiem(nv.getDiemCong()) : "",
@@ -121,7 +120,7 @@ public class XetTuyenPanel extends BaseCrudPanel<NguyenVong> {
         table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value,
-                                                           boolean isSelected, boolean hasFocus, int row, int col) {
+                    boolean isSelected, boolean hasFocus, int row, int col) {
                 Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
                 Object kq = model.getValueAt(row, 10);
 
@@ -169,14 +168,16 @@ public class XetTuyenPanel extends BaseCrudPanel<NguyenVong> {
     }
 
     private String formatDiem(BigDecimal d) {
-        if (d == null) return "";
+        if (d == null)
+            return "";
         return d.setScale(2, java.math.RoundingMode.HALF_UP).toPlainString();
     }
 
     /**
      * Xet tuyen toan bo theo thu tu nguyen vong:
      * - Tinh diem tot nhat THPT/VSAT/DGNL cho tung nguyen vong.
-     * - Chay xet tuyen toan cuc, moi thi sinh chi TRUNG_TUYEN 1 nguyen vong cao nhat.
+     * - Chay xet tuyen toan cuc, moi thi sinh chi TRUNG_TUYEN 1 nguyen vong cao
+     * nhat.
      */
     private void xetTuyenToanBo() {
         int confirm = JOptionPane.showConfirmDialog(this,
@@ -209,12 +210,10 @@ public class XetTuyenPanel extends BaseCrudPanel<NguyenVong> {
                 publish("Dang xet tuyen theo thu tu nguyen vong...");
                 publish("");
 
-                XetTuyenEngine.XetTuyenToanCucResult r =
-                        engine.xetTuyenToanCucTheoThuTuNguyenVong(
-                                null,
-                                null,
-                                true
-                        );
+                XetTuyenEngine.XetTuyenToanCucResult r = engine.xetTuyenToanCucTheoThuTuNguyenVong(
+                        null,
+                        null,
+                        true);
 
                 publish("-----------------------");
                 publish("Tong nguyen vong: " + r.soNguyenVong);
@@ -242,7 +241,8 @@ public class XetTuyenPanel extends BaseCrudPanel<NguyenVong> {
                 publish("--- Mau 30 dong dau ---");
                 int shown = 0;
                 for (XetTuyenEngine.KetQuaXetTuyen item : r.danhSach) {
-                    if (shown++ >= 30) break;
+                    if (shown++ >= 30)
+                        break;
 
                     publish(item.toString());
 
@@ -270,7 +270,6 @@ public class XetTuyenPanel extends BaseCrudPanel<NguyenVong> {
                     XetTuyenEngine.XetTuyenToanCucResult r = get();
 
                     lamMoiDuLieu();
-
                     showSuccess(XetTuyenPanel.this,
                             "Xét tuyển toàn bộ hoàn tất!\n"
                                     + "Tổng NV: " + r.soNguyenVong
@@ -322,8 +321,7 @@ public class XetTuyenPanel extends BaseCrudPanel<NguyenVong> {
                         "- diem_uutien\n" +
                         "- diem_xettuyen\n" +
                         "- phuong_thuc_diem_tot_nhat\n" +
-                        "- ket_qua\n\n"
-        );
+                        "- ket_qua\n\n");
         JScrollPane sp = new JScrollPane(taResult);
         sp.setBorder(BorderFactory.createTitledBorder("Log xet tuyen"));
 
@@ -341,7 +339,6 @@ public class XetTuyenPanel extends BaseCrudPanel<NguyenVong> {
         });
 
         south.add(ToolbarFactory.createBottomBar(totalLabel, paging), BorderLayout.SOUTH);
-
         add(south, BorderLayout.SOUTH);
     }
 }
