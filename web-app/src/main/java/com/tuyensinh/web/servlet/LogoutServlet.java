@@ -1,27 +1,25 @@
 package com.tuyensinh.web.servlet;
 
+import com.tuyensinh.web.servlet.base.ModelAndView;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 public class LogoutServlet extends BaseServlet {
 
     @Override
-    protected void handleGet(HttpServletRequest request, HttpServletResponse response)
+    protected ModelAndView handleGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        HttpSession session = request.getSession(false);
-        if (session != null) {
-            session.invalidate();
-        }
+        authController.logout(request);
         setMessage(request, "Bạn đã đăng xuất thành công.", "success");
-        redirect(response, request.getContextPath() + "/login");
+        return viewResolver.redirect("/login");
     }
 
     @Override
-    protected void handlePost(HttpServletRequest request, HttpServletResponse response)
+    protected ModelAndView handlePost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        handleGet(request, response);
+        return handleGet(request, response);
     }
 }

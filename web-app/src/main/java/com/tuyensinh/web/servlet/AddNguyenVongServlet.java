@@ -1,13 +1,13 @@
 package com.tuyensinh.web.servlet;
 
 import com.tuyensinh.entity.Nganh;
-import com.tuyensinh.entity.NganhToHop;
-import com.tuyensinh.entity.NguoiDung;
 import com.tuyensinh.entity.NguyenVong;
 import com.tuyensinh.entity.PhuongThuc;
 import com.tuyensinh.entity.ThiSinh;
 import com.tuyensinh.service.ThiSinhService;
 import com.tuyensinh.service.XetTuyenService;
+import com.tuyensinh.web.servlet.base.ModelAndView;
+import com.tuyensinh.web.servlet.dto.NguyenVongForm;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -21,155 +21,108 @@ public class AddNguyenVongServlet extends BaseServlet {
     private final XetTuyenService xetTuyenService = new XetTuyenService();
 
     @Override
-    protected void handleGet(HttpServletRequest request, HttpServletResponse response)
+    protected ModelAndView handleGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        NguoiDung loggedInUser = getLoggedInUser(request);
-        if (loggedInUser == null) {
-            requireLogin(request, response);
-            return;
-        }
+        ModelAndView auth = authController.requireLogin(request, response);
+        if (auth != null) return auth;
 
         try {
-            ThiSinh thiSinh = thiSinhService.findByNguoiDungId(loggedInUser.getNguoidungId()).orElse(null);
+            ThiSinh thiSinh = thiSinhService.findByNguoiDungId(
+                authController.getCurrentUser(request).getNguoidungId()).orElse(null);
 
             if (thiSinh == null) {
                 setMessage(request, "Không tìm thấy thông tin thí sinh.", "warning");
-                redirect(response, request.getContextPath() + "/profile");
-                return;
+                return viewResolver.redirect("/profile");
             }
 
-            List<Nganh> danhSachNganh = xetTuyenService.findActiveNganh();
-            List<PhuongThuc> danhSachPhuongThuc = xetTuyenService.findActivePhuongThuc();
-            List<NganhToHop> danhSachNganhToHop = xetTuyenService.findAllNganhToHop();
-
             List<NguyenVong> existingNguyenVong = xetTuyenService.findNguyenVongByThiSinh(thiSinh.getThisinhId());
-            int soNguyenVongHienTai = existingNguyenVong.size();
 
-            setAttribute(request, "thiSinh", thiSinh);
-            setAttribute(request, "danhSachNganh", danhSachNganh);
-            setAttribute(request, "danhSachPhuongThuc", danhSachPhuongThuc);
-            setAttribute(request, "danhSachNganhToHop", danhSachNganhToHop);
-            setAttribute(request, "soNguyenVongHienTai", soNguyenVongHienTai);
-
-            forward(request, response, getViewPath("add-nguyenvong-form"));
+            return viewResolver.view("add-nguyenvong-form")
+                .addObject("thiSinh", thiSinh)
+                .addObject("danhSachNganh", xetTuyenService.findActiveNganh())
+                .addObject("danhSachPhuongThuc", xetTuyenService.findActivePhuongThuc())
+                .addObject("danhSachNganhToHop", xetTuyenService.findAllNganhToHop())
+                .addObject("soNguyenVongHienTai", existingNguyenVong.size());
 
         } catch (Exception e) {
             setMessage(request, "Đã xảy ra lỗi: " + e.getMessage(), "danger");
-            redirect(response, request.getContextPath() + "/dashboard");
+            return viewResolver.redirect("/dashboard");
         }
     }
 
     @Override
-    protected void handlePost(HttpServletRequest request, HttpServletResponse response)
+    protected ModelAndView handlePost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        NguoiDung loggedInUser = getLoggedInUser(request);
-        if (loggedInUser == null) {
-            requireLogin(request, response);
-            return;
-        }
+        ModelAndView auth = authController.requireLogin(request, response);
+        if (auth != null) return auth;
 
         try {
-            ThiSinh thiSinh = thiSinhService.findByNguoiDungId(loggedInUser.getNguoidungId()).orElse(null);
+            ThiSinh thiSinh = thiSinhService.findByNguoiDungId(
+                authController.getCurrentUser(request).getNguoidungId()).orElse(null);
 
             if (thiSinh == null) {
                 setMessage(request, "Không tìm thấy thông tin thí sinh.", "danger");
-                redirect(response, request.getContextPath() + "/add-nguyenvong");
-                return;
+                return viewResolver.redirect("/add-nguyenvong");
             }
 
             List<NguyenVong> existingNguyenVong = xetTuyenService.findNguyenVongByThiSinh(thiSinh.getThisinhId());
             if (existingNguyenVong.size() >= 5) {
                 setMessage(request, "Bạn đã đăng ký tối đa 5 nguyện vọng.", "warning");
-                redirect(response, request.getContextPath() + "/nguyenvong");
-                return;
+                return viewResolver.redirect("/nguyenvong");
             }
 
-            String nganhIdStr = request.getParameter("nganhId");
-            String nganhTohopIdStr = request.getParameter("nganhTohopId");
-            String phuongthucIdStr = request.getParameter("phuongthucId");
-
-            if (isNullOrEmpty(nganhIdStr) || isNullOrEmpty(nganhTohopIdStr) || isNullOrEmpty(phuongthucIdStr)) {
-                setMessage(request, "Vui lòng điền đầy đủ thông tin.", "danger");
-                redirect(response, request.getContextPath() + "/add-nguyenvong");
-                return;
+            NguyenVongForm form = new NguyenVongForm(request);
+            if (form.validate().isPresent()) {
+                setMessage(request, form.validate().get(), "danger");
+                return viewResolver.redirect("/add-nguyenvong");
             }
 
-            Integer nganhId = Integer.parseInt(nganhIdStr);
-            Integer nganhTohopId = Integer.parseInt(nganhTohopIdStr);
-            Short phuongthucId = Short.parseShort(phuongthucIdStr);
-
-            Nganh nganh = null;
-            for (Nganh n : xetTuyenService.findActiveNganh()) {
-                if (n.getNganhId().equals(nganhId)) {
-                    nganh = n;
-                    break;
-                }
-            }
-
+            List<Nganh> danhSachNganh = xetTuyenService.findActiveNganh();
+            Nganh nganh = form.findNganh(danhSachNganh);
             if (nganh == null) {
                 setMessage(request, "Không tìm thấy ngành học.", "danger");
-                redirect(response, request.getContextPath() + "/add-nguyenvong");
-                return;
+                return viewResolver.redirect("/add-nguyenvong");
             }
 
-            NganhToHop nganhToHop = null;
-            List<NganhToHop> nganhToHops = xetTuyenService.findNganhToHopByNganh(nganhId);
-            for (NganhToHop nth : nganhToHops) {
-                if (nth.getNganhTohopId().equals(nganhTohopId)) {
-                    nganhToHop = nth;
-                    break;
-                }
-            }
-
+            List<com.tuyensinh.entity.NganhToHop> nganhToHops = xetTuyenService.findNganhToHopByNganh(nganh.getNganhId());
+            com.tuyensinh.entity.NganhToHop nganhToHop = form.findNganhToHop(nganhToHops);
             if (nganhToHop == null) {
                 setMessage(request, "Không tìm thấy tổ hợp môn.", "danger");
-                redirect(response, request.getContextPath() + "/add-nguyenvong");
-                return;
+                return viewResolver.redirect("/add-nguyenvong");
             }
 
-            PhuongThuc phuongThuc = null;
-            List<PhuongThuc> phuongThucs = xetTuyenService.findActivePhuongThuc();
-            for (PhuongThuc pt : phuongThucs) {
-                if (pt.getPhuongthucId().equals(phuongthucId)) {
-                    phuongThuc = pt;
-                    break;
-                }
-            }
-
+            List<PhuongThuc> danhSachPhuongThuc = xetTuyenService.findActivePhuongThuc();
+            PhuongThuc phuongThuc = form.findPhuongThuc(danhSachPhuongThuc);
             if (phuongThuc == null) {
                 setMessage(request, "Không tìm thấy phương thức xét tuyển.", "danger");
-                redirect(response, request.getContextPath() + "/add-nguyenvong");
-                return;
+                return viewResolver.redirect("/add-nguyenvong");
             }
 
-            for (NguyenVong existing : existingNguyenVong) {
-                if (existing.getNganh().getNganhId().equals(nganhId) &&
-                    existing.getNganhToHop().getNganhTohopId().equals(nganhTohopId) &&
-                    existing.getPhuongThuc().getPhuongthucId().equals(phuongthucId)) {
-                    setMessage(request, "Nguyện vọng này đã tồn tại.", "warning");
-                    redirect(response, request.getContextPath() + "/nguyenvong");
-                    return;
-                }
-            }
+            boolean daTonTai = existingNguyenVong.stream().anyMatch(nv ->
+                    nv.getNganh().getNganhId().equals(nganh.getNganhId()) &&
+                    nv.getNganhToHop().getNganhTohopId().equals(nganhToHop.getNganhTohopId()) &&
+                    nv.getPhuongThuc().getPhuongthucId().equals(phuongThuc.getPhuongthucId()));
 
-            int nextOrder = existingNguyenVong.size() + 1;
+            if (daTonTai) {
+                setMessage(request, "Nguyện vọng này đã tồn tại.", "warning");
+                return viewResolver.redirect("/nguyenvong");
+            }
 
             NguyenVong nguyenVong = new NguyenVong();
             nguyenVong.setThiSinh(thiSinh);
             nguyenVong.setNganh(nganh);
             nguyenVong.setNganhToHop(nganhToHop);
             nguyenVong.setPhuongThuc(phuongThuc);
-            nguyenVong.setThuTu(nextOrder);
+            nguyenVong.setThuTu(existingNguyenVong.size() + 1);
             nguyenVong.setKetQua(NguyenVong.KetQua.CHO_XET);
 
             xetTuyenService.saveNguyenVong(nguyenVong);
-
             setMessage(request, "Đăng ký nguyện vọng thành công!", "success");
-            redirect(response, request.getContextPath() + "/nguyenvong");
+            return viewResolver.redirect("/nguyenvong");
 
         } catch (Exception e) {
             setMessage(request, "Đã xảy ra lỗi khi đăng ký nguyện vọng: " + e.getMessage(), "danger");
-            redirect(response, request.getContextPath() + "/add-nguyenvong");
+            return viewResolver.redirect("/add-nguyenvong");
         }
     }
 }

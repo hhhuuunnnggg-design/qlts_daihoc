@@ -1,16 +1,19 @@
 package com.tuyensinh.web.servlet;
 
-import com.tuyensinh.entity.NguoiDung;
+import com.tuyensinh.entity.DoiTuongUutien;
+import com.tuyensinh.entity.KhuVucUutien;
 import com.tuyensinh.entity.NguyenVong;
 import com.tuyensinh.entity.ThiSinh;
 import com.tuyensinh.service.ThiSinhService;
 import com.tuyensinh.service.XetTuyenService;
+import com.tuyensinh.web.servlet.base.ModelAndView;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 public class DashboardServlet extends BaseServlet {
 
@@ -18,53 +21,46 @@ public class DashboardServlet extends BaseServlet {
     private final XetTuyenService xetTuyenService = new XetTuyenService();
 
     @Override
-    protected void handleGet(HttpServletRequest request, HttpServletResponse response)
+    protected ModelAndView handleGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        NguoiDung loggedInUser = getLoggedInUser(request);
-        if (loggedInUser == null) {
-            requireLogin(request, response);
-            return;
-        }
+        ModelAndView auth = authController.requireLogin(request, response);
+        if (auth != null) return auth;
 
         try {
-            ThiSinh thiSinh = thiSinhService.findByNguoiDungId(loggedInUser.getNguoidungId()).orElse(null);
+            ThiSinh thiSinh = thiSinhService.findByNguoiDungId(
+                authController.getCurrentUser(request).getNguoidungId()).orElse(null);
 
             if (thiSinh == null) {
                 setMessage(request, "Không tìm thấy thông tin thí sinh.", "warning");
-                redirect(response, request.getContextPath() + "/profile");
-                return;
+                return viewResolver.redirect("/profile");
             }
 
             List<NguyenVong> danhSachNguyenVong = xetTuyenService.findNguyenVongByThiSinh(thiSinh.getThisinhId());
             List<?> danhSachDiemThi = xetTuyenService.findDiemThiByThiSinh(thiSinh.getThisinhId());
 
-            int soLuongNguyenVong = danhSachNguyenVong.size();
-            int soLuongDiemThi = danhSachDiemThi.size();
             int soTrungTuyen = 0;
-
             for (NguyenVong nv : danhSachNguyenVong) {
                 if (NguyenVong.KetQua.TRUNG_TUYEN.equals(nv.getKetQua())) {
                     soTrungTuyen++;
                 }
             }
 
-            setAttribute(request, "thiSinh", thiSinh);
-            setAttribute(request, "danhSachNguyenVong", danhSachNguyenVong);
-            setAttribute(request, "soLuongNguyenVong", soLuongNguyenVong);
-            setAttribute(request, "soLuongDiemThi", soLuongDiemThi);
-            setAttribute(request, "soTrungTuyen", soTrungTuyen);
-
-            forward(request, response, getViewPath("dashboard"));
+            return viewResolver.view("dashboard")
+                .addObject("thiSinh", thiSinh)
+                .addObject("danhSachNguyenVong", danhSachNguyenVong)
+                .addObject("soLuongNguyenVong", danhSachNguyenVong.size())
+                .addObject("soLuongDiemThi", danhSachDiemThi.size())
+                .addObject("soTrungTuyen", soTrungTuyen);
 
         } catch (Exception e) {
             setMessage(request, "Đã xảy ra lỗi: " + e.getMessage(), "danger");
-            forward(request, response, getViewPath("dashboard"));
+            return viewResolver.view("dashboard");
         }
     }
 
     @Override
-    protected void handlePost(HttpServletRequest request, HttpServletResponse response)
+    protected ModelAndView handlePost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        handleGet(request, response);
+        return handleGet(request, response);
     }
 }

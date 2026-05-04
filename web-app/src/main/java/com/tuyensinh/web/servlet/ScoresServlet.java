@@ -1,21 +1,18 @@
 package com.tuyensinh.web.servlet;
 
 import com.tuyensinh.entity.DiemThi;
-import com.tuyensinh.entity.DiemThiChiTiet;
-import com.tuyensinh.entity.Mon;
-import com.tuyensinh.entity.NguoiDung;
 import com.tuyensinh.entity.PhuongThuc;
 import com.tuyensinh.entity.ThiSinh;
 import com.tuyensinh.service.MonService;
 import com.tuyensinh.service.ThiSinhService;
 import com.tuyensinh.service.XetTuyenService;
+import com.tuyensinh.web.servlet.base.ModelAndView;
+import com.tuyensinh.web.servlet.dto.DiemThiForm;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ScoresServlet extends BaseServlet {
@@ -25,135 +22,77 @@ public class ScoresServlet extends BaseServlet {
     private final MonService monService = new MonService();
 
     @Override
-    protected void handleGet(HttpServletRequest request, HttpServletResponse response)
+    protected ModelAndView handleGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        NguoiDung loggedInUser = getLoggedInUser(request);
-        if (loggedInUser == null) {
-            requireLogin(request, response);
-            return;
-        }
+        ModelAndView auth = authController.requireLogin(request, response);
+        if (auth != null) return auth;
 
         try {
-            ThiSinh thiSinh = thiSinhService.findByNguoiDungId(loggedInUser.getNguoidungId()).orElse(null);
+            ThiSinh thiSinh = thiSinhService.findByNguoiDungId(
+                authController.getCurrentUser(request).getNguoidungId()).orElse(null);
 
             if (thiSinh == null) {
                 setMessage(request, "Không tìm thấy thông tin thí sinh.", "warning");
-                redirect(response, request.getContextPath() + "/profile");
-                return;
+                return viewResolver.redirect("/profile");
             }
 
-            List<DiemThi> danhSachDiemThi = xetTuyenService.findDiemThiByThiSinh(thiSinh.getThisinhId());
-            List<PhuongThuc> danhSachPhuongThuc = xetTuyenService.findActivePhuongThuc();
-            List<Mon> danhSachMon = monService.findAll();
-
-            setAttribute(request, "thiSinh", thiSinh);
-            setAttribute(request, "danhSachDiemThi", danhSachDiemThi);
-            setAttribute(request, "danhSachPhuongThuc", danhSachPhuongThuc);
-            setAttribute(request, "danhSachMon", danhSachMon);
-
-            forward(request, response, getViewPath("scores"));
+            return viewResolver.view("scores")
+                .addObject("thiSinh", thiSinh)
+                .addObject("danhSachDiemThi", xetTuyenService.findDiemThiByThiSinh(thiSinh.getThisinhId()))
+                .addObject("danhSachPhuongThuc", xetTuyenService.findActivePhuongThuc())
+                .addObject("danhSachMon", monService.findAll());
 
         } catch (Exception e) {
             setMessage(request, "Đã xảy ra lỗi: " + e.getMessage(), "danger");
-            redirect(response, request.getContextPath() + "/dashboard");
+            return viewResolver.redirect("/dashboard");
         }
     }
 
     @Override
-    protected void handlePost(HttpServletRequest request, HttpServletResponse response)
+    protected ModelAndView handlePost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        NguoiDung loggedInUser = getLoggedInUser(request);
-        if (loggedInUser == null) {
-            requireLogin(request, response);
-            return;
-        }
+        ModelAndView auth = authController.requireLogin(request, response);
+        if (auth != null) return auth;
 
         try {
-            ThiSinh thiSinh = thiSinhService.findByNguoiDungId(loggedInUser.getNguoidungId()).orElse(null);
+            ThiSinh thiSinh = thiSinhService.findByNguoiDungId(
+                authController.getCurrentUser(request).getNguoidungId()).orElse(null);
 
             if (thiSinh == null) {
                 setMessage(request, "Không tìm thấy thông tin thí sinh.", "danger");
-                redirect(response, request.getContextPath() + "/scores");
-                return;
+                return viewResolver.redirect("/scores");
             }
 
-            String phuongthucIdStr = request.getParameter("phuongthucId");
-            String namTuyensinhStr = request.getParameter("namTuyensinh");
-            String sobaodanh = request.getParameter("sobaodanh");
-            String ghiChu = request.getParameter("ghiChu");
+            List<PhuongThuc> danhSachPhuongThuc = xetTuyenService.findActivePhuongThuc();
+            List<com.tuyensinh.entity.Mon> danhSachMon = monService.findAll();
+            DiemThiForm form = new DiemThiForm(request, danhSachMon);
 
-            if (isNullOrEmpty(phuongthucIdStr)) {
-                setMessage(request, "Vui lòng chọn phương thức xét tuyển.", "danger");
-                redirect(response, request.getContextPath() + "/scores");
-                return;
+            if (form.validate().isPresent()) {
+                setMessage(request, form.validate().get(), "danger");
+                return viewResolver.redirect("/scores");
             }
 
-            PhuongThuc phuongThuc = xetTuyenService.findPhuongThucByMa(
-                xetTuyenService.findActivePhuongThuc()
-                    .stream()
-                    .filter(pt -> pt.getPhuongthucId().toString().equals(phuongthucIdStr))
+            PhuongThuc phuongThuc = danhSachPhuongThuc.stream()
+                    .filter(pt -> pt.getPhuongthucId().toString().equals(form.getPhuongthucIdStr()))
                     .findFirst()
-                    .map(PhuongThuc::getMaPhuongthuc)
-                    .orElse(null)
-            ).orElse(null);
+                    .orElse(null);
 
             if (phuongThuc == null) {
-                List<PhuongThuc> phuongThucs = xetTuyenService.findActivePhuongThuc();
-                for (PhuongThuc pt : phuongThucs) {
-                    if (pt.getPhuongthucId().toString().equals(phuongthucIdStr)) {
-                        phuongThuc = pt;
-                        break;
-                    }
-                }
+                setMessage(request, "Không tìm thấy phương thức xét tuyển.", "danger");
+                return viewResolver.redirect("/scores");
             }
 
-            Short namTuyensinh = 2026;
-            if (!isNullOrEmpty(namTuyensinhStr)) {
-                try {
-                    namTuyensinh = Short.parseShort(namTuyensinhStr);
-                } catch (NumberFormatException e) {
-                }
-            }
-
-            DiemThi diemThi = new DiemThi();
+            Short namTuyensinh = form.parseNamTuyensinh();
+            DiemThi diemThi = form.bindToEntity(phuongThuc, namTuyensinh);
             diemThi.setThiSinh(thiSinh);
-            diemThi.setPhuongThuc(phuongThuc);
-            diemThi.setNamTuyensinh(namTuyensinh);
-            diemThi.setSobaodanh(sobaodanh);
-            diemThi.setGhiChu(ghiChu);
 
-            DiemThi savedDiemThi = xetTuyenService.saveDiemThi(diemThi);
-            if (savedDiemThi.getDanhSachDiemChiTiet() == null) {
-                savedDiemThi.setDanhSachDiemChiTiet(new ArrayList<>());
-            }
-
-            List<Mon> danhSachMon = monService.findAll();
-            for (Mon mon : danhSachMon) {
-                String diemStr = request.getParameter("diem_" + mon.getMonId());
-                if (diemStr != null && !diemStr.trim().isEmpty()) {
-                    try {
-                        BigDecimal diemGoc = new BigDecimal(diemStr.trim());
-                        DiemThiChiTiet chiTiet = new DiemThiChiTiet();
-                        chiTiet.setDiemThi(savedDiemThi);
-                        chiTiet.setMon(mon);
-                        chiTiet.setDiemGoc(diemGoc);
-                        chiTiet.setDiemQuydoi(diemGoc);
-                        chiTiet.setDiemSudung(diemGoc);
-
-                        savedDiemThi.getDanhSachDiemChiTiet().add(chiTiet);
-                    } catch (NumberFormatException e) {
-                    }
-                }
-            }
-
-            xetTuyenService.updateDiemThi(savedDiemThi);
-
+            xetTuyenService.updateDiemThi(xetTuyenService.saveDiemThi(diemThi));
             setMessage(request, "Lưu điểm thi thành công!", "success");
-            redirect(response, request.getContextPath() + "/scores");
+            return viewResolver.redirect("/scores");
 
         } catch (Exception e) {
             setMessage(request, "Đã xảy ra lỗi khi lưu điểm thi: " + e.getMessage(), "danger");
-            redirect(response, request.getContextPath() + "/scores");
+            return viewResolver.redirect("/scores");
         }
     }
 }
