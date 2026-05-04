@@ -171,7 +171,9 @@ public class DiemDGNLVSATImportPanel extends JPanel {
         SwingWorker<ImportSummary, String> worker = new SwingWorker<>() {
             @Override
             protected ImportSummary doInBackground() {
-                return importExcel(selectedFile, this::publish);
+                //  return importExcel(selectedFile, this::publish);
+                // return null;
+                return importExcel(selectedFile, msg -> publish(msg));
             }
 
             @Override
