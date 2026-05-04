@@ -1,6 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -125,113 +126,150 @@
             <div class="table-responsive">
                 <table class="table table-hover mb-0">
                     <thead>
-                        <tr>
-                            <th style="width: 60px;">Thứ tự</th>
-                            <th>Mã ngành</th>
-                            <th>Tên ngành</th>
-                            <th>Tổ hợp</th>
-                            <th>Phương thức</th>
-                            <th>Điểm xét tuyển</th>
-                            <th>Điểm sàn</th>
-                            <th>Kết quả</th>
-                            <th style="width: 100px;">Thao tác</th>
-                        </tr>
+                    <tr>
+                        <th style="width: 60px;">Thứ tự</th>
+                        <th>Mã XT</th>
+                        <th>CT</th>
+                        <th>Mã ngành</th>
+                        <th>Tên ngành</th>
+                        <th>Tổ hợp</th>
+                        <th>Phương thức</th>
+                        <th>Điểm xét tuyển</th>
+                        <th>Điểm sàn</th>
+                        <th>Kết quả</th>
+                        <th style="width: 100px;">Thao tác</th>
+                    </tr>
                     </thead>
                     <tbody>
-                        <c:choose>
-                            <c:when test="${not empty danhSachNguyenVong}">
-                                <c:forEach var="nv" items="${danhSachNguyenVong}">
-                                    <tr>
-                                        <td>
-                                            <span class="priority-badge">${nv.thuTu}</span>
-                                        </td>
-                                        <td>
-                                            <strong>${nv.nganh.maNganh}</strong>
-                                        </td>
-                                        <td>${nv.nganh.tenNganh}</td>
-                                        <td>
-                                            <span class="badge bg-secondary">${nv.nganhToHop.toHop.maTohop}</span>
+                    <c:choose>
+                        <c:when test="${not empty danhSachNguyenVong}">
+                            <c:forEach var="nv" items="${danhSachNguyenVong}">
+                                <tr>
+                                    <td>
+                                        <span class="priority-badge">${nv.thuTu}</span>
+                                    </td>
+
+                                    <td>
+                                        <div class="fw-bold">
+                                                ${nv.maXetTuyenMap != null ? nv.maXetTuyenMap.maXetTuyen : '-'}
+                                        </div>
+                                        <c:if test="${nv.maXetTuyenMap != null and not empty nv.maXetTuyenMap.tenChuongTrinh}">
+                                            <small class="text-muted">${nv.maXetTuyenMap.tenChuongTrinh}</small>
+                                        </c:if>
+                                    </td>
+
+                                    <td>
+                                        <c:choose>
+                                            <c:when test="${nv.maXetTuyenMap != null and fn:containsIgnoreCase(nv.maXetTuyenMap.maXetTuyen, 'CLC')}">
+                                                <span class="badge bg-warning text-dark">CLC</span>
+                                            </c:when>
+                                            <c:when test="${nv.maXetTuyenMap != null and fn:containsIgnoreCase(nv.maXetTuyenMap.tenChuongTrinh, 'chất lượng cao')}">
+                                                <span class="badge bg-warning text-dark">CLC</span>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <span class="badge bg-secondary">Thường</span>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </td>
+
+                                    <td>
+                                        <strong>${nv.nganh.maNganh}</strong>
+                                    </td>
+
+                                    <td>${nv.nganh.tenNganh}</td>
+
+                                    <td>
+                                        <span class="badge bg-secondary">
+                                                ${nv.nganhToHop != null && nv.nganhToHop.toHop != null ? nv.nganhToHop.toHop.maTohop : '-'}
+                                        </span>
+                                        <c:if test="${nv.nganhToHop != null && nv.nganhToHop.toHop != null}">
                                             <br>
                                             <small class="text-muted">${nv.nganhToHop.toHop.tenTohop}</small>
-                                        </td>
-                                        <td>
-                                            <span class="badge bg-info text-dark">${nv.phuongThuc.maPhuongthuc}</span>
-                                            <br>
-                                            <small class="text-muted">${nv.phuongThuc.tenPhuongthuc}</small>
-                                        </td>
-                                        <td>
-                                            <c:choose>
-                                                <c:when test="${nv.diemXettuyen != null}">
-                                                    <strong class="text-primary">
-                                                        <fmt:formatNumber value="${nv.diemXettuyen}" pattern="#,##0.00"/>
-                                                    </strong>
-                                                </c:when>
-                                                <c:otherwise>
-                                                    <span class="text-muted">-</span>
-                                                </c:otherwise>
-                                            </c:choose>
-                                        </td>
-                                        <td>
-                                            <c:choose>
-                                                <c:when test="${nv.nganh.diemSan != null}">
-                                                    <fmt:formatNumber value="${nv.nganh.diemSan}" pattern="#,##0.00"/>
-                                                </c:when>
-                                                <c:otherwise>-</c:otherwise>
-                                            </c:choose>
-                                        </td>
-                                        <td>
-                                            <c:choose>
-                                                <c:when test="${nv.ketQua == 'TRUNG_TUYEN'}">
-                                                    <span class="badge badge-trung-tuyen">
-                                                        <i class="bi bi-check-circle me-1"></i>Trúng tuyển
-                                                    </span>
-                                                </c:when>
-                                                <c:when test="${nv.ketQua == 'TRUOT'}">
-                                                    <span class="badge badge-truot">
-                                                        <i class="bi bi-x-circle me-1"></i>Trượt
-                                                    </span>
-                                                </c:when>
-                                                <c:when test="${nv.ketQua == 'CHO_XET'}">
-                                                    <span class="badge badge-cho-xet">
-                                                        <i class="bi bi-clock me-1"></i>Chờ xét
-                                                    </span>
-                                                </c:when>
-                                                <c:when test="${nv.ketQua == 'PHOI_DU_KIEN'}">
-                                                    <span class="badge badge-phoi-du-kien">
-                                                        <i class="bi bi-question-circle me-1"></i>Phối dự kiến
-                                                    </span>
-                                                </c:when>
-                                                <c:otherwise>
-                                                    <span class="badge bg-secondary">${nv.ketQua}</span>
-                                                </c:otherwise>
-                                            </c:choose>
-                                        </td>
-                                        <td>
-                                            <form action="${pageContext.request.contextPath}/nguyenvong" method="post" 
-                                                  onsubmit="return confirm('Bạn có chắc chắn muốn xóa nguyện vọng này?')">
-                                                <input type="hidden" name="action" value="delete">
-                                                <input type="hidden" name="nguyenvongId" value="${nv.nguyenvongId}">
-                                                <button type="submit" class="btn btn-danger">
-                                                    <i class="bi bi-trash"></i>
-                                                </button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                </c:forEach>
-                            </c:when>
-                            <c:otherwise>
-                                <tr>
-                                    <td colspan="9" class="text-center text-muted py-5">
-                                        <i class="bi bi-inbox fs-1 d-block mb-3"></i>
-                                        <p class="mb-0">Bạn chưa đăng ký nguyện vọng nào.</p>
-                                        <p class="small">Nhấn nút «Thêm nguyện vọng» để bắt đầu.</p>
-                                        <a href="${pageContext.request.contextPath}/add-nguyenvong" class="btn btn-primary mt-2">
-                                            <i class="bi bi-plus-circle me-2"></i>Thêm nguyện vọng
-                                        </a>
+                                        </c:if>
+                                    </td>
+
+                                    <td>
+                                        <span class="badge bg-info text-dark">${nv.phuongThuc.maPhuongthuc}</span>
+                                        <br>
+                                        <small class="text-muted">${nv.phuongThuc.tenPhuongthuc}</small>
+                                    </td>
+
+                                    <td>
+                                        <c:choose>
+                                            <c:when test="${nv.diemXettuyen != null}">
+                                                <strong class="text-primary">
+                                                    <fmt:formatNumber value="${nv.diemXettuyen}" pattern="#,##0.00"/>
+                                                </strong>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <span class="text-muted">-</span>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </td>
+
+                                    <td>
+                                        <c:choose>
+                                            <c:when test="${nv.nganh.diemSan != null}">
+                                                <fmt:formatNumber value="${nv.nganh.diemSan}" pattern="#,##0.00"/>
+                                            </c:when>
+                                            <c:otherwise>-</c:otherwise>
+                                        </c:choose>
+                                    </td>
+
+                                    <td>
+                                        <c:choose>
+                                            <c:when test="${nv.ketQua == 'TRUNG_TUYEN'}">
+                                                <span class="badge badge-trung-tuyen">
+                                                <i class="bi bi-check-circle me-1"></i>Trúng tuyển
+                                                </span>
+                                            </c:when>
+                                            <c:when test="${nv.ketQua == 'TRUOT'}">
+                                                <span class="badge badge-truot">
+                                                    <i class="bi bi-x-circle me-1"></i>Trượt
+                                                </span>
+                                            </c:when>
+                                            <c:when test="${nv.ketQua == 'CHO_XET'}">
+                                                <span class="badge badge-cho-xet">
+                                                    <i class="bi bi-clock me-1"></i>Chờ xét
+                                                </span>
+                                            </c:when>
+                                            <c:when test="${nv.ketQua == 'PHOI_DU_KIEN'}">
+                                                <span class="badge badge-phoi-du-kien">
+                                                    <i class="bi bi-question-circle me-1"></i>Phối dự kiến
+                                                </span>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <span class="badge bg-secondary">${nv.ketQua}</span>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </td>
+
+                                    <td>
+                                        <form action="${pageContext.request.contextPath}/nguyenvong" method="post"
+                                              onsubmit="return confirm('Bạn có chắc chắn muốn xóa nguyện vọng này?')">
+                                            <input type="hidden" name="action" value="delete">
+                                            <input type="hidden" name="nguyenvongId" value="${nv.nguyenvongId}">
+                                            <button type="submit" class="btn btn-danger">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
                                     </td>
                                 </tr>
-                            </c:otherwise>
-                        </c:choose>
+                            </c:forEach>
+                        </c:when>
+                        <c:otherwise>
+                            <tr>
+                                <td colspan="11" class="text-center text-muted py-5">
+                                    <i class="bi bi-inbox fs-1 d-block mb-3"></i>
+                                    <p class="mb-0">Bạn chưa đăng ký nguyện vọng nào.</p>
+                                    <p class="small">Nhấn nút «Thêm nguyện vọng» để bắt đầu.</p>
+                                    <a href="${pageContext.request.contextPath}/add-nguyenvong" class="btn btn-primary mt-2">
+                                        <i class="bi bi-plus-circle me-2"></i>Thêm nguyện vọng
+                                    </a>
+                                </td>
+                            </tr>
+                        </c:otherwise>
+                    </c:choose>
                     </tbody>
                 </table>
             </div>
