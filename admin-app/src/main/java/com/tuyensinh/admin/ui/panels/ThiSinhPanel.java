@@ -1,6 +1,7 @@
 package com.tuyensinh.admin.ui.panels;
 
 import com.tuyensinh.admin.ui.MainFrame;
+import com.tuyensinh.admin.ui.TableFactory;
 import com.tuyensinh.entity.*;
 import com.tuyensinh.service.*;
 import com.tuyensinh.util.*;
@@ -99,11 +100,13 @@ public class ThiSinhPanel extends JPanel {
             public boolean isCellEditable(int row, int col) { return false; }
         };
         table = new JTable(model);
-        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        table.setRowHeight(25);
-        JTableHeader header = table.getTableHeader();
-        header.setFont(new Font("Arial", Font.BOLD, 12));
-        JScrollPane scrollPane = new JScrollPane(table);
+
+        // Dùng cùng style bảng với các panel kế thừa BaseCrudPanel
+        // như panel Chứng chỉ ngoại ngữ: font, header, màu chọn dòng,
+        // grid và màu xen kẽ trắng / xám nhạt theo từng dòng.
+        TableFactory.applyStyle(table);
+
+        JScrollPane scrollPane = TableFactory.wrap(table);
         add(scrollPane, BorderLayout.CENTER);
 
         // Bottom

@@ -293,7 +293,6 @@ CREATE TABLE xt_nguyenvong (
     thu_tu INT NOT NULL,
     ma_xettuyen_id INT NULL,
     diem_thxt DECIMAL(10,5) NULL,
-    diem_thgxt DECIMAL(10,5) NULL,
     diem_cong DECIMAL(6,2) NULL,
     diem_uutien DECIMAL(6,2) NULL,
     diem_xettuyen DECIMAL(10,5) NULL,

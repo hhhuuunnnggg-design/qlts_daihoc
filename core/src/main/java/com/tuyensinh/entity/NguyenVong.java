@@ -47,9 +47,6 @@ public class NguyenVong {
     @Column(name = "diem_thxt", precision = 10, scale = 5)
     private BigDecimal diemThxt;
 
-    @Column(name = "diem_thgxt", precision = 10, scale = 5)
-    private BigDecimal diemThgxt;
-
     @Column(name = "diem_cong", precision = 6, scale = 2)
     private BigDecimal diemCong;
 
