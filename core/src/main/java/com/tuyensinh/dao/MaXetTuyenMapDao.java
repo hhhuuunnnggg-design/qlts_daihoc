@@ -117,6 +117,29 @@ public class MaXetTuyenMapDao extends BaseDao<MaXetTuyenMap> implements IMaXetTu
     }
 
     /**
+     * Load day du map theo nganh, gom phuong thuc, nganh-to-hop va to-hop.
+     * Dung khi tinh DGNL vi dong NL1 trong DB khong gan truc tiep voi mot to hop cu the.
+     */
+    public List<MaXetTuyenMap> findByNganhIdWithDetails(Integer nganhId) {
+        if (nganhId == null) {
+            return java.util.Collections.emptyList();
+        }
+
+        return em().createQuery(
+                        "select distinct m " +
+                                "from MaXetTuyenMap m " +
+                                "left join fetch m.nganh n " +
+                                "left join fetch m.phuongThuc pt " +
+                                "left join fetch m.nganhToHop nth " +
+                                "left join fetch nth.toHop th " +
+                                "where n.nganhId = :nganhId " +
+                                "order by pt.phuongthucId, m.maTohopNguon",
+                        MaXetTuyenMap.class)
+                .setParameter("nganhId", nganhId)
+                .getResultList();
+    }
+
+    /**
      * Load day du nganh, phuong thuc, nganh-to-hop, to-hop va he so mon.
      * Dung trong TinhDiemService de so sanh THPT/VSAT/DGNL ma khong bi proxy detached.
      */

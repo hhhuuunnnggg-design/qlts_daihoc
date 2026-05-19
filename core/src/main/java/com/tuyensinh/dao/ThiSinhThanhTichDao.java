@@ -41,7 +41,8 @@ public class ThiSinhThanhTichDao extends BaseDao<ThiSinhThanhTich> implements IT
                 .where(
                         cb.and(
                                 cb.equal(thiSinhJoin.get("thisinhId"), thisinhId),
-                                cb.isTrue(root.get("isHopLe"))
+                                cb.isTrue(root.get("isHopLe")),
+                                cb.equal(root.get("trangThaiXacMinh"), "DA_XAC_MINH")
                         )
                 )
                 .orderBy(cb.desc(root.get("namDatGiai")), cb.asc(root.get("thanhtichId")));

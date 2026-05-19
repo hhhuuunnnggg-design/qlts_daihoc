@@ -1,14 +1,17 @@
 package com.tuyensinh.service;
 
 import com.tuyensinh.dao.DiemThiDao;
+import com.tuyensinh.dao.BangQuyDoiDao;
 import com.tuyensinh.entity.DiemThi;
 import com.tuyensinh.entity.DiemThiChiTiet;
+import com.tuyensinh.entity.BangQuyDoi;
 import com.tuyensinh.service.interfaceService.IDiemThiService;
 import com.tuyensinh.entity.Mon;
 import com.tuyensinh.entity.PhuongThuc;
 import com.tuyensinh.entity.ThiSinh;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -17,6 +20,7 @@ import java.util.List;
 public class DiemThiService implements IDiemThiService {
 
     private final DiemThiDao dao = new DiemThiDao();
+    private final BangQuyDoiDao bangQuyDoiDao = new BangQuyDoiDao();
 
     public List<DiemThi> findAll() {
         return dao.findAll();
@@ -109,12 +113,20 @@ public class DiemThiService implements IDiemThiService {
                 continue;
             }
 
+            BigDecimal diemGoc = diem;
+            BigDecimal diemQuydoi = tinhDiemQuyDoiKhiImport(diemGoc, phuongThuc, mon);
+
             DiemThiChiTiet ct = new DiemThiChiTiet();
             ct.setDiemThi(diemThi);
             ct.setMon(mon);
-            ct.setDiemGoc(diem);
-            ct.setDiemQuydoi(diem);
-            ct.setDiemSudung(diem);
+            ct.setDiemGoc(diemGoc);
+            ct.setDiemQuydoi(diemQuydoi);
+
+            // THPT/NK dùng trực tiếp điểm gốc.
+            // VSAT/DGNL nếu không quy đổi được thì không lấy điểm gốc làm điểm sử dụng,
+            // tránh hiển thị sai kiểu 538 hoặc 118.50 ở cột điểm sử dụng.
+            ct.setDiemSudung(diemQuydoi != null ? diemQuydoi : diemSuDungFallback(diemGoc, phuongThuc));
+
             diemThi.getDanhSachDiemChiTiet().add(ct);
         }
 
@@ -123,6 +135,133 @@ public class DiemThiService implements IDiemThiService {
         }
 
         return dao.replaceForUniqueKey(diemThi);
+    }
+
+    /**
+     * Quy doi diem khi import de hien thi tren Panel Diem thi.
+     *
+     * Nguyen tac:
+     * - THPT/NK: diem goc da la thang 10 -> giu nguyen.
+     * - VSAT: quy doi tung mon ve thang 10 theo xt_bangquydoi.
+     * - DGNL: diem goc la tong diem DGNL, bang quy doi trong DB dang la thang 30,
+     *   nen khi hien thi o chi tiet diem thi thi chia 3 de dua ve thang 10.
+     *
+     * Luu y:
+     * - DGNL khi xet tuyen van lay diem_goc de tinh theo nguyen vong/to hop.
+     * - diem_quydoi/diem_sudung trong Panel Diem thi chi la diem hien thi ve thang 10.
+     */
+    private BigDecimal tinhDiemQuyDoiKhiImport(BigDecimal diemGoc, PhuongThuc phuongThuc, Mon mon) {
+        if (diemGoc == null) return null;
+
+        if (phuongThuc == null || phuongThuc.getPhuongthucId() == null) {
+            return capThang10(diemGoc);
+        }
+
+        String maPt = phuongThuc.getMaPhuongthuc() != null
+                ? phuongThuc.getMaPhuongthuc().trim().toUpperCase()
+                : "";
+
+        // THPT va NK da la thang 10
+        if (PhuongThuc.THPT.equalsIgnoreCase(maPt) || PhuongThuc.NK.equalsIgnoreCase(maPt)) {
+            return capThang10(diemGoc);
+        }
+
+        // VSAT: quy doi theo tung mon ve thang 10
+        if (PhuongThuc.VSAT.equalsIgnoreCase(maPt)) {
+            Integer monId = mon != null ? mon.getMonId() : null;
+
+            BangQuyDoi bqd = bangQuyDoiDao.quyDoiDiem(
+                    phuongThuc.getPhuongthucId(),
+                    null,
+                    monId,
+                    diemGoc
+            );
+
+            if (bqd == null) {
+                return null;
+            }
+
+            BigDecimal diemQd = noiSuyDiemQuyDoi(diemGoc, bqd);
+            return capThang10(diemQd);
+        }
+
+        // DGNL: bang quy doi la thang 30, hien thi chi tiet thi dua ve thang 10
+        if (PhuongThuc.DGNL.equalsIgnoreCase(maPt)) {
+            BangQuyDoi bqd = bangQuyDoiDao.quyDoiDiemBatKyToHop(
+                    phuongThuc.getPhuongthucId(),
+                    null,
+                    diemGoc
+            );
+
+            if (bqd == null) {
+                return null;
+            }
+
+            BigDecimal diemQdThang30 = noiSuyDiemQuyDoi(diemGoc, bqd);
+            BigDecimal diemQdThang10 = diemQdThang30.divide(new BigDecimal("3"), 6, RoundingMode.HALF_UP);
+            return capThang10(diemQdThang10);
+        }
+
+        return capThang10(diemGoc);
+    }
+
+    private BigDecimal noiSuyDiemQuyDoi(BigDecimal diemGoc, BangQuyDoi bqd) {
+        if (diemGoc == null || bqd == null) return null;
+
+        BigDecimal diemTu = bqd.getDiemTu();
+        BigDecimal diemDen = bqd.getDiemDen();
+        BigDecimal qdTu = bqd.getDiemQuydoiTu();
+        BigDecimal qdDen = bqd.getDiemQuydoiDen();
+
+        if (diemTu == null || diemDen == null || qdTu == null || qdDen == null) {
+            return null;
+        }
+
+        BigDecimal khoangGoc = diemDen.subtract(diemTu);
+        if (khoangGoc.compareTo(BigDecimal.ZERO) == 0) {
+            return qdTu.setScale(2, RoundingMode.HALF_UP);
+        }
+
+        BigDecimal tyLe = diemGoc.subtract(diemTu)
+                .multiply(qdDen.subtract(qdTu))
+                .divide(khoangGoc, 6, RoundingMode.HALF_UP);
+
+        return qdTu.add(tyLe).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    private BigDecimal diemSuDungFallback(BigDecimal diemGoc, PhuongThuc phuongThuc) {
+        if (diemGoc == null) return null;
+        if (phuongThuc == null || phuongThuc.getMaPhuongthuc() == null) {
+            return capThang10(diemGoc);
+        }
+
+        String maPt = phuongThuc.getMaPhuongthuc().trim().toUpperCase();
+
+        // Chỉ THPT/NK được phép lấy điểm gốc làm điểm sử dụng.
+        if (PhuongThuc.THPT.equalsIgnoreCase(maPt) || PhuongThuc.NK.equalsIgnoreCase(maPt)) {
+            return capThang10(diemGoc);
+        }
+
+        // VSAT/DGNL không tìm thấy bảng quy đổi thì để null,
+        // tránh hiển thị sai thang điểm.
+        return null;
+    }
+
+    private BigDecimal capThang10(BigDecimal value) {
+        if (value == null) return null;
+
+        BigDecimal min = BigDecimal.ZERO;
+        BigDecimal max = new BigDecimal("10");
+
+        BigDecimal result = value.setScale(2, RoundingMode.HALF_UP);
+        if (result.compareTo(min) < 0) return min.setScale(2, RoundingMode.HALF_UP);
+        if (result.compareTo(max) > 0) return max.setScale(2, RoundingMode.HALF_UP);
+
+        return result;
+    }
+
+    private BigDecimal scaleScore(BigDecimal value) {
+        return value == null ? null : value.setScale(2, RoundingMode.HALF_UP);
     }
 
     @Override

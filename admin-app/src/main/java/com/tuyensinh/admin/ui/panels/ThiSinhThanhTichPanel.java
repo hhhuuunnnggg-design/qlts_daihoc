@@ -48,7 +48,10 @@ public class ThiSinhThanhTichPanel extends BaseCrudPanel<ThiSinhThanhTich> {
                 new ToolbarFactory.ActionButton("Import Excel", this::showImportDialog),
                 new ToolbarFactory.ActionButton("Them moi", this::showAddDialog),
                 new ToolbarFactory.ActionButton("Sua", this::showEditDialog),
-                new ToolbarFactory.ActionButton("Xoa", this::doDelete)
+                new ToolbarFactory.ActionButton("Xoa", this::doDelete),
+                new ToolbarFactory.ActionButton("Xac minh", this::xacMinhSelected),
+                new ToolbarFactory.ActionButton("Tu choi", this::tuChoiSelected),
+                new ToolbarFactory.ActionButton("Cho xac minh", this::choXacMinhSelected)
         );
         this.searchTextField = searchFieldOut[0];
         add(toolbar, BorderLayout.NORTH);
@@ -391,6 +394,75 @@ public class ThiSinhThanhTichPanel extends BaseCrudPanel<ThiSinhThanhTich> {
             return Short.valueOf(raw);
         } catch (NumberFormatException ex) {
             return null;
+        }
+    }
+
+    private void xacMinhSelected() {
+        capNhatTrangThaiXacMinh(
+                "DA_XAC_MINH",
+                true,
+                "Xac minh thanh tich thanh cong!",
+                "Xac minh thanh tich nay?"
+        );
+    }
+
+    private void tuChoiSelected() {
+        capNhatTrangThaiXacMinh(
+                "TU_CHOI",
+                false,
+                "Da tu choi thanh tich!",
+                "Tu choi thanh tich nay? Thanh tich bi tu choi se khong duoc tinh diem cong."
+        );
+    }
+
+    private void choXacMinhSelected() {
+        capNhatTrangThaiXacMinh(
+                "CHUA_XAC_MINH",
+                true,
+                "Da chuyen ve trang thai cho xac minh!",
+                "Chuyen thanh tich nay ve trang thai cho xac minh?"
+        );
+    }
+
+    private void capNhatTrangThaiXacMinh(String trangThai,
+                                         boolean hopLe,
+                                         String successMessage,
+                                         String confirmMessage) {
+        ThiSinhThanhTich entity = getSelectedEntity();
+        if (entity == null) {
+            showSelectRow();
+            return;
+        }
+
+        int confirm = JOptionPane.showConfirmDialog(
+                this,
+                confirmMessage,
+                "Xac nhan",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE
+        );
+
+        if (confirm != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        entity.setTrangThaiXacMinh(trangThai);
+        entity.setIsHopLe(hopLe);
+
+        String ghiChuCu = entity.getGhiChu();
+        String ghiChuMoi = "[Cap nhat xac minh] " + trangThai;
+        if (ghiChuCu == null || ghiChuCu.trim().isEmpty()) {
+            entity.setGhiChu(ghiChuMoi);
+        } else if (!ghiChuCu.contains(ghiChuMoi)) {
+            entity.setGhiChu(ghiChuCu + "; " + ghiChuMoi);
+        }
+
+        try {
+            service.update(entity);
+            showSuccess(this, successMessage);
+            loadData();
+        } catch (Exception ex) {
+            showError(this, ex.getMessage());
         }
     }
 }
