@@ -24,7 +24,7 @@
         <maven.compiler.target>17</maven.compiler.target>
 
         <hibernate.version>5.4.7.Final</hibernate.version>
-        <lombok.version>1.18.30</lombok.version>
+        <lombok.version>1.18.36</lombok.version>
         <mysql.version>8.0.28</mysql.version>
         <junit.version>4.13.2</junit.version>
         <slf4j.version>1.7.29</slf4j.version>
@@ -54,6 +54,7 @@
                 <version>${lombok.version}</version>
                 <scope>provided</scope>
             </dependency>
+
 
             <!-- JPA -->
             <dependency>
@@ -142,7 +143,12 @@
                         <annotationProcessorPaths>
                             <path>
                                 <groupId>org.projectlombok</groupId>
-                                <artifactId>lombok</artifactId>
+                                <dependency>
+                                    <groupId>org.projectlombok</groupId>
+                                    <artifactId>lombok</artifactId>
+                                    <version>1.18.36</version>
+                                    <scope>provided</scope>
+                                </dependency>
                                 <version>${lombok.version}</version>
                             </path>
                         </annotationProcessorPaths>
