@@ -45,6 +45,12 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link ${currentPage == 'tracuu' ? 'active' : ''}"
+                           href="${pageContext.request.contextPath}/tra-cuu-diem">
+                            <i class="bi bi-calculator me-1"></i> Tra cứu điểm
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link ${currentPage == 'profile' ? 'active' : ''}"
                            href="${pageContext.request.contextPath}/profile">
                             <i class="bi bi-person-circle me-1"></i> ${sessionScope.nguoidung != null ? sessionScope.nguoidung.username : 'Tài khoản'}

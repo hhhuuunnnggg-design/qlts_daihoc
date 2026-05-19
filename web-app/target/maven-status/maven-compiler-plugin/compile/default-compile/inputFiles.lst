@@ -10,6 +10,8 @@
 /home/hung/Desktop/clone_1/TuyenSinhDaiHoc_2026/web-app/src/main/java/com/tuyensinh/web/servlet/base/AuthController.java
 /home/hung/Desktop/clone_1/TuyenSinhDaiHoc_2026/web-app/src/main/java/com/tuyensinh/web/servlet/LogoutServlet.java
 /home/hung/Desktop/clone_1/TuyenSinhDaiHoc_2026/web-app/src/main/java/com/tuyensinh/web/JettyLauncher.java
+/home/hung/Desktop/clone_1/TuyenSinhDaiHoc_2026/web-app/src/main/java/com/tuyensinh/web/servlet/dto/NganhToHopDto.java
 /home/hung/Desktop/clone_1/TuyenSinhDaiHoc_2026/web-app/src/main/java/com/tuyensinh/web/servlet/BaseServlet.java
 /home/hung/Desktop/clone_1/TuyenSinhDaiHoc_2026/web-app/src/main/java/com/tuyensinh/web/servlet/AddNguyenVongServlet.java
 /home/hung/Desktop/clone_1/TuyenSinhDaiHoc_2026/web-app/src/main/java/com/tuyensinh/web/servlet/dto/DiemThiForm.java
+/home/hung/Desktop/clone_1/TuyenSinhDaiHoc_2026/web-app/src/main/java/com/tuyensinh/web/servlet/TraCuuDiemServlet.java

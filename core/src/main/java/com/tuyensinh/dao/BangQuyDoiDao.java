@@ -75,11 +75,11 @@ public class BangQuyDoiDao extends BaseDao<BangQuyDoi> implements IBangQuyDoiDao
         List<Predicate> preds = new ArrayList<>();
         preds.add(cb.equal(phuongThuc.get("phuongthucId"), phuongthucId));
 
-        // Nguon tai lieu la (a < x <= b), nen lower bound phai la exclusive
-        preds.add(cb.lessThan(root.get("diemTu"), diemGoc));
+        // Nguon tai lieu la (a <= x <= b), upper bound la inclusive
+        preds.add(cb.lessThanOrEqualTo(root.get("diemTu"), diemGoc));
         preds.add(cb.greaterThanOrEqualTo(root.get("diemDen"), diemGoc));
 
-        // toHop: uu tien match dung, neu khong co thi cho phep ban ghi toHop null
+        // toHop: chi loc khi co tohopId, bo qua khi null (DGNL chi can phuongThuc + diemGoc)
         if (tohopId != null) {
             preds.add(
                     cb.or(
@@ -87,11 +87,9 @@ public class BangQuyDoiDao extends BaseDao<BangQuyDoi> implements IBangQuyDoiDao
                             cb.isNull(root.get("toHop"))
                     )
             );
-        } else {
-            preds.add(cb.isNull(root.get("toHop")));
         }
 
-        // mon: uu tien match dung, neu khong co thi cho phep ban ghi mon null
+        // mon: chi loc khi co monId, bo qua khi null
         if (monId != null) {
             preds.add(
                     cb.or(
@@ -99,13 +97,14 @@ public class BangQuyDoiDao extends BaseDao<BangQuyDoi> implements IBangQuyDoiDao
                             cb.isNull(root.get("mon"))
                     )
             );
-        } else {
-            preds.add(cb.isNull(root.get("mon")));
         }
 
         cq.select(root).where(preds.toArray(new Predicate[0]));
 
         List<BangQuyDoi> list = em().createQuery(cq).getResultList();
+        System.out.println("[DEBUG BQD] phuongthucId=" + phuongthucId
+            + " tohopId=" + tohopId + " monId=" + monId + " diemGoc=" + diemGoc
+            + " -> records found: " + list.size());
         if (list.isEmpty()) return null;
 
         list.sort(

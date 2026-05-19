@@ -78,4 +78,13 @@
         <url-pattern>/add-nguyenvong</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>TraCuuDiemServlet</servlet-name>
+        <servlet-class>com.tuyensinh.web.servlet.TraCuuDiemServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>TraCuuDiemServlet</servlet-name>
+        <url-pattern>/tra-cuu-diem</url-pattern>
+    </servlet-mapping>
+
 </web-app>
