@@ -146,6 +146,7 @@ public class MainFrame extends JFrame {
         addNavSpacer(12);
         addNavItem("Nguyện vọng", "nguyenvong", null);
         addNavItem("Xét tuyển", "xettuyen", null);
+        addNavItem("Thống kê tuyển sinh", "thongke_tuyensinh", null);
 
         // ---- Sidebar bottom: user info + logout ----
         JPanel sidebarBottom = new JPanel();
@@ -378,6 +379,7 @@ public class MainFrame extends JFrame {
         JComponent diemCongPanel = new DiemCongPanel(this);
         JComponent nguyenVongPanel = new NguyenVongPanel(this);
         JComponent xetTuyenPanel = new XetTuyenPanel(this);
+        JComponent thongKeTuyenSinhPanel = new ThongKeTuyenSinhPanel(this);
         JComponent bangQuyDoiPanel = new BangQuyDoiPanel(this);
 
         contentPanel.add(homePanel, "home");
@@ -397,6 +399,7 @@ public class MainFrame extends JFrame {
         contentPanel.add(diemCongPanel, "diemcong");
         contentPanel.add(nguyenVongPanel, "nguyenvong");
         contentPanel.add(xetTuyenPanel, "xettuyen");
+        contentPanel.add(thongKeTuyenSinhPanel, "thongke_tuyensinh");
         contentPanel.add(bangQuyDoiPanel, "bangquydoi");
 
         pagePanels.put("home", homePanel);
@@ -416,6 +419,7 @@ public class MainFrame extends JFrame {
         pagePanels.put("diemcong", diemCongPanel);
         pagePanels.put("nguyenvong", nguyenVongPanel);
         pagePanels.put("xettuyen", xetTuyenPanel);
+        pagePanels.put("thongke_tuyensinh", thongKeTuyenSinhPanel);
         pagePanels.put("bangquydoi", bangQuyDoiPanel);
 
         // ===== WRAP content in a padding container =====
@@ -635,6 +639,8 @@ public class MainFrame extends JFrame {
                 return "Quản lý nguyện vọng";
             case "xettuyen":
                 return "Xét tuyển";
+            case "thongke_tuyensinh":
+                return "Thống kê tuyển sinh";
             case "bangquydoi":
                 return "Bảng quy đổi";
             default:
