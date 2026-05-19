@@ -71,41 +71,29 @@ public class TraCuuDiemServlet extends BaseServlet {
     }
 
     // === Tính điểm cho DGNL (dùng BQD với nội suy tuyến tính) ===
-    private void buildDgnlResult(HttpServletRequest request, Map<String, Object> result,
-            PhuongThuc pt, ToHop toHop, NganhToHop nganhToHop, BigDecimal diemUuTien) {
+    // Trả về ĐTHGXT (điểm sau quy đổi, trước khi cộng ưu tiên)
+    private BigDecimal buildDgnlResult(HttpServletRequest request, Map<String, Object> result,
+            PhuongThuc pt, ToHop toHop, NganhToHop nganhToHop) {
 
         BigDecimal diemDgnl = parseDiem(reqParam(request, "diemDgnl"));
         result.put("diemDgnl", diemDgnl);
 
         BigDecimal diemThgxt = ZERO.setScale(SCALE, RoundingMode.HALF_UP);
         BigDecimal diemSauDoLech = ZERO.setScale(SCALE, RoundingMode.HALF_UP);
-        BigDecimal diemThxt = ZERO.setScale(SCALE, RoundingMode.HALF_UP);
-        BigDecimal diemXetTuyen = ZERO.setScale(SCALE, RoundingMode.HALF_UP);
         String ghiChuDoLech = "";
         String thgxtDisplay = null;
         boolean coBangQuyDoi = false;
 
         if (diemDgnl != null && diemDgnl.compareTo(ZERO) > 0) {
-            // BQD DGNL: phuongThuc=DGNL, tohop_id=NULL (vì ĐGNL không có tổ hợp cụ thể)
-            System.out.println("[DEBUG DGNL] ptId=" + pt.getPhuongthucId()
-                + " (pt=" + pt.getMaPhuongthuc() + "), diemDgnl=" + diemDgnl);
-
             BangQuyDoi bqd = bangQuyDoiDao.quyDoiDiem(
                     pt.getPhuongthucId(),
                     null,       // DGNL: tohopId = null
                     null,       // DGNL: monId = null
                     diemDgnl
             );
-            System.out.println("[DEBUG DGNL] BQD result=" + (bqd != null
-                ? bqd.getMaQuydoi() + " | tu=" + bqd.getDiemTu() + " den=" + bqd.getDiemDen()
-                  + " qdTu=" + bqd.getDiemQuydoiTu() + " qdDen=" + bqd.getDiemQuydoiDen()
-                : "NULL"));
 
             if (bqd != null) {
                 coBangQuyDoi = true;
-                // Công thức nội suy tuyến tính:
-                // y = c + (x - a) × (d - c) / (b - a)
-                // Trong đó: a=diemTu, b=diemDen, c=diemQuydoiTu, d=diemQuydoiDen
                 diemThgxt = quyDoi(bqd, diemDgnl);
 
                 BigDecimal a = bqd.getDiemTu();
@@ -134,9 +122,6 @@ public class TraCuuDiemServlet extends BaseServlet {
                 BigDecimal dl = nganhToHop.getDoLech().setScale(2, RoundingMode.HALF_UP);
                 ghiChuDoLech = "Trừ độ lệch " + dl + " điểm (tổ hợp " + toHop.getMaTohop() + " → gốc)";
             }
-
-            diemThxt = diemSauDoLech;
-            diemXetTuyen = clamp30(diemThxt.add(diemUuTien));
         }
 
         result.put("coBangQuyDoi", coBangQuyDoi);
@@ -144,14 +129,15 @@ public class TraCuuDiemServlet extends BaseServlet {
         result.put("diemThgxtDisplay", thgxtDisplay);
         result.put("diemSauDoLech", diemSauDoLech);
         result.put("ghiChuDoLech", ghiChuDoLech);
-        result.put("diemThxt", diemThxt);
-        result.put("diemCong", diemUuTien);
-        result.put("diemXetTuyen", diemXetTuyen);
+        result.put("diemThxt", diemSauDoLech);
+
+        return diemThgxt;
     }
 
     // === Tính điểm cho THPT / VSAT (dùng BQD) ===
-    private void buildThptVsatResult(HttpServletRequest request, Map<String, Object> result,
-            PhuongThuc pt, ToHop toHop, NganhToHop nganhToHop, BigDecimal diemUuTien) {
+    // Trả về ĐTHGXT
+    private BigDecimal buildThptVsatResult(HttpServletRequest request, Map<String, Object> result,
+            PhuongThuc pt, ToHop toHop, NganhToHop nganhToHop) {
 
         List<NganhToHopMon> monList = nganhToHop.getDanhSachNganhToHopMon();
         if (monList == null) monList = List.of();
@@ -196,7 +182,6 @@ public class TraCuuDiemServlet extends BaseServlet {
             m.put("ghiChuQd", ghiChuQd);
             diemMonList.add(m);
 
-            // Dùng điểm sau quy đổi nếu có, không thì dùng điểm gốc
             BigDecimal diemDung = diemSauQd != null ? diemSauQd : diemGoc;
             if (diemDung == null) diemDung = ZERO;
 
@@ -217,7 +202,6 @@ public class TraCuuDiemServlet extends BaseServlet {
             BigDecimal tb = tongDiem.divide(tongHeSo, SCALE, RoundingMode.HALF_UP);
             diemThgxt = clamp30(tb.multiply(new BigDecimal("3")));
 
-            // Xây dựng chuỗi công thức chi tiết
             List<String> parts = new ArrayList<>();
             for (Map<String, Object> m : diemMonList) {
                 BigDecimal d = (BigDecimal) m.get("diemGoc");
@@ -243,35 +227,45 @@ public class TraCuuDiemServlet extends BaseServlet {
             ghiChuDoLech = "Trừ độ lệch " + dl + " điểm (tổ hợp " + toHop.getMaTohop() + " → gốc)";
         }
 
-        BigDecimal diemXetTuyen = clamp30(diemThxt.add(diemUuTien));
-
         result.put("diemThgxt", diemThgxt);
         result.put("diemSauDoLech", diemThxt);
         result.put("ghiChuDoLech", ghiChuDoLech);
         result.put("diemThxt", diemThxt);
-        result.put("diemCong", diemUuTien);
-        result.put("diemXetTuyen", diemXetTuyen);
+
+        return diemThgxt;
     }
 
-    // === Điểm ưu tiên ===
-    private BigDecimal buildDiemUuTien(Map<String, Object> result) {
-        BigDecimal diemUuTien = ZERO.setScale(SCALE, RoundingMode.HALF_UP);
+    // === Điểm ưu tiên (theo công thức SGU: cộng, có điều chỉnh khi ĐTHGXT >= 22.5) ===
+    private BigDecimal buildDiemUuTien(Map<String, Object> result, BigDecimal diemThgxt) {
+        BigDecimal kvDiem = ZERO.setScale(SCALE, RoundingMode.HALF_UP);
+        BigDecimal dtDiem = ZERO.setScale(SCALE, RoundingMode.HALF_UP);
         List<String> notes = new ArrayList<>();
 
         KhuVucUutien kv = (KhuVucUutien) result.get("khuVuc");
         if (kv != null && kv.getMucDiem() != null) {
-            diemUuTien = diemUuTien.add(kv.getMucDiem());
-            notes.add("Khu vực " + kv.getMaKhuVuc() + " (+" + kv.getMucDiem().setScale(2) + ")");
+            kvDiem = kv.getMucDiem().setScale(SCALE, RoundingMode.HALF_UP);
+            notes.add("Khu vực " + kv.getMaKhuVuc() + " (" + kvDiem.setScale(2) + ")");
         }
 
         DoiTuongUutien dt = (DoiTuongUutien) result.get("doiTuong");
         if (dt != null && dt.getMucDiem() != null) {
-            diemUuTien = diemUuTien.add(dt.getMucDiem());
-            notes.add("Đối tượng " + dt.getMaDoituong() + " (+" + dt.getMucDiem().setScale(2) + ")");
+            dtDiem = dt.getMucDiem().setScale(SCALE, RoundingMode.HALF_UP);
+            notes.add("Đối tượng " + dt.getMaDoituong() + " (" + dtDiem.setScale(2) + ")");
+        }
+
+        BigDecimal tongUuTien = kvDiem.add(dtDiem);
+        BigDecimal diemCong = tongUuTien;
+
+        // Nếu ĐTHGXT >= 22.5 thì giảm điểm cộng theo tỷ lệ
+        BigDecimal NGUONG_225 = new BigDecimal("22.5");
+        if (diemThgxt != null && diemThgxt.compareTo(NGUONG_225) >= 0 && tongUuTien.compareTo(ZERO) > 0) {
+            BigDecimal heSo = new BigDecimal("30").subtract(diemThgxt)
+                    .divide(new BigDecimal("7.5"), SCALE, RoundingMode.HALF_UP);
+            diemCong = tongUuTien.multiply(heSo).setScale(SCALE, RoundingMode.HALF_UP);
         }
 
         result.put("ghiChuUuTien", notes.isEmpty() ? null : String.join(" | ", notes));
-        return diemUuTien;
+        return diemCong;
     }
 
     // === Đánh giá kết quả ===
@@ -316,17 +310,23 @@ public class TraCuuDiemServlet extends BaseServlet {
         result.put("khuVuc", findKhuVuc(kvId));
         result.put("nganh", nganh);
 
-        // Điểm ưu tiên
-        BigDecimal diemUuTien = buildDiemUuTien(result);
-
-        // Tính theo phương thức
+        BigDecimal diemThgxt = ZERO;
         if (isDgnl(pt)) {
-            buildDgnlResult(request, result, pt, toHop, nganhToHop, diemUuTien);
+            diemThgxt = buildDgnlResult(request, result, pt, toHop, nganhToHop);
         } else {
-            buildThptVsatResult(request, result, pt, toHop, nganhToHop, diemUuTien);
+            diemThgxt = buildThptVsatResult(request, result, pt, toHop, nganhToHop);
         }
 
-        evaluateKetQua(result, (BigDecimal) result.get("diemXetTuyen"), nganh);
+        // Điểm ưu tiên (dựa trên ĐTHGXT đã tính)
+        BigDecimal diemUuTien = buildDiemUuTien(result, diemThgxt);
+
+        // Điểm xét tuyển = clamp30(ĐTHGXT + Điểm cộng)
+        BigDecimal diemThxt = (BigDecimal) result.get("diemThxt");
+        BigDecimal diemXetTuyen = clamp30(diemThxt.add(diemUuTien));
+        result.put("diemCong", diemUuTien);
+        result.put("diemXetTuyen", diemXetTuyen);
+
+        evaluateKetQua(result, diemXetTuyen, nganh);
         return result;
     }
 
