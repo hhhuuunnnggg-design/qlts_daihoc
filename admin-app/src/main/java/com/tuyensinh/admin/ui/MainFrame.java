@@ -268,6 +268,7 @@ public class MainFrame extends JFrame {
         sidebar.add(Box.createVerticalStrut(12));
         sidebar.add(navItems.get("nguyenvong"));
         sidebar.add(navItems.get("xettuyen"));
+        sidebar.add(navItems.get("thongke_tuyensinh"));
         sidebar.add(Box.createVerticalStrut(8));
         sidebar.add(navLabelSys);
         sidebar.add(Box.createVerticalStrut(4));
