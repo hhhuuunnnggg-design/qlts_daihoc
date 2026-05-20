@@ -144,11 +144,11 @@ public class DiemThiService implements IDiemThiService {
      * - THPT/NK: diem goc da la thang 10 -> giu nguyen.
      * - VSAT: quy doi tung mon ve thang 10 theo xt_bangquydoi.
      * - DGNL: diem goc la tong diem DGNL, bang quy doi trong DB dang la thang 30,
-     *   nen khi hien thi o chi tiet diem thi thi chia 3 de dua ve thang 10.
+     *   nen hien thi diem_quydoi/diem_sudung theo thang 30 de dung voi DTHGXT_DGNL.
      *
      * Luu y:
      * - DGNL khi xet tuyen van lay diem_goc de tinh theo nguyen vong/to hop.
-     * - diem_quydoi/diem_sudung trong Panel Diem thi chi la diem hien thi ve thang 10.
+     * - diem_quydoi/diem_sudung cua THPT/NK/VSAT hien thi thang 10; rieng DGNL hien thi thang 30.
      */
     private BigDecimal tinhDiemQuyDoiKhiImport(BigDecimal diemGoc, PhuongThuc phuongThuc, Mon mon) {
         if (diemGoc == null) return null;
@@ -185,7 +185,7 @@ public class DiemThiService implements IDiemThiService {
             return capThang10(diemQd);
         }
 
-        // DGNL: bang quy doi la thang 30, hien thi chi tiet thi dua ve thang 10
+        // DGNL: bang quy doi la thang 30, hien thi dung thang 30.
         if (PhuongThuc.DGNL.equalsIgnoreCase(maPt)) {
             BangQuyDoi bqd = bangQuyDoiDao.quyDoiDiemBatKyToHop(
                     phuongThuc.getPhuongthucId(),
@@ -198,8 +198,7 @@ public class DiemThiService implements IDiemThiService {
             }
 
             BigDecimal diemQdThang30 = noiSuyDiemQuyDoi(diemGoc, bqd);
-            BigDecimal diemQdThang10 = diemQdThang30.divide(new BigDecimal("3"), 6, RoundingMode.HALF_UP);
-            return capThang10(diemQdThang10);
+            return capThang30(diemQdThang30);
         }
 
         return capThang10(diemGoc);
@@ -252,6 +251,19 @@ public class DiemThiService implements IDiemThiService {
 
         BigDecimal min = BigDecimal.ZERO;
         BigDecimal max = new BigDecimal("10");
+
+        BigDecimal result = value.setScale(2, RoundingMode.HALF_UP);
+        if (result.compareTo(min) < 0) return min.setScale(2, RoundingMode.HALF_UP);
+        if (result.compareTo(max) > 0) return max.setScale(2, RoundingMode.HALF_UP);
+
+        return result;
+    }
+
+    private BigDecimal capThang30(BigDecimal value) {
+        if (value == null) return null;
+
+        BigDecimal min = BigDecimal.ZERO;
+        BigDecimal max = new BigDecimal("30");
 
         BigDecimal result = value.setScale(2, RoundingMode.HALF_UP);
         if (result.compareTo(min) < 0) return min.setScale(2, RoundingMode.HALF_UP);
