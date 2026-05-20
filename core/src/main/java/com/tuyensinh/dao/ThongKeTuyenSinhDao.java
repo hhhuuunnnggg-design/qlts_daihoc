@@ -1,6 +1,7 @@
 package com.tuyensinh.dao;
 
 import com.tuyensinh.entity.NguyenVong;
+import com.tuyensinh.service.ThongKeTuyenSinhService;
 import com.tuyensinh.util.HibernateUtil;
 
 import javax.persistence.EntityManager;
@@ -80,22 +81,21 @@ public class ThongKeTuyenSinhDao {
     public List<Object[]> thongKeTheoPhuongThuc() {
         EntityManager em = HibernateUtil.getSessionFactory().createEntityManager();
         try {
-            return em.createQuery(
-                            "select " +
-                                    "pt.maPhuongthuc, " +
-                                    "pt.tenPhuongthuc, " +
-                                    "count(nv), " +
-                                    "sum(case when nv.ketQua = :trungTuyen then 1 else 0 end), " +
-                                    "sum(case when nv.ketQua = :truot then 1 else 0 end), " +
-                                    "avg(nv.diemXettuyen) " +
-                                    "from NguyenVong nv " +
-                                    "join nv.phuongThuc pt " +
-                                    "group by pt.phuongthucId, pt.maPhuongthuc, pt.tenPhuongthuc " +
-                                    "order by pt.phuongthucId",
-                            Object[].class
-                    ).setParameter("trungTuyen", NguyenVong.KetQua.TRUNG_TUYEN)
-                    .setParameter("truot", NguyenVong.KetQua.TRUOT)
-                    .getResultList();
+            return em.createNativeQuery(
+                    "SELECT " +
+                            "pt.ma_phuongthuc, " +
+                            "pt.ten_phuongthuc, " +
+                            "COUNT(nv.nguyenvong_id) AS tong_nguyen_vong, " +
+                            "SUM(CASE WHEN nv.ket_qua = 'TRUNG_TUYEN' THEN 1 ELSE 0 END) AS so_trung_tuyen, " +
+                            "SUM(CASE WHEN nv.ket_qua = 'TRUOT' THEN 1 ELSE 0 END) AS so_truot, " +
+                            "AVG(nv.diem_xettuyen) AS diem_xt_trung_binh " +
+                            "FROM xt_phuongthuc pt " +
+                            "LEFT JOIN xt_nguyenvong nv " +
+                            "ON nv.phuongthuc_id = pt.phuongthuc_id " +
+                            "WHERE pt.ma_phuongthuc IN ('THPT', 'DGNL', 'VSAT') " +
+                            "GROUP BY pt.phuongthuc_id, pt.ma_phuongthuc, pt.ten_phuongthuc " +
+                            "ORDER BY FIELD(pt.ma_phuongthuc, 'THPT', 'DGNL', 'VSAT')"
+            ).getResultList();
         } finally {
             em.close();
         }
@@ -115,6 +115,125 @@ public class ThongKeTuyenSinhDao {
                                     "order by count(nv) desc, n.maNganh",
                             Object[].class
                     ).setMaxResults(limit)
+                    .getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+    public java.util.List<ThongKeTuyenSinhService.ThongKeThiSinhGroupDto> thongKeThiSinhTheoDoiTuong() {
+        EntityManager em = HibernateUtil.getSessionFactory().createEntityManager();
+        try {
+            java.util.List<Object[]> rows = em.createNativeQuery(
+                    "SELECT " +
+                            "COALESCE(dt.ma_doituong, 'KHONG_CO') AS ma, " +
+                            "COALESCE(dt.ten_doituong, 'Không có đối tượng ưu tiên') AS ten, " +
+                            "COUNT(ts.thisinh_id) AS so_luong " +
+                            "FROM xt_thisinh ts " +
+                            "LEFT JOIN xt_doituong_uutien dt ON dt.doituong_id = ts.doituong_id " +
+                            "GROUP BY dt.ma_doituong, dt.ten_doituong " +
+                            "ORDER BY so_luong DESC, ma ASC"
+            ).getResultList();
+
+            java.util.List<ThongKeTuyenSinhService.ThongKeThiSinhGroupDto> result =
+                    new java.util.ArrayList<>();
+
+            for (Object[] row : rows) {
+                result.add(new ThongKeTuyenSinhService.ThongKeThiSinhGroupDto(
+                        row[0] != null ? row[0].toString() : "",
+                        row[1] != null ? row[1].toString() : "",
+                        row[2] != null ? (Number) row[2] : 0
+                ));
+            }
+
+            return result;
+        } finally {
+            em.close();
+        }
+    }
+
+    public java.util.List<ThongKeTuyenSinhService.ThongKeThiSinhGroupDto> thongKeThiSinhTheoKhuVuc() {
+        EntityManager em = HibernateUtil.getSessionFactory().createEntityManager();
+        try {
+            java.util.List<Object[]> rows = em.createNativeQuery(
+                    "SELECT " +
+                            "COALESCE(kv.ma_khuvuc, 'KHONG_CO') AS ma, " +
+                            "COALESCE(kv.ten_khuvuc, 'Không có khu vực ưu tiên') AS ten, " +
+                            "COUNT(ts.thisinh_id) AS so_luong " +
+                            "FROM xt_thisinh ts " +
+                            "LEFT JOIN xt_khuvuc_uutien kv ON kv.khuvuc_id = ts.khuvuc_id " +
+                            "GROUP BY kv.ma_khuvuc, kv.ten_khuvuc " +
+                            "ORDER BY so_luong DESC, ma ASC"
+            ).getResultList();
+
+            java.util.List<ThongKeTuyenSinhService.ThongKeThiSinhGroupDto> result =
+                    new java.util.ArrayList<>();
+
+            for (Object[] row : rows) {
+                result.add(new ThongKeTuyenSinhService.ThongKeThiSinhGroupDto(
+                        row[0] != null ? row[0].toString() : "",
+                        row[1] != null ? row[1].toString() : "",
+                        row[2] != null ? (Number) row[2] : 0
+                ));
+            }
+
+            return result;
+        } finally {
+            em.close();
+        }
+    }
+
+    public Object[] findThiSinhDetail(String key) {
+        EntityManager em = HibernateUtil.getSessionFactory().createEntityManager();
+        try {
+            java.util.List<Object[]> rows = em.createNativeQuery(
+                            "SELECT " +
+                                    "ts.thisinh_id, " +
+                                    "ts.cccd, " +
+                                    "ts.sobaodanh, " +
+                                    "CONCAT(ts.ho, ' ', ts.ten) AS ho_ten, " +
+                                    "ts.ngay_sinh, " +
+                                    "ts.gioi_tinh, " +
+                                    "COALESCE(dt.ma_doituong, '') AS doi_tuong, " +
+                                    "COALESCE(kv.ma_khuvuc, '') AS khu_vuc " +
+                                    "FROM xt_thisinh ts " +
+                                    "LEFT JOIN xt_doituong_uutien dt ON dt.doituong_id = ts.doituong_id " +
+                                    "LEFT JOIN xt_khuvuc_uutien kv ON kv.khuvuc_id = ts.khuvuc_id " +
+                                    "WHERE ts.cccd = :key OR ts.sobaodanh = :key " +
+                                    "LIMIT 1"
+                    )
+                    .setParameter("key", key)
+                    .getResultList();
+
+            return rows.isEmpty() ? null : rows.get(0);
+        } finally {
+            em.close();
+        }
+    }
+
+    public java.util.List<Object[]> findDiemThiSinh(String key) {
+        EntityManager em = HibernateUtil.getSessionFactory().createEntityManager();
+        try {
+            return em.createNativeQuery(
+                            "SELECT " +
+                                    "pt.ma_phuongthuc AS phuong_thuc, " +
+                                    "dt.nam_tuyensinh, " +
+                                    "dt.sobaodanh, " +
+                                    "m.ma_mon, " +
+                                    "m.ten_mon, " +
+                                    "ct.diem_goc, " +
+                                    "ct.diem_quydoi, " +
+                                    "ct.diem_sudung " +
+                                    "FROM xt_thisinh ts " +
+                                    "JOIN xt_diemthi dt ON dt.thisinh_id = ts.thisinh_id " +
+                                    "JOIN xt_phuongthuc pt ON pt.phuongthuc_id = dt.phuongthuc_id " +
+                                    "LEFT JOIN xt_diemthi_chitiet ct ON ct.diemthi_id = dt.diemthi_id " +
+                                    "LEFT JOIN xt_mon m ON m.mon_id = ct.mon_id " +
+                                    "WHERE (ts.cccd = :key OR ts.sobaodanh = :key) " +
+                                    "AND pt.ma_phuongthuc IN ('THPT', 'DGNL', 'VSAT') " +
+                                    "ORDER BY FIELD(pt.ma_phuongthuc, 'THPT', 'DGNL', 'VSAT'), m.ma_mon"
+                    )
+                    .setParameter("key", key)
                     .getResultList();
         } finally {
             em.close();

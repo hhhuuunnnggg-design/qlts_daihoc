@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class ThongKeTuyenSinhService {
 
     private final ThongKeTuyenSinhDao dao = new ThongKeTuyenSinhDao();
@@ -16,6 +17,8 @@ public class ThongKeTuyenSinhService {
         data.theoNganh = getThongKeTheoNganh();
         data.theoPhuongThuc = getThongKeTheoPhuongThuc();
         data.topNganh = getTopNganhNhieuNguyenVong(10);
+        data.thiSinhTheoDoiTuong = dao.thongKeThiSinhTheoDoiTuong();
+        data.thiSinhTheoKhuVuc = dao.thongKeThiSinhTheoKhuVuc();
         return data;
     }
 
@@ -108,6 +111,8 @@ public class ThongKeTuyenSinhService {
         public List<TheoNganhDto> theoNganh;
         public List<TheoPhuongThucDto> theoPhuongThuc;
         public List<TopNganhDto> topNganh;
+        public java.util.List<ThongKeThiSinhGroupDto> thiSinhTheoDoiTuong;
+        public java.util.List<ThongKeThiSinhGroupDto> thiSinhTheoKhuVuc;
     }
 
     public static class TongQuanDto {
@@ -142,5 +147,77 @@ public class ThongKeTuyenSinhService {
         public String maNganh;
         public String tenNganh;
         public long tongNguyenVong;
+    }
+
+    public static class ThongKeThiSinhGroupDto {
+        public String ma;
+        public String ten;
+        public Long soLuong;
+
+        public ThongKeThiSinhGroupDto(String ma, String ten, Number soLuong) {
+            this.ma = ma;
+            this.ten = ten;
+            this.soLuong = soLuong != null ? soLuong.longValue() : 0L;
+        }
+    }
+
+    public static class ThiSinhDetailDto {
+        public Integer thisinhId;
+        public String cccd;
+        public String sobaodanh;
+        public String hoTen;
+        public String ngaySinh;
+        public String gioiTinh;
+        public String doiTuong;
+        public String khuVuc;
+
+        public ThiSinhDetailDto(Object[] row) {
+            this.thisinhId = row[0] != null ? ((Number) row[0]).intValue() : null;
+            this.cccd = row[1] != null ? row[1].toString() : "";
+            this.sobaodanh = row[2] != null ? row[2].toString() : "";
+            this.hoTen = row[3] != null ? row[3].toString() : "";
+            this.ngaySinh = row[4] != null ? row[4].toString() : "";
+            this.gioiTinh = row[5] != null ? row[5].toString() : "";
+            this.doiTuong = row[6] != null ? row[6].toString() : "";
+            this.khuVuc = row[7] != null ? row[7].toString() : "";
+        }
+    }
+
+    public static class DiemThiSinhDto {
+        public String phuongThuc;
+        public Integer namTuyenSinh;
+        public String sobaodanh;
+        public String maMon;
+        public String tenMon;
+        public BigDecimal diemGoc;
+        public BigDecimal diemQuyDoi;
+        public BigDecimal diemSuDung;
+
+        public DiemThiSinhDto(Object[] row) {
+            this.phuongThuc = row[0] != null ? row[0].toString() : "";
+            this.namTuyenSinh = row[1] != null ? ((Number) row[1]).intValue() : null;
+            this.sobaodanh = row[2] != null ? row[2].toString() : "";
+            this.maMon = row[3] != null ? row[3].toString() : "";
+            this.tenMon = row[4] != null ? row[4].toString() : "";
+            this.diemGoc = row[5] instanceof BigDecimal ? (BigDecimal) row[5] : null;
+            this.diemQuyDoi = row[6] instanceof BigDecimal ? (BigDecimal) row[6] : null;
+            this.diemSuDung = row[7] instanceof BigDecimal ? (BigDecimal) row[7] : null;
+        }
+    }
+
+    public ThiSinhDetailDto findThiSinhDetail(String key) {
+        Object[] row = dao.findThiSinhDetail(key);
+        return row == null ? null : new ThiSinhDetailDto(row);
+    }
+
+    public java.util.List<DiemThiSinhDto> findDiemThiSinh(String key) {
+        java.util.List<Object[]> rows = dao.findDiemThiSinh(key);
+        java.util.List<DiemThiSinhDto> result = new java.util.ArrayList<>();
+
+        for (Object[] row : rows) {
+            result.add(new DiemThiSinhDto(row));
+        }
+
+        return result;
     }
 }

@@ -10,10 +10,13 @@ import com.tuyensinh.service.ThongKeTuyenSinhService;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
-import java.awt.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.JTableHeader;
+import javax.swing.table.TableColumnModel;
+import java.awt.*;
 
 public class ThongKeTuyenSinhPanel extends BasePanel {
 
@@ -29,6 +32,18 @@ public class ThongKeTuyenSinhPanel extends BasePanel {
 
     private JTable tblTopNganh;
     private DefaultTableModel modelTopNganh;
+
+    private JTable tblTheoDoiTuong;
+    private DefaultTableModel modelTheoDoiTuong;
+
+    private JTable tblTheoKhuVuc;
+    private DefaultTableModel modelTheoKhuVuc;
+
+    private JTable tblDiemThiSinh;
+    private DefaultTableModel modelDiemThiSinh;
+
+    private JTextField txtThiSinhKey;
+    private JLabel lblThiSinhInfo;
 
     private JButton btnRefresh;
 
@@ -94,6 +109,7 @@ public class ThongKeTuyenSinhPanel extends BasePanel {
         tabs.addTab("Theo ngành", buildTheoNganhPanel());
         tabs.addTab("Theo phương thức", buildTheoPhuongThucPanel());
         tabs.addTab("Top ngành nhiều nguyện vọng", buildTopNganhPanel());
+        tabs.addTab("Thí sinh", buildThiSinhPanel());
 
         content.add(cardsPanel, BorderLayout.NORTH);
         content.add(tabs, BorderLayout.CENTER);
@@ -114,6 +130,7 @@ public class ThongKeTuyenSinhPanel extends BasePanel {
 
         tblTheoNganh = TableFactory.create(modelTheoNganh);
         tblTheoNganh.setAutoCreateRowSorter(true);
+        centerTable(tblTheoNganh);
 
         tblTheoNganh.getColumnModel().getColumn(0).setPreferredWidth(90);
         tblTheoNganh.getColumnModel().getColumn(1).setPreferredWidth(260);
@@ -138,6 +155,7 @@ public class ThongKeTuyenSinhPanel extends BasePanel {
 
         tblTheoPhuongThuc = TableFactory.create(modelTheoPhuongThuc);
         tblTheoPhuongThuc.setAutoCreateRowSorter(true);
+        centerTable(tblTheoPhuongThuc);
 
         tblTheoPhuongThuc.getColumnModel().getColumn(0).setPreferredWidth(80);
         tblTheoPhuongThuc.getColumnModel().getColumn(1).setPreferredWidth(280);
@@ -159,6 +177,7 @@ public class ThongKeTuyenSinhPanel extends BasePanel {
 
         tblTopNganh = TableFactory.create(modelTopNganh);
         tblTopNganh.setAutoCreateRowSorter(true);
+        centerTable(tblTopNganh);
 
         tblTopNganh.getColumnModel().getColumn(0).setPreferredWidth(60);
         tblTopNganh.getColumnModel().getColumn(1).setPreferredWidth(90);
@@ -166,6 +185,126 @@ public class ThongKeTuyenSinhPanel extends BasePanel {
         tblTopNganh.getColumnModel().getColumn(3).setPreferredWidth(130);
 
         return TableFactory.wrap(tblTopNganh);
+    }
+    private JPanel buildThiSinhPanel() {
+        JPanel panel = new JPanel(new BorderLayout(10, 10));
+        panel.setOpaque(false);
+        panel.setBorder(new EmptyBorder(8, 0, 0, 0));
+
+        JSplitPane splitPane = new JSplitPane(
+                JSplitPane.VERTICAL_SPLIT,
+                buildThiSinhThongKePanel(),
+                buildThiSinhChiTietPanel()
+        );
+        splitPane.setResizeWeight(0.42);
+        splitPane.setBorder(null);
+
+        panel.add(splitPane, BorderLayout.CENTER);
+        return panel;
+    }
+
+    private JPanel buildThiSinhThongKePanel() {
+        JPanel panel = new JPanel(new GridLayout(1, 2, 10, 10));
+        panel.setOpaque(false);
+
+        modelTheoDoiTuong = TableFactory.newReadOnlyModel(
+                "Mã ĐT",
+                "Đối tượng ưu tiên",
+                "Số lượng"
+        );
+
+        tblTheoDoiTuong = TableFactory.create(modelTheoDoiTuong);
+        tblTheoDoiTuong.setAutoCreateRowSorter(true);
+        centerTable(tblTheoDoiTuong);
+
+        tblTheoDoiTuong.getColumnModel().getColumn(0).setPreferredWidth(70);
+        tblTheoDoiTuong.getColumnModel().getColumn(1).setPreferredWidth(260);
+        tblTheoDoiTuong.getColumnModel().getColumn(2).setPreferredWidth(90);
+
+        modelTheoKhuVuc = TableFactory.newReadOnlyModel(
+                "Mã KV",
+                "Khu vực ưu tiên",
+                "Số lượng"
+        );
+
+        tblTheoKhuVuc = TableFactory.create(modelTheoKhuVuc);
+        tblTheoKhuVuc.setAutoCreateRowSorter(true);
+        centerTable(tblTheoKhuVuc);
+
+        tblTheoKhuVuc.getColumnModel().getColumn(0).setPreferredWidth(70);
+        tblTheoKhuVuc.getColumnModel().getColumn(1).setPreferredWidth(260);
+        tblTheoKhuVuc.getColumnModel().getColumn(2).setPreferredWidth(90);
+
+        JScrollPane spDoiTuong = TableFactory.wrap(tblTheoDoiTuong);
+        spDoiTuong.setBorder(BorderFactory.createTitledBorder("Thống kê thí sinh theo đối tượng ưu tiên"));
+
+        JScrollPane spKhuVuc = TableFactory.wrap(tblTheoKhuVuc);
+        spKhuVuc.setBorder(BorderFactory.createTitledBorder("Thống kê thí sinh theo khu vực ưu tiên"));
+
+        panel.add(spDoiTuong);
+        panel.add(spKhuVuc);
+
+        return panel;
+    }
+
+    private JPanel buildThiSinhChiTietPanel() {
+        JPanel panel = new JPanel(new BorderLayout(8, 8));
+        panel.setOpaque(false);
+
+        JPanel searchPanel = new JPanel(new BorderLayout(8, 8));
+        searchPanel.setOpaque(false);
+
+        JPanel leftSearch = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
+        leftSearch.setOpaque(false);
+
+        leftSearch.add(new JLabel("Nhập CCCD / SBD:"));
+
+        txtThiSinhKey = new JTextField(22);
+        txtThiSinhKey.addActionListener(e -> searchThiSinhDetail());
+        leftSearch.add(txtThiSinhKey);
+
+        JButton btnSearch = new JButton("Xem chi tiết");
+        btnSearch.addActionListener(e -> searchThiSinhDetail());
+        leftSearch.add(btnSearch);
+
+        lblThiSinhInfo = new JLabel("Chưa chọn thí sinh");
+        lblThiSinhInfo.setFont(UIConstants.FONT_SMALL);
+        lblThiSinhInfo.setForeground(UIConstants.TEXT_SECONDARY);
+
+        searchPanel.add(leftSearch, BorderLayout.WEST);
+        searchPanel.add(lblThiSinhInfo, BorderLayout.CENTER);
+
+        modelDiemThiSinh = TableFactory.newReadOnlyModel(
+                "Phương thức",
+                "Năm TS",
+                "SBD",
+                "Mã môn",
+                "Tên môn",
+                "Điểm gốc",
+                "Điểm quy đổi",
+                "Điểm sử dụng"
+        );
+
+        tblDiemThiSinh = TableFactory.create(modelDiemThiSinh);
+        tblDiemThiSinh.setAutoCreateRowSorter(true);
+        centerTable(tblDiemThiSinh);
+
+        tblDiemThiSinh.getColumnModel().getColumn(0).setPreferredWidth(120);
+        tblDiemThiSinh.getColumnModel().getColumn(1).setPreferredWidth(70);
+        tblDiemThiSinh.getColumnModel().getColumn(2).setPreferredWidth(90);
+        tblDiemThiSinh.getColumnModel().getColumn(3).setPreferredWidth(70);
+        tblDiemThiSinh.getColumnModel().getColumn(4).setPreferredWidth(160);
+        tblDiemThiSinh.getColumnModel().getColumn(5).setPreferredWidth(90);
+        tblDiemThiSinh.getColumnModel().getColumn(6).setPreferredWidth(100);
+        tblDiemThiSinh.getColumnModel().getColumn(7).setPreferredWidth(100);
+
+        JScrollPane spDiem = TableFactory.wrap(tblDiemThiSinh);
+        spDiem.setBorder(BorderFactory.createTitledBorder("Chi tiết điểm thí sinh: THPT, DGNL, VSAT"));
+
+        panel.add(searchPanel, BorderLayout.NORTH);
+        panel.add(spDiem, BorderLayout.CENTER);
+
+        return panel;
     }
 
     @Override
@@ -206,6 +345,7 @@ public class ThongKeTuyenSinhPanel extends BasePanel {
         renderTheoNganh(data);
         renderTheoPhuongThuc(data);
         renderTopNganh(data);
+        renderThongKeThiSinh(data);
     }
 
     private void renderCards(ThongKeTuyenSinhService.TongQuanDto dto) {
@@ -287,6 +427,110 @@ public class ThongKeTuyenSinhPanel extends BasePanel {
                     formatNumber(row.tongNguyenVong)
             });
         }
+    }
+
+    private void renderThongKeThiSinh(ThongKeTuyenSinhService.DashboardData data) {
+        if (modelTheoDoiTuong != null) {
+            modelTheoDoiTuong.setRowCount(0);
+
+            if (data.thiSinhTheoDoiTuong != null) {
+                for (ThongKeTuyenSinhService.ThongKeThiSinhGroupDto row : data.thiSinhTheoDoiTuong) {
+                    modelTheoDoiTuong.addRow(new Object[]{
+                            row.ma,
+                            row.ten,
+                            formatNumber(row.soLuong)
+                    });
+                }
+            }
+        }
+
+        if (modelTheoKhuVuc != null) {
+            modelTheoKhuVuc.setRowCount(0);
+
+            if (data.thiSinhTheoKhuVuc != null) {
+                for (ThongKeTuyenSinhService.ThongKeThiSinhGroupDto row : data.thiSinhTheoKhuVuc) {
+                    modelTheoKhuVuc.addRow(new Object[]{
+                            row.ma,
+                            row.ten,
+                            formatNumber(row.soLuong)
+                    });
+                }
+            }
+        }
+    }
+
+    private void searchThiSinhDetail() {
+        String key = txtThiSinhKey != null ? txtThiSinhKey.getText().trim() : "";
+        if (key.isEmpty()) {
+            showError(this, "Vui lòng nhập CCCD hoặc số báo danh thí sinh.");
+            return;
+        }
+
+        try {
+            setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
+            ThongKeTuyenSinhService.ThiSinhDetailDto info = service.findThiSinhDetail(key);
+            modelDiemThiSinh.setRowCount(0);
+
+            if (info == null) {
+                lblThiSinhInfo.setText("Không tìm thấy thí sinh theo CCCD/SBD: " + key);
+                return;
+            }
+
+            lblThiSinhInfo.setText(
+                    "Thí sinh: " + info.hoTen
+                            + " | CCCD: " + info.cccd
+                            + " | SBD: " + info.sobaodanh
+                            + " | ĐT: " + info.doiTuong
+                            + " | KV: " + info.khuVuc
+            );
+
+            java.util.List<ThongKeTuyenSinhService.DiemThiSinhDto> rows =
+                    service.findDiemThiSinh(key);
+
+            for (ThongKeTuyenSinhService.DiemThiSinhDto row : rows) {
+                modelDiemThiSinh.addRow(new Object[]{
+                        row.phuongThuc,
+                        row.namTuyenSinh,
+                        row.sobaodanh,
+                        row.maMon,
+                        row.tenMon,
+                        formatDiem(row.diemGoc),
+                        formatDiem(row.diemQuyDoi),
+                        formatDiem(row.diemSuDung)
+                });
+            }
+
+        } catch (Exception ex) {
+            showError(this, ex.getMessage());
+        } finally {
+            setCursor(Cursor.getDefaultCursor());
+        }
+    }
+
+    private void centerTable(JTable table) {
+        // Căn giữa dữ liệu trong ô
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+        centerRenderer.setVerticalAlignment(SwingConstants.CENTER);
+
+        TableColumnModel columnModel = table.getColumnModel();
+        for (int i = 0; i < columnModel.getColumnCount(); i++) {
+            columnModel.getColumn(i).setCellRenderer(centerRenderer);
+        }
+
+        // Căn giữa header
+        JTableHeader header = table.getTableHeader();
+        DefaultTableCellRenderer headerRenderer =
+                (DefaultTableCellRenderer) header.getDefaultRenderer();
+        headerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+
+        // Căn giữa nội dung nhiều dòng nếu có
+        table.setRowHeight(32);
+
+        // Nếu muốn chữ cũng ở giữa theo chiều dọc rõ hơn
+        table.setShowGrid(true);
+        table.setGridColor(new Color(220, 220, 220));
     }
 
     private String formatNumber(Number value) {
