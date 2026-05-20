@@ -74,7 +74,7 @@ TuyenSinhDaiHoc_2026/
 
 ## 3. Database Schema
 
-**Database**: `xettuyen2026` (MySQL 8.0)
+**Database**: `xettuyen2027` (MySQL 8.0)
 **Hibernate Mode**: `validate` (schema must exist beforehand)
 
 ### 3.1 Entity-Relationship Diagram (Conceptual)
@@ -137,7 +137,7 @@ VaiTro (1)──────< NguoiDung (1:Many) >───────(1:1)─�
 
 ```
 Driver      : com.mysql.cj.jdbc.Driver
-URL         : jdbc:mysql://localhost:3306/xettuyen2026
+URL         : jdbc:mysql://localhost:3306/xettuyen2027
 Credentials : root / root
 Dialect     : org.hibernate.dialect.MySQL8Dialect
 Mode        : validate  (does NOT auto-create schema)
