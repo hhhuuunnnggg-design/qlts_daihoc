@@ -85,12 +85,25 @@ public class TraCuuDiemServlet extends BaseServlet {
         boolean coBangQuyDoi = false;
 
         if (diemDgnl != null && diemDgnl.compareTo(ZERO) > 0) {
-            BangQuyDoi bqd = bangQuyDoiDao.quyDoiDiem(
+            // Ưu tiên 1: Dùng quy đổi theo đúng tổ hợp hiện tại (nếu có bảng riêng)
+            BangQuyDoi bqdTuyChon = bangQuyDoiDao.quyDoiDiem(
                     pt.getPhuongthucId(),
-                    null,       // DGNL: tohopId = null
-                    null,       // DGNL: monId = null
+                    toHop != null ? toHop.getTohopId() : null,
+                    null,
                     diemDgnl
             );
+
+            // Ưu tiên 2: Dùng quy đổi không phụ thuộc tổ hợp (giống admin)
+            // quyDoiDiemBatKyToHop KHÔNG filter theo toHop, nên luôn tìm được
+            // bảng DGNL đại diện A01/B00/C01/D01 trong DB
+            BangQuyDoi bqd = bqdTuyChon;
+            if (bqd == null) {
+                bqd = bangQuyDoiDao.quyDoiDiemBatKyToHop(
+                        pt.getPhuongthucId(),
+                        null,
+                        diemDgnl
+                );
+            }
 
             if (bqd != null) {
                 coBangQuyDoi = true;
