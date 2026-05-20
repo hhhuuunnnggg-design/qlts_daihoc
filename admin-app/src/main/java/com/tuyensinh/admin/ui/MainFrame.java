@@ -135,18 +135,18 @@ public class MainFrame extends JFrame {
         addNavItem("Chứng chỉ ngoại ngữ", "thisinh_chungchi", null);
         addNavItem("Thành tích ưu tiên", "thisinh_thanhtich", null);
         addNavSpacer(12);
-        addNavItem("Ngành", "nganh", null);
-        addNavItem("Tổ hợp", "tohop", null);
+        addNavItem("Ngành tuyển sinh (2)", "nganh", null);
+        addNavItem("Ngành Tổ hợp môn (3)", "tohop", null);
         addNavItem("Ngành - Tổ hợp", "nganhtohop", null);
         addNavItem("Ngành - Tổ hợp - Môn", "nganhtohopmon", null);
         addNavItem("Mã xét tuyển", "ma_xettuyen", null);
         addNavSpacer(12);
-        addNavItem("Điểm thi", "diemthi", null);
-        addNavItem("Điểm cộng", "diemcong", null);
+        addNavItem("Điểm xét tuyển (5 check)", "diemthi", null);
+        addNavItem("Điểm cộng (4)", "diemcong", null);
         addNavItem("Bảng quy đổi", "bangquydoi", null);
         addNavSpacer(12);
         addNavItem("Nguyện vọng", "nguyenvong", null);
-        addNavItem("Xét tuyển", "xettuyen", null);
+        addNavItem("Xét tuyển (6 check)", "xettuyen", null);
         addNavItem("Thống kê tuyển sinh", "thongke_tuyensinh", null);
 
         // ---- Sidebar bottom: user info + logout ----

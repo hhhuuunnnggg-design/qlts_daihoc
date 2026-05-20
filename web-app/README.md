@@ -115,3 +115,7 @@ TS_0013
 chạy web   
 cd web-app
 mvn jetty:run
+
+pkill -9 -f "jetty:run"
+
+df -h
