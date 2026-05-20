@@ -184,12 +184,20 @@
                     <div class="modal-body">
                         <div class="mb-3">
                             <label for="phuongthucId" class="form-label">Phương thức xét tuyển <span class="text-danger">*</span></label>
-                            <select class="form-select" id="phuongthucId" name="phuongthucId" required>
+                            <select class="form-select" id="phuongthucId" name="phuongthucId" required onchange="onPhuongThucChange()">
                                 <option value="">-- Chọn phương thức --</option>
                                 <c:forEach var="pt" items="${danhSachPhuongThuc}">
-                                    <option value="${pt.phuongthucId}">${pt.maPhuongthuc} - ${pt.tenPhuongthuc}</option>
+                                    <option value="${pt.phuongthucId}"
+                                            data-thangdiem="${pt.thangDiem}"
+                                            data-mathang="${pt.maPhuongthuc}">
+                                        ${pt.maPhuongthuc} - ${pt.tenPhuongthuc}
+                                    </option>
                                 </c:forEach>
                             </select>
+                            <div id="thangDiemInfo" class="form-text text-primary" style="display:none;">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Thang điểm: <strong id="thangDiemValue"></strong>
+                            </div>
                         </div>
                         <div class="mb-3">
                             <label for="namTuyensinh" class="form-label">Năm tuyển sinh</label>
@@ -202,13 +210,20 @@
                         </div>
                         <hr>
                         <h6 class="mb-3"><i class="bi bi-pencil me-2"></i>Nhập điểm theo môn</h6>
+                        <div id="thangDiemWarning" class="alert alert-warning" style="display:none;">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            <span id="thangDiemWarningText"></span>
+                        </div>
                         <div class="row" id="scoreInputs">
                             <c:forEach var="mon" items="${danhSachMon}">
                                 <div class="col-md-6 mb-3">
                                     <label for="diem_${mon.monId}" class="form-label">${mon.tenMon} (${mon.maMon})</label>
-                                    <input type="number" step="0.01" min="0" max="10" 
-                                           class="form-control" id="diem_${mon.monId}" 
-                                           name="diem_${mon.monId}" placeholder="Nhập điểm">
+                                    <input type="number" step="0.01" min="0" max="10"
+                                           class="form-control diem-input"
+                                           id="diem_${mon.monId}"
+                                           name="diem_${mon.monId}" placeholder="0.00"
+                                           data-monid="${mon.monId}">
+                                    <div class="form-text">Giá trị: 0 – <span class="diem-max-label">10</span></div>
                                 </div>
                             </c:forEach>
                         </div>
@@ -247,6 +262,71 @@
     <jsp:include page="footer.jsp"/>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Lay thang diem tu selected option
+        function getThangDiem(phuongThucSelect) {
+            const selected = phuongThucSelect.options[phuongThucSelect.selectedIndex];
+            if (!selected || !selected.value) return null;
+            return parseFloat(selected.dataset.thangdiem) || null;
+        }
+
+        // Tra ve thang diem toi da cho tung mon, theo phuong thuc
+        function getMonMax(thangDiem) {
+            if (thangDiem == null) return 10;
+            // THPT / VSAT: thang 10 hoac 150 -> tinh theo tong / 3 mon
+            // DGNL: thang 1200 -> thang 10 cho tung mon
+            if (thangDiem >= 1000) return 10;    // DGNL thang 1200 -> nhap theo thang 10
+            if (thangDiem >= 100) return 50;     // VSAT thang 150 -> nhap theo thang 50
+            return thangDiem;                    // THPT thang 30 -> nhap theo thang 30
+        }
+
+        function onPhuongThucChange() {
+            const phuongThucSelect = document.getElementById('phuongthucId');
+            const thangDiem = getThangDiem(phuongThucSelect);
+            const thangDiemInfo = document.getElementById('thangDiemInfo');
+            const thangDiemValue = document.getElementById('thangDiemValue');
+            const thangDiemWarning = document.getElementById('thangDiemWarning');
+            const thangDiemWarningText = document.getElementById('thangDiemWarningText');
+            const monInputs = document.querySelectorAll('.diem-input');
+
+            if (!phuongThucSelect.value) {
+                thangDiemInfo.style.display = 'none';
+                thangDiemWarning.style.display = 'none';
+                monInputs.forEach(function(input) {
+                    input.max = 10;
+                    input.closest('.col-md-6').querySelector('.diem-max-label').textContent = '10';
+                });
+                return;
+            }
+
+            const selected = phuongThucSelect.options[phuongThucSelect.selectedIndex];
+            const maThang = selected.dataset.mathang || '';
+            const monMax = getMonMax(thangDiem);
+
+            // Hien thi thong tin thang diem
+            thangDiemInfo.style.display = 'block';
+            thangDiemValue.textContent = thangDiem;
+
+            // Hien thi canh bao tuy thuoc phuong thuc
+            let warningText = '';
+            if (maThang.includes('DGNL') || maThang.includes('PT2')) {
+                warningText = 'Điểm ĐGNL nhập theo <strong>thang điểm 1200</strong>. Hệ thống sẽ tự động quy đổi về thang điểm 30 khi xét tuyển.';
+            } else if (maThang.includes('VSAT') || maThang.includes('PT3')) {
+                warningText = 'Điểm VSAT nhập theo <strong>thang điểm 150</strong> (tổng 3 môn). Hệ thống sẽ tự động quy đổi khi xét tuyển.';
+            } else if (maThang.includes('THPT')) {
+                warningText = 'Điểm THPT nhập theo <strong>thang điểm 10</strong> (theo từng môn thi).';
+            } else {
+                warningText = 'Thang điểm: <strong>' + thangDiem + '</strong>.';
+            }
+            thangDiemWarningText.innerHTML = warningText;
+            thangDiemWarning.style.display = 'block';
+
+            // Cap nhat max cho tat ca input diem
+            monInputs.forEach(function(input) {
+                input.max = monMax;
+                input.closest('.col-md-6').querySelector('.diem-max-label').textContent = monMax;
+            });
+        }
+
         const scoreDetails = {};
         <c:forEach var="dt" items="${danhSachDiemThi}">
             scoreDetails[${dt.diemthiId}] = {

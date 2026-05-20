@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 public class ScoresServlet extends BaseServlet {
 
@@ -37,8 +38,9 @@ public class ScoresServlet extends BaseServlet {
             }
 
             return viewResolver.view("scores")
+                .addObject("currentPage", "scores")
                 .addObject("thiSinh", thiSinh)
-                .addObject("danhSachDiemThi", xetTuyenService.findDiemThiByThiSinh(thiSinh.getThisinhId()))
+                .addObject("danhSachDiemThi", xetTuyenService.findDiemThiByThiSinhWithDetails(thiSinh.getThisinhId()))
                 .addObject("danhSachPhuongThuc", xetTuyenService.findActivePhuongThuc())
                 .addObject("danhSachMon", monService.findAll());
 
@@ -67,11 +69,6 @@ public class ScoresServlet extends BaseServlet {
             List<com.tuyensinh.entity.Mon> danhSachMon = monService.findAll();
             DiemThiForm form = new DiemThiForm(request, danhSachMon);
 
-            if (form.validate().isPresent()) {
-                setMessage(request, form.validate().get(), "danger");
-                return viewResolver.redirect("/scores");
-            }
-
             PhuongThuc phuongThuc = danhSachPhuongThuc.stream()
                     .filter(pt -> pt.getPhuongthucId().toString().equals(form.getPhuongthucIdStr()))
                     .findFirst()
@@ -82,11 +79,17 @@ public class ScoresServlet extends BaseServlet {
                 return viewResolver.redirect("/scores");
             }
 
+            Optional<String> validationError = form.validateWithPhuongThuc(phuongThuc);
+            if (validationError.isPresent()) {
+                setMessage(request, validationError.get(), "danger");
+                return viewResolver.redirect("/scores");
+            }
+
             Short namTuyensinh = form.parseNamTuyensinh();
             DiemThi diemThi = form.bindToEntity(phuongThuc, namTuyensinh);
             diemThi.setThiSinh(thiSinh);
 
-            xetTuyenService.updateDiemThi(xetTuyenService.saveDiemThi(diemThi));
+            xetTuyenService.saveDiemThi(diemThi);
             setMessage(request, "Lưu điểm thi thành công!", "success");
             return viewResolver.redirect("/scores");
 

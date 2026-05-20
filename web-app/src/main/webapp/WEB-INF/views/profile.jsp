@@ -229,9 +229,9 @@
                                 <select class="form-select" id="khuvucId" name="khuvucId">
                                     <option value="">-- Chọn khu vực --</option>
                                     <c:forEach var="kv" items="${danhSachKhuVuc}">
-                                        <option value="${kv.khuvucId}" 
+                                        <option value="${kv.khuvucId}"
                                                 ${thiSinh.khuVucUutien != null && thiSinh.khuVucUutien.khuvucId == kv.khuvucId ? 'selected' : ''}>
-                                            ${kv.maKhuvuc} - ${kv.tenKhuvuc}
+                                            ${kv.maKhuVuc} - ${kv.tenKhuvuc}
                                         </option>
                                     </c:forEach>
                                 </select>

@@ -85,12 +85,25 @@ public class TraCuuDiemServlet extends BaseServlet {
         boolean coBangQuyDoi = false;
 
         if (diemDgnl != null && diemDgnl.compareTo(ZERO) > 0) {
-            BangQuyDoi bqd = bangQuyDoiDao.quyDoiDiem(
+            // Ưu tiên 1: Dùng quy đổi theo đúng tổ hợp hiện tại (nếu có bảng riêng)
+            BangQuyDoi bqdTuyChon = bangQuyDoiDao.quyDoiDiem(
                     pt.getPhuongthucId(),
-                    null,       // DGNL: tohopId = null
-                    null,       // DGNL: monId = null
+                    toHop != null ? toHop.getTohopId() : null,
+                    null,
                     diemDgnl
             );
+
+            // Ưu tiên 2: Dùng quy đổi không phụ thuộc tổ hợp (giống admin)
+            // quyDoiDiemBatKyToHop KHÔNG filter theo toHop, nên luôn tìm được
+            // bảng DGNL đại diện A01/B00/C01/D01 trong DB
+            BangQuyDoi bqd = bqdTuyChon;
+            if (bqd == null) {
+                bqd = bangQuyDoiDao.quyDoiDiemBatKyToHop(
+                        pt.getPhuongthucId(),
+                        null,
+                        diemDgnl
+                );
+            }
 
             if (bqd != null) {
                 coBangQuyDoi = true;
@@ -524,6 +537,15 @@ public class TraCuuDiemServlet extends BaseServlet {
                 || ten.contains("VANSAT") || ten.contains("VSAT");
     }
 
+    private boolean isThpt(PhuongThuc pt) {
+        if (pt == null) return false;
+        return !isDgnl(pt) && !isVsat(pt);
+    }
+
+    private boolean isAllowedPhuongThuc(PhuongThuc pt) {
+        return isDgnl(pt) || isVsat(pt) || isThpt(pt);
+    }
+
     private NganhToHop findNganhToHop(String id) {
         if (isBlank(id)) return null;
         return xetTuyenService.findAllNganhToHop().stream()
@@ -554,6 +576,14 @@ public class TraCuuDiemServlet extends BaseServlet {
 
     private List<NganhToHopDto> buildNganhToHopDtoList() {
         return xetTuyenService.findAllNganhToHop().stream()
+                .filter(nth -> {
+                    Nganh nganh = nth.getNganh();
+                    if (nganh == null) return false;
+                    List<NganhPhuongThuc> ptList = nganh.getDanhSachNganhPhuongThuc();
+                    if (ptList == null || ptList.isEmpty()) return false;
+                    return ptList.stream().anyMatch(npt ->
+                            npt.getPhuongThuc() != null && isAllowedPhuongThuc(npt.getPhuongThuc()));
+                })
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
@@ -590,9 +620,21 @@ public class TraCuuDiemServlet extends BaseServlet {
     }
 
     private ModelAndView pageWithData(List<NganhToHopDto> nthDtoList) {
+        List<PhuongThuc> allowedPtList = xetTuyenService.findActivePhuongThuc().stream()
+                .filter(this::isAllowedPhuongThuc)
+                .collect(Collectors.toList());
+
+        Set<Integer> allowedNganhIds = nthDtoList.stream()
+                .map(NganhToHopDto::getNganhId)
+                .collect(Collectors.toSet());
+
+        List<Nganh> allowedNganhList = xetTuyenService.findActiveNganh().stream()
+                .filter(n -> allowedNganhIds.contains(n.getNganhId()))
+                .collect(Collectors.toList());
+
         return viewResolver.view("tra-cuu-diem")
-                .addObject("danhSachPhuongThuc", xetTuyenService.findActivePhuongThuc())
-                .addObject("danhSachNganh", xetTuyenService.findActiveNganh())
+                .addObject("danhSachPhuongThuc", allowedPtList)
+                .addObject("danhSachNganh", allowedNganhList)
                 .addObject("danhSachNganhToHopDto", nthDtoList)
                 .addObject("danhSachDoiTuong", doiTuongService.findAll())
                 .addObject("danhSachKhuVuc", khuVucService.findAll())

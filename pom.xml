@@ -29,7 +29,7 @@
         <mysql.version>8.0.28</mysql.version>
         <junit.version>4.13.2</junit.version>
         <slf4j.version>1.7.29</slf4j.version>
-        <jetty.version>9.4.44.v20210927</jetty.version>
+        <jetty.version>9.4.56.v20240826</jetty.version>
     </properties>
 
     <dependencyManagement>

@@ -132,12 +132,15 @@
                                 <select class="form-select" id="phuongThucSelect" name="phuongThucId" required onchange="onPhuongThucChange()">
                                     <option value="">-- Chọn phương thức --</option>
                                     <c:forEach var="pt" items="${danhSachPhuongThuc}">
-                                        <option value="${pt.phuongthucId}"
-                                            data-is-dgnl="${pt.maPhuongthuc.contains('DGNL') || pt.maPhuongthuc.contains('PT2') || pt.tenPhuongthuc.contains('DANH GIA')}"
-                                            data-is-vsat="${pt.maPhuongthuc.contains('VSAT') || pt.maPhuongthuc.contains('PT3') || pt.tenPhuongthuc.contains('VSAT')}"
-                                            ${param.phuongThucId == pt.phuongthucId ? 'selected' : ''}>
-                                            ${pt.maPhuongthuc} - ${pt.tenPhuongthuc}
-                                        </option>
+                                        <c:if test="${pt.maPhuongthuc.contains('THPT') || pt.maPhuongthuc.contains('DGNL') || pt.maPhuongthuc.contains('VSAT') || pt.maPhuongthuc.contains('PT2') || pt.maPhuongthuc.contains('PT3')}">
+                                            <option value="${pt.phuongthucId}"
+                                                data-is-dgnl="${pt.maPhuongthuc.contains('DGNL') || pt.maPhuongthuc.contains('PT2') || pt.tenPhuongthuc.contains('DANH GIA')}"
+                                                data-is-vsat="${pt.maPhuongthuc.contains('VSAT') || pt.maPhuongthuc.contains('PT3') || pt.tenPhuongthuc.contains('VSAT')}"
+                                                data-is-thpt="${!(pt.maPhuongthuc.contains('DGNL') || pt.maPhuongthuc.contains('PT2') || pt.tenPhuongthuc.contains('DANH GIA') || pt.maPhuongthuc.contains('VSAT') || pt.maPhuongthuc.contains('PT3') || pt.tenPhuongthuc.contains('VSAT'))}"
+                                                ${param.phuongThucId == pt.phuongthucId ? 'selected' : ''}>
+                                                ${pt.maPhuongthuc} - ${pt.tenPhuongthuc}
+                                            </option>
+                                        </c:if>
                                     </c:forEach>
                                 </select>
                             </div>
