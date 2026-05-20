@@ -138,6 +138,7 @@ public class MainFrame extends JFrame {
         addNavItem("Ngành", "nganh", null);
         addNavItem("Tổ hợp", "tohop", null);
         addNavItem("Ngành - Tổ hợp", "nganhtohop", null);
+        addNavItem("Ngành - Tổ hợp - Môn", "nganhtohopmon", null);
         addNavItem("Mã xét tuyển", "ma_xettuyen", null);
         addNavSpacer(12);
         addNavItem("Điểm thi", "diemthi", null);
@@ -260,6 +261,7 @@ public class MainFrame extends JFrame {
         sidebar.add(navItems.get("nganh"));
         sidebar.add(navItems.get("tohop"));
         sidebar.add(navItems.get("nganhtohop"));
+        sidebar.add(navItems.get("nganhtohopmon"));
         sidebar.add(navItems.get("ma_xettuyen"));
         sidebar.add(Box.createVerticalStrut(12));
         sidebar.add(navItems.get("diemthi"));
@@ -382,6 +384,7 @@ public class MainFrame extends JFrame {
         JComponent xetTuyenPanel = new XetTuyenPanel(this);
         JComponent thongKeTuyenSinhPanel = new ThongKeTuyenSinhPanel(this);
         JComponent bangQuyDoiPanel = new BangQuyDoiPanel(this);
+        JComponent nganhToHopMonPanel = new NganhToHopMonPanel(this);
 
         contentPanel.add(homePanel, "home");
         contentPanel.add(nguoiDungPanel, "nguoidung");
@@ -402,6 +405,7 @@ public class MainFrame extends JFrame {
         contentPanel.add(xetTuyenPanel, "xettuyen");
         contentPanel.add(thongKeTuyenSinhPanel, "thongke_tuyensinh");
         contentPanel.add(bangQuyDoiPanel, "bangquydoi");
+        contentPanel.add(nganhToHopMonPanel, "nganhtohopmon");
 
         pagePanels.put("home", homePanel);
         pagePanels.put("nguoidung", nguoiDungPanel);
@@ -422,6 +426,7 @@ public class MainFrame extends JFrame {
         pagePanels.put("xettuyen", xetTuyenPanel);
         pagePanels.put("thongke_tuyensinh", thongKeTuyenSinhPanel);
         pagePanels.put("bangquydoi", bangQuyDoiPanel);
+        pagePanels.put("nganhtohopmon", nganhToHopMonPanel);
 
         // ===== WRAP content in a padding container =====
         JPanel contentWrapper = new JPanel(new BorderLayout());
@@ -644,6 +649,8 @@ public class MainFrame extends JFrame {
                 return "Thống kê tuyển sinh";
             case "bangquydoi":
                 return "Bảng quy đổi";
+            case "nganhtohopmon":
+                return "Ngành - Tổ hợp - Môn";
             default:
                 return name;
         }

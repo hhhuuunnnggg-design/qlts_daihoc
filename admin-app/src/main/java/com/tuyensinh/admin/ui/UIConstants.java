@@ -86,6 +86,7 @@ public final class UIConstants {
     public static final String PAGE_NGANH      = "Quan ly nganh";
     public static final String PAGE_TO_HOP     = "Quan ly to hop mon";
     public static final String PAGE_NGANH_TO_HOP = "Nganh - To hop";
+    public static final String PAGE_NGANH_TO_HOP_MON = "Nganh - To hop - Mon";
     public static final String PAGE_DIEM_THI   = "Quan ly diem thi";
     public static final String PAGE_DIEM_IMPORT = "Import diem";
     public static final String PAGE_DIEM_THONG_KE = "Thong ke diem";

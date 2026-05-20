@@ -177,11 +177,10 @@ public class TinhDiemService {
                 }
             }
 
-            BigDecimal doLech = nth.getDoLech();
-            if (doLech != null && doLech.compareTo(ZERO) > 0) {
-                kq.diemThxt = chuanHoaDiemToHop(kq.diemThxt.subtract(doLech));
-                notes.add("Tru do lech " + doLech.toPlainString());
-            }
+            /*
+             * DGNL da duoc quy doi truc tiep ve diem to hop goc xet tuyen thang 30.
+             * do_lech chi ap dung cho nhom diem tinh theo to hop mon nhu THPT/VSAT/NK.
+             */
 
             if (diemCongOpt != null && diemCongOpt.isPresent()) {
                 DiemCong dc = diemCongOpt.get();
