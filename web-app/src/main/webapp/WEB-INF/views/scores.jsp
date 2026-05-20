@@ -89,9 +89,9 @@
                     <h2 class="mb-1"><i class="bi bi-clipboard-check me-2"></i>Điểm thi</h2>
                     <p class="mb-0 opacity-75">Quản lý thông tin điểm thi tuyển sinh</p>
                 </div>
-                <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#addScoreModal">
-                    <i class="bi bi-plus-circle me-2"></i>Nhập điểm mới
-                </button>
+                <!-- <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#addScoreModal">
+                    <i class="bi bi-plus-circle me-2"></i>Nhập điểm mới123
+                </button> -->
             </div>
         </div>
     </div>
