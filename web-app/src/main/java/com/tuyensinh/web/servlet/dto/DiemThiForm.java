@@ -43,6 +43,45 @@ public class DiemThiForm {
         return Optional.empty();
     }
 
+    public Optional<String> validateWithPhuongThuc(PhuongThuc phuongThuc) {
+        Optional<String> base = validate();
+        if (base.isPresent()) return base;
+
+        if (phuongThuc == null) {
+            return Optional.of("Không tìm thấy phương thức xét tuyển.");
+        }
+
+        BigDecimal thangDiem = phuongThuc.getThangDiem();
+        if (thangDiem == null) thangDiem = new BigDecimal("30");
+
+        String ma = phuongThuc.getMaPhuongthuc();
+        BigDecimal min = BigDecimal.ZERO;
+        BigDecimal max;
+
+        if (ma != null && (ma.contains("DGNL") || ma.contains("PT2"))) {
+            max = new BigDecimal("1200");
+        } else if (ma != null && (ma.contains("VSAT") || ma.contains("PT3"))) {
+            max = new BigDecimal("150");
+        } else if (ma != null && ma.contains("THPT")) {
+            max = new BigDecimal("10");
+        } else {
+            max = thangDiem;
+        }
+
+        for (MonDiem md : monDiems) {
+            if (!md.hasValue()) continue;
+            BigDecimal d = md.getDiem();
+            if (d == null) continue;
+
+            if (d.compareTo(min) < 0 || d.compareTo(max) > 0) {
+                return Optional.of("Điểm môn " + md.getMon().getMaMon()
+                    + " phải từ " + min + " đến " + max + " (thang điểm "
+                    + phuongThuc.getMaPhuongthuc() + " = " + thangDiem + ").");
+            }
+        }
+        return Optional.empty();
+    }
+
     public Short parseNamTuyensinh() {
         if (isEmpty(namTuyensinhStr)) return 2026;
         try {
