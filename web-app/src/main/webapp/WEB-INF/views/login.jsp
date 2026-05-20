@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng nhập - Tuyển sinh ĐH 2026</title>
+    <title>Đăng nhập - TUYỂN SINH ĐẠI HỌC SÀI GÒN 2026</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <style>
@@ -80,7 +80,7 @@
         <div class="card">
             <div class="card-header">
                 <div class="brand mb-2">
-                    <i class="bi bi-mortarboard-fill me-2"></i>TUYỂN SINH ĐH 2026
+                    <i class="bi bi-mortarboard-fill me-2"></i>TUYỂN SINH ĐẠI HỌC SÀI GÒN 2026
                 </div>
                 <h4 class="text-muted mb-0">Đăng nhập hệ thống</h4>
             </div>

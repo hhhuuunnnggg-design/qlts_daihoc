@@ -6,7 +6,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tra cứu điểm xét tuyển - Tuyển sinh ĐH 2026</title>
+    <title>Tra cứu điểm xét tuyển - TUYỂN SINH ĐẠI HỌC SÀI GÒN 2026</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <style>
@@ -134,6 +134,7 @@
                                     <c:forEach var="pt" items="${danhSachPhuongThuc}">
                                         <option value="${pt.phuongthucId}"
                                             data-is-dgnl="${pt.maPhuongthuc.contains('DGNL') || pt.maPhuongthuc.contains('PT2') || pt.tenPhuongthuc.contains('DANH GIA')}"
+                                            data-is-vsat="${pt.maPhuongthuc.contains('VSAT') || pt.maPhuongthuc.contains('PT3') || pt.tenPhuongthuc.contains('VSAT')}"
                                             ${param.phuongThucId == pt.phuongthucId ? 'selected' : ''}>
                                             ${pt.maPhuongthuc} - ${pt.tenPhuongthuc}
                                         </option>
@@ -367,12 +368,18 @@
                                             </div>
                                         </div>
                                         <div class="col-md-3 text-center">
-                                            <div class="small text-muted text-uppercase">Điểm cộng (KV + ĐT)</div>
+                                            <div class="small text-muted text-uppercase">Điểm cộng ưu tiên</div>
                                             <div class="score-display text-warning">
                                                 <fmt:formatNumber value="${ketQua.diemCong}" pattern="#,##0.000"/>
                                             </div>
-                                            <c:if test="${not empty ketQua.ghiChuUuTien}">
-                                                <div class="small text-muted">${ketQua.ghiChuUuTien}</div>
+                                            <c:if test="${not empty ketQua.diemUuTienMap.ghiChuCong}">
+                                                <div class="small text-muted">${ketQua.diemUuTienMap.ghiChuCong}</div>
+                                            </c:if>
+                                            <c:if test="${ketQua.diemUuTienMap.kvDiem > 0}">
+                                                <div class="small text-muted">${ketQua.diemUuTienMap.ghiChuKv}</div>
+                                            </c:if>
+                                            <c:if test="${ketQua.diemUuTienMap.dtDiem > 0}">
+                                                <div class="small text-muted">${ketQua.diemUuTienMap.ghiChuDt}</div>
                                             </c:if>
                                         </div>
                                         <div class="col-md-6 text-center border-start border-2">
@@ -394,15 +401,157 @@
                             </div>
                         </c:if>
 
-                        <%-- Kết quả THPT/VSAT --%>
-                        <c:if test="${not (ketQua.phuongThuc.maPhuongthuc.contains('DGNL') || ketQua.phuongThuc.maPhuongthuc.contains('PT2'))}">
+                        <%-- Kết quả VSAT --%>
+                        <c:if test="${(ketQua.phuongThuc.maPhuongthuc.contains('VSAT') || ketQua.phuongThuc.maPhuongthuc.contains('PT3') || ketQua.phuongThuc.tenPhuongthuc.contains('VSAT')) && not (ketQua.phuongThuc.maPhuongthuc.contains('DGNL') || ketQua.phuongThuc.maPhuongthuc.contains('PT2'))}">
                             <div class="card mb-3 result-card">
                                 <div class="card-header">
                                     <i class="bi bi-bar-chart-steps me-2"></i>Chi tiết tính điểm ${ketQua.phuongThuc.tenPhuongthuc}
                                 </div>
                                 <div class="card-body">
 
-                                    <%-- Công thức THPT/VSAT --%>
+                                    <%-- Công thức VSAT --%>
+                                    <div class="info-box mb-3" style="background:#fff3cd;border:1px solid #ffecb5;">
+                                        <div class="mb-1"><strong><i class="bi bi-calculator me-1"></i>Công thức áp dụng (theo tài liệu SGU)</strong></div>
+                                        <div class="small">
+                                            <strong>Bước 1:</strong> Điểm gốc nhập vào theo <strong>thang điểm 150</strong><br>
+                                            <strong>Bước 2:</strong> Quy đổi từng môn: tìm trong bảng quy đổi VSAT theo <code>phuongthuc_id</code> + <code>mon_id</code>. Nếu không có → <code>ĐQD = ĐGốc × 10 / 150</code><br>
+                                            <strong>Bước 3:</strong> Điểm tổ hợp gốc (ĐTHGXT) = (d<sub>1</sub>&times;w<sub>1</sub> + d<sub>2</sub>&times;w<sub>2</sub> + d<sub>3</sub>&times;w<sub>3</sub>) / (w<sub>1</sub>+w<sub>2</sub>+w<sub>3</sub>) &times; 3<br>
+                                            <strong>Bước 4:</strong> Trừ độ lệch tổ hợp (nếu có)<br>
+                                            <strong>Bước 5:</strong> Điểm xét tuyển = ĐTHGXT + Điểm cộng (≤ 30)
+                                        </div>
+                                    </div>
+
+                                    <%-- Bảng điểm các môn --%>
+                                    <table class="table table-bordered-custom table-sm mb-3">
+                                        <thead>
+                                            <tr>
+                                                <th>Môn</th>
+                                                <th class="text-center">Hệ số</th>
+                                                <th class="text-end">Điểm gốc (thang 150)</th>
+                                                <th class="text-end">Sau quy đổi (thang 10)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <c:forEach var="m" items="${ketQua.diemMonList}">
+                                                <tr>
+                                                    <td>
+                                                        <strong>${m.tenMon}</strong>
+                                                        <span class="badge bg-secondary ms-1">${m.maMon}</span>
+                                                        <c:if test="${m.heSo > 1}">
+                                                            <span class="badge bg-warning text-dark ms-1">Hệ số ${m.heSo}</span>
+                                                        </c:if>
+                                                        <c:if test="${not empty m.ghiChuQd}">
+                                                            <div class="small text-muted">${m.ghiChuQd}</div>
+                                                        </c:if>
+                                                    </td>
+                                                    <td class="text-center">${m.heSo}</td>
+                                                    <td class="text-end">
+                                                        <c:choose>
+                                                            <c:when test="${m.diemGoc != null}">
+                                                                <fmt:formatNumber value="${m.diemGoc}" pattern="#,##0.00"/>
+                                                            </c:when>
+                                                            <c:otherwise><span class="text-muted">-</span></c:otherwise>
+                                                        </c:choose>
+                                                    </td>
+                                                    <td class="text-end fw-bold text-primary">
+                                                        <c:choose>
+                                                            <c:when test="${m.diemSauQd != null}">
+                                                                <fmt:formatNumber value="${m.diemSauQd}" pattern="#,##0.000"/>
+                                                            </c:when>
+                                                            <c:otherwise><span class="text-muted">-</span></c:otherwise>
+                                                        </c:choose>
+                                                    </td>
+                                                </tr>
+                                            </c:forEach>
+                                        </tbody>
+                                    </table>
+
+                                    <table class="table table-bordered-custom table-sm mb-3">
+                                        <thead>
+                                            <tr>
+                                                <th style="width:40px;">Bước</th>
+                                                <th>Nội dung</th>
+                                                <th class="text-end">Kết quả</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td class="text-center"><span class="badge bg-primary">1</span></td>
+                                                <td>
+                                                    Tính điểm tổ hợp gốc (ĐTHGXT)
+                                                    <c:if test="${not empty ketQua.diemThgxtDisplay}">
+                                                        <div class="small text-muted fst-italic">${ketQua.diemThgxtDisplay}</div>
+                                                    </c:if>
+                                                </td>
+                                                <td class="text-end fw-bold text-primary">
+                                                    <fmt:formatNumber value="${ketQua.diemThgxt}" pattern="#,##0.000"/>
+                                                    <small class="text-muted"> / 30</small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-center"><span class="badge bg-secondary">2</span></td>
+                                                <td>
+                                                    Trừ độ lệch tổ hợp
+                                                    <c:if test="${not empty ketQua.ghiChuDoLech}">
+                                                        <div class="small text-muted">${ketQua.ghiChuDoLech}</div>
+                                                    </c:if>
+                                                </td>
+                                                <td class="text-end fw-bold">
+                                                    <fmt:formatNumber value="${ketQua.diemThxt}" pattern="#,##0.000"/>
+                                                    <small class="text-muted"> / 30</small>
+                                                </td>
+                                            </tr>
+                                            <tr class="table-light">
+                                                <td colspan="3" class="text-center fw-bold">
+                                                    <i class="bi bi-arrow-down me-1"></i>TÍNH ĐIỂM XÉT TUYỂN (ĐXT = ĐTHGXT + Điểm cộng ưu tiên)
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                    <div class="row g-3">
+                                        <div class="col-md-3 text-center">
+                                            <div class="small text-muted text-uppercase">Điểm tổ hợp gốc (ĐTHGXT)</div>
+                                            <div class="score-display text-secondary">
+                                                <fmt:formatNumber value="${ketQua.diemThgxt}" pattern="#,##0.000"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 text-center">
+                                            <div class="small text-muted text-uppercase">Điểm cộng ưu tiên</div>
+                                            <div class="score-display text-warning">
+                                                <fmt:formatNumber value="${ketQua.diemCong}" pattern="#,##0.000"/>
+                                            </div>
+                                            <c:if test="${not empty ketQua.diemUuTienMap.ghiChuCong}">
+                                                <div class="small text-muted">${ketQua.diemUuTienMap.ghiChuCong}</div>
+                                            </c:if>
+                                            <c:if test="${ketQua.diemUuTienMap.kvDiem > 0}">
+                                                <div class="small text-muted">${ketQua.diemUuTienMap.ghiChuKv}</div>
+                                            </c:if>
+                                            <c:if test="${ketQua.diemUuTienMap.dtDiem > 0}">
+                                                <div class="small text-muted">${ketQua.diemUuTienMap.ghiChuDt}</div>
+                                            </c:if>
+                                        </div>
+                                        <div class="col-md-6 text-center border-start border-2">
+                                            <div class="small text-muted text-uppercase">Điểm xét tuyển (ĐXT)</div>
+                                            <div class="score-display text-success">
+                                                <fmt:formatNumber value="${ketQua.diemXetTuyen}" pattern="#,##0.000"/>
+                                            </div>
+                                            <div class="small text-muted">/ 30 điểm</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </c:if>
+
+                        <%-- Kết quả THPT --%>
+                        <c:if test="${not (ketQua.phuongThuc.maPhuongthuc.contains('DGNL') || ketQua.phuongThuc.maPhuongthuc.contains('PT2') || ketQua.phuongThuc.maPhuongthuc.contains('VSAT') || ketQua.phuongThuc.maPhuongthuc.contains('PT3') || ketQua.phuongThuc.tenPhuongthuc.contains('VSAT'))}">
+                            <div class="card mb-3 result-card">
+                                <div class="card-header">
+                                    <i class="bi bi-bar-chart-steps me-2"></i>Chi tiết tính điểm ${ketQua.phuongThuc.tenPhuongthuc}
+                                </div>
+                                <div class="card-body">
+
+                                    <%-- Công thức THPT --%>
                                     <div class="info-box mb-3" style="background:#e7f1ff;border:1px solid #b6d4fe;">
                                         <div class="mb-1"><strong><i class="bi bi-calculator me-1"></i>Công thức áp dụng (theo tài liệu SGU)</strong></div>
                                         <div class="small">
@@ -509,12 +658,18 @@
                                             </div>
                                         </div>
                                         <div class="col-md-3 text-center">
-                                            <div class="small text-muted text-uppercase">Điểm cộng (KV + ĐT)</div>
+                                            <div class="small text-muted text-uppercase">Điểm cộng ưu tiên</div>
                                             <div class="score-display text-warning">
                                                 <fmt:formatNumber value="${ketQua.diemCong}" pattern="#,##0.000"/>
                                             </div>
-                                            <c:if test="${not empty ketQua.ghiChuUuTien}">
-                                                <div class="small text-muted">${ketQua.ghiChuUuTien}</div>
+                                            <c:if test="${not empty ketQua.diemUuTienMap.ghiChuCong}">
+                                                <div class="small text-muted">${ketQua.diemUuTienMap.ghiChuCong}</div>
+                                            </c:if>
+                                            <c:if test="${ketQua.diemUuTienMap.kvDiem > 0}">
+                                                <div class="small text-muted">${ketQua.diemUuTienMap.ghiChuKv}</div>
+                                            </c:if>
+                                            <c:if test="${ketQua.diemUuTienMap.dtDiem > 0}">
+                                                <div class="small text-muted">${ketQua.diemUuTienMap.ghiChuDt}</div>
                                             </c:if>
                                         </div>
                                         <div class="col-md-6 text-center border-start border-2">
@@ -704,14 +859,22 @@
             const phuongThucSelect = document.getElementById('phuongThucSelect');
             const selectedOpt = phuongThucSelect.options[phuongThucSelect.selectedIndex];
             const isDgnl = selectedOpt && selectedOpt.dataset.isDgnl === 'true';
+            const isVsat = selectedOpt && selectedOpt.dataset.isVsat === 'true';
 
             if (!isDgnl && selected.monIds && selected.monIds.length > 0) {
                 let html = '<div class="row">';
                 selected.monIds.forEach(function(m) {
-                    const maxVal = m.maMon === 'N1' ? '10' : '10';
+                    // VSAT: thang diem 150; THPT: thang diem 10
+                    const maxVal = isVsat ? '150' : '10';
+                    const thongBao = isVsat
+                        ? '<small class="text-muted">Thang điểm 150</small>'
+                        : '<small class="text-muted">Thang điểm 10</small>';
                     html += '<div class="col-md-6 mb-3">';
-                    html += '<label class="form-label">' + m.tenMon + ' (' + m.maMon + ')' + (m.heSo > 1 ? ' <span class="badge bg-warning text-dark">Hệ số ' + m.heSo + '</span>' : '') + '</label>';
+                    html += '<label class="form-label">' + m.tenMon + ' (' + m.maMon + ')'
+                        + (m.heSo > 1 ? ' <span class="badge bg-warning text-dark">Hệ số ' + m.heSo + '</span>' : '')
+                        + '</label>';
                     html += '<input type="number" step="0.01" min="0" max="' + maxVal + '" class="form-control" name="diem_mon_' + m.monId + '" placeholder="0.00">';
+                    html += thongBao;
                     html += '</div>';
                 });
                 html += '</div>';

@@ -19,7 +19,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
         <div class="container">
             <a class="navbar-brand" href="${pageContext.request.contextPath}/dashboard">
-                <i class="bi bi-mortarboard-fill me-2"></i>TUYỂN SINH ĐH 2026
+                <i class="bi bi-mortarboard-fill me-2"></i>TUYỂN SINH ĐẠI HỌC SÀI GÒN 2026
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
