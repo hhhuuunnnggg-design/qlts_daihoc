@@ -63,6 +63,7 @@ public class DiemThiForm {
         for (MonDiem md : monDiems) {
             if (md.hasValue()) {
                 DiemThiChiTiet chiTiet = new DiemThiChiTiet();
+                chiTiet.setDiemThi(diemThi);
                 chiTiet.setMon(md.getMon());
                 chiTiet.setDiemGoc(md.getDiem());
                 chiTiet.setDiemQuydoi(md.getDiem());

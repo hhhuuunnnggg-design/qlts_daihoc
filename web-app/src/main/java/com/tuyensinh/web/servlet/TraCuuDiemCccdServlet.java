@@ -31,15 +31,17 @@ public class TraCuuDiemCccdServlet extends BaseServlet {
     @Override
     protected ModelAndView handleGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        return viewResolver.view("tra-cuu-diem-cccd")
-                .addObject("pageTitle", "Tra cứu kết quả xét tuyển")
-                .addObject("currentPage", "tracuu-cccd");
+        ModelAndView auth = authController.requireLogin(request, response);
+        if (auth != null) return auth;
+        return showForm(request, null, null);
     }
 
     // === POST: xử lý tra cứu theo CCCD ===
     @Override
     protected ModelAndView handlePost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        ModelAndView auth = authController.requireLogin(request, response);
+        if (auth != null) return auth;
         String cccd = trim(request.getParameter("cccd"));
         if (cccd == null || cccd.isEmpty()) {
             setFlashMessage(request, "Vui lòng nhập số CCCD/CMND hoặc SBD.", "warning");

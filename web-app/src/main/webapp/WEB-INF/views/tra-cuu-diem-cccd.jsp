@@ -123,7 +123,7 @@
 </head>
 <body>
 
-<jsp:include page="header-public.jsp"/>
+<jsp:include page="header.jsp"/>
 
 <!-- Search Header -->
 <div class="search-header">
@@ -172,11 +172,6 @@
                             </button>
                         </div>
                     </div>
-                    <div class="mt-2">
-                        <small class="text-muted">
-                            <i class="bi bi-info-circle me-1"></i>
-                            Nhập số CCCD đã đăng ký khi làm thủ tục dự thi. Không cần đăng nhập.
-                        </small>
                     </div>
                 </form>
             </div>
