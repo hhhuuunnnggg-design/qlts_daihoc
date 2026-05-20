@@ -87,4 +87,13 @@
         <url-pattern>/tra-cuu-diem</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>TraCuuDiemCccdServlet</servlet-name>
+        <servlet-class>com.tuyensinh.web.servlet.TraCuuDiemCccdServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>TraCuuDiemCccdServlet</servlet-name>
+        <url-pattern>/tra-cuu-diem-cccd</url-pattern>
+    </servlet-mapping>
+
 </web-app>
