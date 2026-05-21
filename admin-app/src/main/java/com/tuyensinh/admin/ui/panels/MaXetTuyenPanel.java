@@ -1,6 +1,7 @@
 package com.tuyensinh.admin.ui.panels;
 
 import com.tuyensinh.admin.ui.*;
+import com.tuyensinh.admin.ui.SearchFieldOption;
 import com.tuyensinh.entity.MaXetTuyenMap;
 import com.tuyensinh.entity.Nganh;
 import com.tuyensinh.entity.NganhToHop;
@@ -16,6 +17,7 @@ import java.util.List;
 public class MaXetTuyenPanel extends BaseCrudPanel<MaXetTuyenMap> {
 
     private final MaXetTuyenMapService service;
+    private JComboBox<SearchFieldOption> searchFieldCombo;
 
     public MaXetTuyenPanel(MainFrame mainFrame) {
         super(mainFrame);
@@ -64,17 +66,40 @@ public class MaXetTuyenPanel extends BaseCrudPanel<MaXetTuyenMap> {
 
     @Override
     protected void buildToolbar() {
-        JTextField[] searchFieldOut = new JTextField[1];
-        JPanel toolbar = ToolbarFactory.createSearchToolbar(
-                searchFieldOut,
-                this::doSearch,
-                new ToolbarFactory.ActionButton("Them moi", this::showAddDialog),
-                new ToolbarFactory.ActionButton("Sua", this::showEditDialog),
-                new ToolbarFactory.ActionButton("Xoa", this::doDelete),
-                new ToolbarFactory.ActionButton("Import Excel", this::importExcel)
-        );
-        this.searchTextField = searchFieldOut[0];
+        JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
+        toolbar.add(new JLabel("Tim theo:"));
+        searchFieldCombo = new JComboBox<>();
+        searchFieldCombo.addItem(new SearchFieldOption("ALL", "Tat ca"));
+        searchFieldCombo.addItem(new SearchFieldOption("ID", "ID ma XT"));
+        searchFieldCombo.addItem(new SearchFieldOption("MAXT", "Ma xet tuyen"));
+        searchFieldCombo.addItem(new SearchFieldOption("MANGANH", "Ma nganh"));
+        searchFieldCombo.addItem(new SearchFieldOption("MAPT", "Ma phuong thuc"));
+        searchFieldCombo.addItem(new SearchFieldOption("MATOHOP", "Ma to hop"));
+        searchFieldCombo.addItem(new SearchFieldOption("THNGUON", "To hop nguon"));
+        searchFieldCombo.addItem(new SearchFieldOption("TENCT", "Ten chuong trinh"));
+        searchFieldCombo.addActionListener(e -> doSearch());
+        toolbar.add(searchFieldCombo);
+        toolbar.add(new JLabel("Tu khoa:"));
+        searchTextField = new JTextField(18);
+        searchTextField.addActionListener(e -> doSearch());
+        toolbar.add(searchTextField);
+        JButton btnSearch = new JButton("Tim");
+        btnSearch.addActionListener(e -> doSearch());
+        toolbar.add(btnSearch);
+        toolbar.add(new JButton("Them moi") {{ addActionListener(e -> showAddDialog()); }});
+        toolbar.add(new JButton("Sua") {{ addActionListener(e -> showEditDialog()); }});
+        toolbar.add(new JButton("Xoa") {{ addActionListener(e -> doDelete()); }});
+        toolbar.add(new JButton("Import Excel") {{ addActionListener(e -> importExcel()); }});
         add(toolbar, BorderLayout.NORTH);
+    }
+
+
+    private String getSelectedSearchFieldKey() {
+        Object selected = searchFieldCombo != null ? searchFieldCombo.getSelectedItem() : null;
+        if (selected instanceof SearchFieldOption) {
+            return ((SearchFieldOption) selected).getKey();
+        }
+        return "ALL";
     }
 
     @Override
@@ -94,11 +119,12 @@ public class MaXetTuyenPanel extends BaseCrudPanel<MaXetTuyenMap> {
         model.setRowCount(0);
 
         String kw = getSearchKeyword();
-        long total = kw.isEmpty() ? service.countAll() : service.countSearch(kw);
+        String field = getSelectedSearchFieldKey();
+        long total = kw.isEmpty() ? service.countAll() : service.countSearch(field, kw);
         normalizePage(total);
         List<MaXetTuyenMap> list = kw.isEmpty()
                 ? service.findPage(currentPage, pageSize)
-                : service.searchPage(kw, currentPage, pageSize);
+                : service.searchPage(field, kw, currentPage, pageSize);
 
         for (MaXetTuyenMap x : list) {
             String maNganh = x.getNganh() != null ? x.getNganh().getMaNganh() : "";

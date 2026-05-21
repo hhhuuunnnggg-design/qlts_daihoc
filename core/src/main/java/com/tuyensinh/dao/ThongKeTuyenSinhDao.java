@@ -81,17 +81,23 @@ public class ThongKeTuyenSinhDao {
     public List<Object[]> thongKeTheoPhuongThuc() {
         EntityManager em = HibernateUtil.getSessionFactory().createEntityManager();
         try {
+            /*
+             * Thong ke theo phuong thuc THUC TE dung de tinh diem tot nhat.
+             * Khong dung nv.phuongthuc_id vi cot do la phuong thuc goc khi import
+             * nguyen vong, thuong tat ca dang la THPT. Sau khi xet tuyen, nguon
+             * diem thuc te duoc luu tai nv.phuong_thuc_diem_tot_nhat = THPT/DGNL/VSAT.
+             */
             return em.createNativeQuery(
                     "SELECT " +
                             "pt.ma_phuongthuc, " +
                             "pt.ten_phuongthuc, " +
                             "COUNT(nv.nguyenvong_id) AS tong_nguyen_vong, " +
-                            "SUM(CASE WHEN nv.ket_qua = 'TRUNG_TUYEN' THEN 1 ELSE 0 END) AS so_trung_tuyen, " +
-                            "SUM(CASE WHEN nv.ket_qua = 'TRUOT' THEN 1 ELSE 0 END) AS so_truot, " +
+                            "COALESCE(SUM(CASE WHEN nv.ket_qua = 'TRUNG_TUYEN' THEN 1 ELSE 0 END), 0) AS so_trung_tuyen, " +
+                            "COALESCE(SUM(CASE WHEN nv.ket_qua = 'TRUOT' THEN 1 ELSE 0 END), 0) AS so_truot, " +
                             "AVG(nv.diem_xettuyen) AS diem_xt_trung_binh " +
                             "FROM xt_phuongthuc pt " +
                             "LEFT JOIN xt_nguyenvong nv " +
-                            "ON nv.phuongthuc_id = pt.phuongthuc_id " +
+                            "ON UPPER(TRIM(nv.phuong_thuc_diem_tot_nhat)) = UPPER(TRIM(pt.ma_phuongthuc)) " +
                             "WHERE pt.ma_phuongthuc IN ('THPT', 'DGNL', 'VSAT') " +
                             "GROUP BY pt.phuongthuc_id, pt.ma_phuongthuc, pt.ten_phuongthuc " +
                             "ORDER BY FIELD(pt.ma_phuongthuc, 'THPT', 'DGNL', 'VSAT')"

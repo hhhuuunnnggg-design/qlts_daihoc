@@ -5,6 +5,7 @@ import com.tuyensinh.admin.ui.MainFrame;
 import com.tuyensinh.admin.ui.TableFactory;
 import com.tuyensinh.admin.ui.ToolbarFactory;
 import com.tuyensinh.admin.ui.UIConstants;
+import com.tuyensinh.admin.ui.SearchFieldOption;
 import com.tuyensinh.entity.Mon;
 import com.tuyensinh.entity.ToHop;
 import com.tuyensinh.entity.ToHopMon;
@@ -23,6 +24,7 @@ public class ToHopPanel extends BaseCrudPanel<ToHop> {
     private final XetTuyenService service;
     private final ToHopService toHopService;
 
+    private JComboBox<SearchFieldOption> searchFieldCombo;
     private JTable tableMon;
     private DefaultTableModel monModel;
 
@@ -65,22 +67,42 @@ public class ToHopPanel extends BaseCrudPanel<ToHop> {
     }
 
     private void buildToolbarCustom() {
-        JTextField[] searchFieldOut = new JTextField[1];
-        JPanel toolbar = ToolbarFactory.createSearchToolbar(
-                searchFieldOut,
-                this::doSearch,
-                new ToolbarFactory.ActionButton("Import Excel", this::importToHopExcel),
-                new ToolbarFactory.ActionButton("Them to hop", this::showAddDialog),
-                new ToolbarFactory.ActionButton("Sua to hop", this::showEditDialog),
-                new ToolbarFactory.ActionButton("Xoa to hop", this::doDelete),
-                new ToolbarFactory.ActionButton("Them mon", this::showAddMonDialog),
-                new ToolbarFactory.ActionButton("Sua mon", this::showEditMonDialog),
-                new ToolbarFactory.ActionButton("Xoa mon", this::deleteToHopMon)
-        );
-        this.searchTextField = searchFieldOut[0];
+        JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
+        toolbar.add(new JLabel("Tim theo:"));
+        searchFieldCombo = new JComboBox<>();
+        searchFieldCombo.addItem(new SearchFieldOption("ALL", "Tat ca"));
+        searchFieldCombo.addItem(new SearchFieldOption("ID", "ID to hop"));
+        searchFieldCombo.addItem(new SearchFieldOption("MATOHOP", "Ma to hop"));
+        searchFieldCombo.addItem(new SearchFieldOption("TENTOHOP", "Ten to hop"));
+        searchFieldCombo.addItem(new SearchFieldOption("MAMON", "Ma mon"));
+        searchFieldCombo.addActionListener(e -> doSearch());
+        toolbar.add(searchFieldCombo);
+        toolbar.add(new JLabel("Tu khoa:"));
+        searchTextField = new JTextField(18);
+        searchTextField.addActionListener(e -> doSearch());
+        toolbar.add(searchTextField);
+        JButton btnSearch = new JButton("Tim");
+        btnSearch.addActionListener(e -> doSearch());
+        toolbar.add(btnSearch);
+        toolbar.add(new JButton("Import Excel") {{ addActionListener(e -> importToHopExcel()); }});
+        toolbar.add(new JButton("Them to hop") {{ addActionListener(e -> showAddDialog()); }});
+        toolbar.add(new JButton("Sua to hop") {{ addActionListener(e -> showEditDialog()); }});
+        toolbar.add(new JButton("Xoa to hop") {{ addActionListener(e -> doDelete()); }});
+        toolbar.add(new JButton("Them mon") {{ addActionListener(e -> showAddMonDialog()); }});
+        toolbar.add(new JButton("Sua mon") {{ addActionListener(e -> showEditMonDialog()); }});
+        toolbar.add(new JButton("Xoa mon") {{ addActionListener(e -> deleteToHopMon()); }});
         add(toolbar, BorderLayout.NORTH);
     }
 
+
+
+    private String getSelectedSearchFieldKey() {
+        Object selected = searchFieldCombo != null ? searchFieldCombo.getSelectedItem() : null;
+        if (selected instanceof SearchFieldOption) {
+            return ((SearchFieldOption) selected).getKey();
+        }
+        return "ALL";
+    }
 
     private void importToHopExcel() {
         JFileChooser chooser = new JFileChooser();
@@ -174,11 +196,12 @@ public class ToHopPanel extends BaseCrudPanel<ToHop> {
         model.setRowCount(0);
 
         String kw = getSearchKeyword();
-        long total = kw.isEmpty() ? toHopService.countAll() : toHopService.countSearch(kw);
+        String field = getSelectedSearchFieldKey();
+        long total = kw.isEmpty() ? toHopService.countAll() : toHopService.countSearch(field, kw);
         normalizePage(total);
         List<ToHop> list = kw.isEmpty()
                 ? toHopService.findPage(currentPage, pageSize)
-                : toHopService.searchPage(kw, currentPage, pageSize);
+                : toHopService.searchPage(field, kw, currentPage, pageSize);
 
         for (ToHop th : list) {
             List<ToHopMon> monList = toHopService.getMonByToHop(th.getTohopId());

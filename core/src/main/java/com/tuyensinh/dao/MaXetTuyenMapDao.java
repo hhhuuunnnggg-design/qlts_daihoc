@@ -256,6 +256,68 @@ public class MaXetTuyenMapDao extends BaseDao<MaXetTuyenMap> implements IMaXetTu
                 .getSingleResult();
     }
 
+
+
+    public List<MaXetTuyenMap> searchPageByField(String field, String keyword, int page, int pageSize) {
+        javax.persistence.TypedQuery<MaXetTuyenMap> q = buildSearchByFieldQuery(field, keyword, false);
+        q.setFirstResult((Math.max(1, page) - 1) * pageSize);
+        q.setMaxResults(pageSize);
+        return q.getResultList();
+    }
+
+    public long countSearchByField(String field, String keyword) {
+        javax.persistence.TypedQuery<Long> q = buildSearchByFieldQuery(field, keyword, true);
+        return q.getSingleResult();
+    }
+
+    @SuppressWarnings("unchecked")
+    private <R> javax.persistence.TypedQuery<R> buildSearchByFieldQuery(String field, String keyword, boolean countOnly) {
+        String f = field == null ? "ALL" : field.trim().toUpperCase();
+        String raw = keyword == null ? "" : keyword.trim();
+        String low = raw.toLowerCase();
+        String select = countOnly ? "select count(m) " : "select m ";
+        String jpql = select + "from MaXetTuyenMap m " +
+                "left join m.nganh n left join m.phuongThuc pt left join m.nganhToHop nt left join nt.toHop th ";
+        String where;
+        boolean like = false;
+        switch (f) {
+            case "ID": where = "m.maXettuyenId = :id"; break;
+            case "MAXT": where = "lower(coalesce(m.maXetTuyen, '')) = :text"; break;
+            case "MANGANH": where = "lower(coalesce(n.maNganh, '')) = :text"; break;
+            case "MAPT": where = "lower(coalesce(pt.maPhuongthuc, '')) = :text"; break;
+            case "MATOHOP": where = "lower(coalesce(th.maTohop, '')) = :text"; break;
+            case "THNGUON": where = "lower(coalesce(m.maTohopNguon, '')) = :text"; break;
+            case "TENCT": where = "lower(coalesce(m.tenChuongTrinh, '')) like :kw"; like = true; break;
+            default:
+                where = "lower(coalesce(m.maXetTuyen, '')) = :text or lower(coalesce(n.maNganh, '')) = :text " +
+                        "or lower(coalesce(pt.maPhuongthuc, '')) = :text or lower(coalesce(th.maTohop, '')) = :text " +
+                        "or lower(coalesce(m.maTohopNguon, '')) = :text or lower(coalesce(m.tenChuongTrinh, '')) like :kw " +
+                        "or lower(coalesce(n.tenNganh, '')) like :kw";
+                like = true; break;
+        }
+        jpql += "where (" + where + ") ";
+        if (!countOnly) jpql += "order by m.maXetTuyen, pt.phuongthucId, m.maTohopNguon, m.maXettuyenId";
+        javax.persistence.TypedQuery<R> q;
+
+        if (countOnly) {
+
+            q = (javax.persistence.TypedQuery<R>) em().createQuery(jpql, Long.class);
+
+        } else {
+
+            q = (javax.persistence.TypedQuery<R>) em().createQuery(jpql, MaXetTuyenMap.class);
+
+        }
+        if (where.contains(":id")) q.setParameter("id", parseIntegerOrNeverMatch(raw));
+        if (where.contains(":text")) q.setParameter("text", low);
+        if (like || where.contains(":kw")) q.setParameter("kw", "%" + low + "%");
+        return q;
+    }
+
+    private Integer parseIntegerOrNeverMatch(String value) {
+        try { return Integer.parseInt(value.trim()); } catch (Exception e) { return -1; }
+    }
+
     private String normalizeKeyword(String keyword) {
         return keyword == null ? "" : keyword.trim().toLowerCase();
     }

@@ -1,6 +1,7 @@
 package com.tuyensinh.admin.ui.panels;
 
 import com.tuyensinh.admin.ui.*;
+import com.tuyensinh.admin.ui.SearchFieldOption;
 import com.tuyensinh.admin.ui.MainFrame;
 import com.tuyensinh.entity.*;
 import com.tuyensinh.service.*;
@@ -16,6 +17,7 @@ import java.util.List;
 public class NganhPanel extends BaseCrudPanel<Nganh> {
 
     private XetTuyenService service;
+    private JComboBox<SearchFieldOption> searchFieldCombo;
 
     public NganhPanel(MainFrame mainFrame) {
         super(mainFrame);
@@ -27,7 +29,7 @@ public class NganhPanel extends BaseCrudPanel<Nganh> {
 
     @Override
     protected String[] getTableColumns() {
-        return new String[]{"ID", "Mã Ngành", "Tên Ngành", "Tổ hợp gốc", "Chi tiêu", "Điểm sàn", "Điểm TT", "Active"};
+        return new String[]{"ID", "Mã Ngành", "Tên Ngành", "Tổ hợp gốc", "Chi tiêu", "Điểm sàn", "Điểm TT", "Phương thức XT", "Số NV ĐK", "Active"};
     }
 
     @Override
@@ -57,7 +59,9 @@ public class NganhPanel extends BaseCrudPanel<Nganh> {
         table.getColumnModel().getColumn(4).setPreferredWidth(70);
         table.getColumnModel().getColumn(5).setPreferredWidth(80);
         table.getColumnModel().getColumn(6).setPreferredWidth(80);
-        table.getColumnModel().getColumn(7).setPreferredWidth(70);
+        table.getColumnModel().getColumn(7).setPreferredWidth(130);
+        table.getColumnModel().getColumn(8).setPreferredWidth(85);
+        table.getColumnModel().getColumn(9).setPreferredWidth(70);
     }
 
     @Override
@@ -76,12 +80,13 @@ public class NganhPanel extends BaseCrudPanel<Nganh> {
     public void loadData() {
         model.setRowCount(0);
         String kw = getSearchKeyword();
+        String field = getSelectedSearchFieldKey();
 
-        long total = kw.isEmpty() ? service.countNganh() : service.countSearchNganh(kw);
+        long total = kw.isEmpty() ? service.countNganh() : service.countSearchNganh(field, kw);
         normalizePage(total);
         var list = kw.isEmpty()
                 ? service.findNganhByPage(currentPage, pageSize)
-                : service.searchNganhPage(kw, currentPage, pageSize);
+                : service.searchNganhPage(field, kw, currentPage, pageSize);
 
         for (Nganh n : list) {
             ToHop goc = n.getToHopGoc();
@@ -94,6 +99,8 @@ public class NganhPanel extends BaseCrudPanel<Nganh> {
                 n.getChiTieu(),
                 n.getDiemSan(),
                 n.getDiemTrungTuyen(),
+                service.findPhuongThucTextByNganhId(n.getNganhId()),
+                service.countNguyenVongByNganhId(n.getNganhId()),
                 n.getIsActive() ? "Active" : "Inactive"
             });
         }
@@ -272,17 +279,38 @@ public class NganhPanel extends BaseCrudPanel<Nganh> {
 
     @Override
     protected void buildToolbar() {
-        JTextField[] searchFieldOut = new JTextField[1];
-        JPanel toolbar = ToolbarFactory.createSearchToolbar(
-                searchFieldOut,
-                this::doSearch,
-                new ToolbarFactory.ActionButton("Them moi", this::showAddDialog),
-                new ToolbarFactory.ActionButton("Sua", this::showEditDialog),
-                new ToolbarFactory.ActionButton("Xoa", this::doDelete),
-                new ToolbarFactory.ActionButton("Import Excel", this::importDanhMucExcel)
-        );
-        this.searchTextField = searchFieldOut[0];
+        JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
+        toolbar.add(new JLabel("Tim theo:"));
+        searchFieldCombo = new JComboBox<>();
+        searchFieldCombo.addItem(new SearchFieldOption("ALL", "Tat ca"));
+        searchFieldCombo.addItem(new SearchFieldOption("ID", "ID nganh"));
+        searchFieldCombo.addItem(new SearchFieldOption("MANGANH", "Ma nganh"));
+        searchFieldCombo.addItem(new SearchFieldOption("TENNGANH", "Ten nganh"));
+        searchFieldCombo.addItem(new SearchFieldOption("MATOHOP", "Ma to hop goc"));
+        searchFieldCombo.addItem(new SearchFieldOption("MAPT", "Ma phuong thuc"));
+        searchFieldCombo.addActionListener(e -> doSearch());
+        toolbar.add(searchFieldCombo);
+        toolbar.add(new JLabel("Tu khoa:"));
+        searchTextField = new JTextField(20);
+        searchTextField.addActionListener(e -> doSearch());
+        toolbar.add(searchTextField);
+        JButton btnSearch = new JButton("Tim");
+        btnSearch.addActionListener(e -> doSearch());
+        toolbar.add(btnSearch);
+        toolbar.add(new JButton("Them moi") {{ addActionListener(e -> showAddDialog()); }});
+        toolbar.add(new JButton("Sua") {{ addActionListener(e -> showEditDialog()); }});
+        toolbar.add(new JButton("Xoa") {{ addActionListener(e -> doDelete()); }});
+        toolbar.add(new JButton("Import Excel") {{ addActionListener(e -> importDanhMucExcel()); }});
         add(toolbar, BorderLayout.NORTH);
+    }
+
+
+    private String getSelectedSearchFieldKey() {
+        Object selected = searchFieldCombo != null ? searchFieldCombo.getSelectedItem() : null;
+        if (selected instanceof SearchFieldOption) {
+            return ((SearchFieldOption) selected).getKey();
+        }
+        return "ALL";
     }
 
     private void importDanhMucExcel() {

@@ -66,6 +66,14 @@ public class ThiSinhChungChiService implements IThiSinhChungChiService {
         return dao.countSearch(keyword);
     }
 
+    public List<ThiSinhChungChi> searchPage(String field, String keyword, int page, int pageSize) {
+        return dao.searchPageByField(field, keyword, page, pageSize);
+    }
+
+    public long countSearch(String field, String keyword) {
+        return dao.countSearchByField(field, keyword);
+    }
+
     public void updateXacMinh(Integer chungchiId, String trangThaiXacMinh, boolean hopLe) {
         ThiSinhChungChi entity = dao.findById(chungchiId);
         if (entity == null) {

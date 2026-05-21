@@ -2,6 +2,7 @@ package com.tuyensinh.admin.ui.panels;
 
 import com.tuyensinh.admin.ui.MainFrame;
 import com.tuyensinh.admin.ui.TableFactory;
+import com.tuyensinh.admin.ui.SearchFieldOption;
 import com.tuyensinh.entity.*;
 import com.tuyensinh.service.*;
 import com.tuyensinh.util.*;
@@ -27,6 +28,7 @@ public class ThiSinhPanel extends JPanel {
 
     private JTable table;
     private DefaultTableModel model;
+    private JComboBox<SearchFieldOption> cboSearchField;
     private JTextField txtSearch;
     private JButton btnSearch, btnRefresh, btnImport, btnCreateBulkAccounts, btnAdd, btnEdit, btnDelete, btnViewDiem;
     private JLabel lblTotal;
@@ -46,8 +48,21 @@ public class ThiSinhPanel extends JPanel {
 
         // Toolbar
         JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        toolbar.add(new JLabel("Tim kiem (CCCD/Ho ten/SBD):"));
+        toolbar.add(new JLabel("Tim theo:"));
+        cboSearchField = new JComboBox<>();
+        cboSearchField.addItem(new SearchFieldOption("ALL", "Tat ca"));
+        cboSearchField.addItem(new SearchFieldOption("ID", "ID thi sinh"));
+        cboSearchField.addItem(new SearchFieldOption("CCCD", "CCCD"));
+        cboSearchField.addItem(new SearchFieldOption("SBD", "So bao danh"));
+        cboSearchField.addItem(new SearchFieldOption("HOTEN", "Ho ten"));
+        cboSearchField.addItem(new SearchFieldOption("DTUT", "Ma doi tuong UT"));
+        cboSearchField.addItem(new SearchFieldOption("KVUT", "Ma khu vuc UT"));
+        cboSearchField.addItem(new SearchFieldOption("EMAIL", "Email"));
+        cboSearchField.addItem(new SearchFieldOption("SDT", "Dien thoai"));
+        cboSearchField.addActionListener(e -> search());
+        toolbar.add(cboSearchField);
 
+        toolbar.add(new JLabel("Tu khoa:"));
         txtSearch = new JTextField(20);
         txtSearch.addActionListener(e -> search());
         toolbar.add(txtSearch);
@@ -136,7 +151,7 @@ public class ThiSinhPanel extends JPanel {
         if (keyword.isEmpty()) {
             list = service.findByPage(currentPage, pageSize);
         } else {
-            list = service.findByPageWithSearch(keyword, currentPage, pageSize);
+            list = service.findByPageWithSearch(getSelectedSearchFieldKey(), keyword, currentPage, pageSize);
         }
 
         for (ThiSinh ts : list) {
@@ -155,14 +170,24 @@ public class ThiSinhPanel extends JPanel {
             });
         }
 
-        long total = service.countBySearch(keyword);
+        long total = keyword.isEmpty() ? service.countBySearch("") : service.countBySearch(getSelectedSearchFieldKey(), keyword);
         lblTotal.setText("Tong: " + total + " thi sinh");
         int tp = getTotalPages();
         spnPage.setModel(new SpinnerNumberModel(currentPage, 1, Math.max(1, tp), 1));
     }
 
     private int getTotalPages() {
-        return (int) Math.ceil((double) service.countBySearch(txtSearch.getText().trim()) / pageSize);
+        String keyword = txtSearch.getText().trim();
+        long total = keyword.isEmpty() ? service.countBySearch("") : service.countBySearch(getSelectedSearchFieldKey(), keyword);
+        return (int) Math.ceil((double) total / pageSize);
+    }
+
+    private String getSelectedSearchFieldKey() {
+        Object selected = cboSearchField != null ? cboSearchField.getSelectedItem() : null;
+        if (selected instanceof SearchFieldOption) {
+            return ((SearchFieldOption) selected).getKey();
+        }
+        return "ALL";
     }
 
     private void search() {

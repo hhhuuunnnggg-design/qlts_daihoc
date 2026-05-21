@@ -150,6 +150,111 @@ public class NganhDao extends BaseDao<Nganh> implements INganhDao {
                 .getSingleResult();
     }
 
+
+
+    public List<Nganh> searchPageByField(String field, String keyword, int page, int pageSize) {
+        javax.persistence.TypedQuery<Nganh> q = buildSearchByFieldQuery(field, keyword, false);
+        q.setFirstResult((Math.max(1, page) - 1) * pageSize);
+        q.setMaxResults(pageSize);
+        return q.getResultList();
+    }
+
+    public long countSearchByField(String field, String keyword) {
+        javax.persistence.TypedQuery<Long> q = buildSearchByFieldQuery(field, keyword, true);
+        return q.getSingleResult();
+    }
+
+    @SuppressWarnings("unchecked")
+    private <R> javax.persistence.TypedQuery<R> buildSearchByFieldQuery(String field, String keyword, boolean countOnly) {
+        String f = field == null ? "ALL" : field.trim().toUpperCase();
+        String raw = keyword == null ? "" : keyword.trim();
+        String low = raw.toLowerCase();
+        String select = countOnly ? "select count(distinct n) " : "select distinct n ";
+        String jpql = select + "from Nganh n " +
+                "left join n.toHopGoc th " +
+                "left join n.danhSachNganhPhuongThuc npt " +
+                "left join npt.phuongThuc pt ";
+        String where;
+        boolean like = false;
+        switch (f) {
+            case "ID":
+                where = "n.nganhId = :id";
+                break;
+            case "MANGANH":
+                where = "lower(coalesce(n.maNganh, '')) = :text";
+                break;
+            case "MATOHOP":
+                where = "lower(coalesce(th.maTohop, '')) = :text";
+                break;
+            case "MAPT":
+                where = "lower(coalesce(pt.maPhuongthuc, '')) = :text";
+                break;
+            case "TENNGANH":
+                where = "lower(coalesce(n.tenNganh, '')) like :kw";
+                like = true;
+                break;
+            default:
+                where = "lower(coalesce(n.maNganh, '')) = :text " +
+                        "or lower(coalesce(th.maTohop, '')) = :text " +
+                        "or lower(coalesce(pt.maPhuongthuc, '')) = :text " +
+                        "or lower(coalesce(n.tenNganh, '')) like :kw";
+                like = true;
+                break;
+        }
+        jpql += "where (" + where + ") ";
+        if (!countOnly) jpql += "order by n.maNganh, n.nganhId";
+        javax.persistence.TypedQuery<R> q;
+
+        if (countOnly) {
+
+            q = (javax.persistence.TypedQuery<R>) em().createQuery(jpql, Long.class);
+
+        } else {
+
+            q = (javax.persistence.TypedQuery<R>) em().createQuery(jpql, Nganh.class);
+
+        }
+        if (where.contains(":id")) q.setParameter("id", parseIntegerOrNeverMatch(raw));
+        if (where.contains(":text")) q.setParameter("text", low);
+        if (like || where.contains(":kw")) q.setParameter("kw", "%" + low + "%");
+        return q;
+    }
+
+    private Integer parseIntegerOrNeverMatch(String value) {
+        try { return Integer.parseInt(value.trim()); } catch (Exception e) { return -1; }
+    }
+
+    /**
+     * Lay danh sach ma phuong thuc dang gan cho nganh de hien thi tren panel Nganh.
+     * Dung native SQL vi MySQL co GROUP_CONCAT, giup gom THPT/VSAT/DGNL tren 1 dong.
+     */
+    public String findPhuongThucTextByNganhId(Integer nganhId) {
+        if (nganhId == null) return "";
+
+        Object result = em().createNativeQuery(
+                        "SELECT GROUP_CONCAT(DISTINCT pt.ma_phuongthuc ORDER BY pt.ma_phuongthuc SEPARATOR ', ') " +
+                                "FROM xt_nganh_phuongthuc npt " +
+                                "JOIN xt_phuongthuc pt ON pt.phuongthuc_id = npt.phuongthuc_id " +
+                                "WHERE npt.nganh_id = :nganhId " +
+                                "AND COALESCE(npt.is_enabled, 1) = 1")
+                .setParameter("nganhId", nganhId)
+                .getSingleResult();
+
+        return result != null ? String.valueOf(result) : "";
+    }
+
+    /** Dem so nguyen vong dang ky vao nganh. */
+    public long countNguyenVongByNganhId(Integer nganhId) {
+        if (nganhId == null) return 0L;
+
+        return em().createQuery(
+                        "select count(nv) from NguyenVong nv " +
+                                "where nv.nganh.nganhId = :nganhId",
+                        Long.class)
+                .setParameter("nganhId", nganhId)
+                .getSingleResult();
+    }
+
     private String normalizeKeyword(String keyword) {
         return keyword == null ? "" : keyword.trim().toLowerCase();
     }

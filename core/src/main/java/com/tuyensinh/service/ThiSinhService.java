@@ -35,6 +35,10 @@ public class ThiSinhService implements IThiSinhService {
         return dao.findByPageWithSearch(keyword, page, pageSize);
     }
 
+    public List<ThiSinh> findByPageWithSearch(String field, String keyword, int page, int pageSize) {
+        return dao.findByPageWithSearch(field, keyword, page, pageSize);
+    }
+
     public ThiSinh findById(Integer id) {
         return dao.findById(id);
     }
@@ -74,6 +78,10 @@ public class ThiSinhService implements IThiSinhService {
 
     public long countBySearch(String keyword) {
         return dao.countBySearch(keyword);
+    }
+
+    public long countBySearch(String field, String keyword) {
+        return dao.countBySearch(field, keyword);
     }
 
     public String generateSoBaoDanh() {

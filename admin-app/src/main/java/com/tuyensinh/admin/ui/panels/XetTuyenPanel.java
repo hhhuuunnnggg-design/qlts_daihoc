@@ -6,6 +6,7 @@ import com.tuyensinh.entity.*;
 import com.tuyensinh.service.*;
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.math.BigDecimal;
 import java.util.List;
@@ -27,6 +28,7 @@ public class XetTuyenPanel extends BaseCrudPanel<NguyenVong> {
     private JButton btnTinhDiem;
     private JButton btnDiemUuTien;
 
+
     public XetTuyenPanel(MainFrame mainFrame) {
         super(mainFrame);
         enablePagination();
@@ -36,8 +38,8 @@ public class XetTuyenPanel extends BaseCrudPanel<NguyenVong> {
 
     @Override
     protected String[] getTableColumns() {
-        return new String[] { "ID", "Ho Ten", "CCCD", "Nganh", "To Hop", "P. Thuc",
-                "Diem TH", "Diem Cong", "Diem XT", "Nguon diem", "Ket Qua" };
+        return new String[] { "ID", "NV", "Ho Ten", "CCCD", "Nganh", "To Hop goc", "THM tot nhat", "P. Thuc",
+                "Diem TH", "Diem Cong", "Diem UT", "Diem XT", "Nguon diem", "Ket Qua" };
     }
 
     @Override
@@ -55,6 +57,25 @@ public class XetTuyenPanel extends BaseCrudPanel<NguyenVong> {
     @Override
     public String getPageTitle() {
         return UIConstants.PAGE_XET_TUYEN;
+    }
+
+    @Override
+    protected void configureTableColumns() {
+        if (table == null) return;
+        table.getColumnModel().getColumn(0).setPreferredWidth(45);
+        table.getColumnModel().getColumn(1).setPreferredWidth(45);
+        table.getColumnModel().getColumn(2).setPreferredWidth(170);
+        table.getColumnModel().getColumn(3).setPreferredWidth(110);
+        table.getColumnModel().getColumn(4).setPreferredWidth(95);
+        table.getColumnModel().getColumn(5).setPreferredWidth(75);   // To hop goc
+        table.getColumnModel().getColumn(6).setPreferredWidth(95);   // THM tot nhat
+        table.getColumnModel().getColumn(7).setPreferredWidth(75);
+        table.getColumnModel().getColumn(8).setPreferredWidth(75);
+        table.getColumnModel().getColumn(9).setPreferredWidth(75);
+        table.getColumnModel().getColumn(10).setPreferredWidth(75);
+        table.getColumnModel().getColumn(11).setPreferredWidth(80);
+        table.getColumnModel().getColumn(12).setPreferredWidth(90);
+        table.getColumnModel().getColumn(13).setPreferredWidth(95);
     }
 
     @Override
@@ -80,6 +101,12 @@ public class XetTuyenPanel extends BaseCrudPanel<NguyenVong> {
         btnLamMoi.addActionListener(e -> lamMoiDuLieu());
         toolbar.add(btnLamMoi);
 
+        JButton btnThongKe = new JButton("Bang trung tuyen / thong ke");
+        btnThongKe.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        btnThongKe.setToolTipText("Mo panel rieng de xem danh sach trung tuyen theo nganh va thong ke theo nganh - phuong thuc");
+        btnThongKe.addActionListener(e -> mainFrame.showPanel("xettuyen_thongke"));
+        toolbar.add(btnThongKe);
+
         add(toolbar, BorderLayout.NORTH);
     }
 
@@ -102,15 +129,18 @@ public class XetTuyenPanel extends BaseCrudPanel<NguyenVong> {
 
             model.addRow(new Object[] {
                     nv.getNguyenvongId(),
+                    nv.getThuTu() != null ? nv.getThuTu() : "",
                     ts != null ? ts.getHoVaTen() : "",
                     ts != null ? ts.getCccd() : "",
                     nv.getNganh() != null ? nv.getNganh().getMaNganh() : "",
                     nv.getNganhToHop() != null && nv.getNganhToHop().getToHop() != null
                             ? nv.getNganhToHop().getToHop().getMaTohop()
                             : "",
+                    getToHopTotNhatDisplay(nv),
                     nv.getPhuongThuc() != null ? nv.getPhuongThuc().getMaPhuongthuc() : "",
                     nv.getDiemThxt() != null ? formatDiem(nv.getDiemThxt()) : "",
                     nv.getDiemCong() != null ? formatDiem(nv.getDiemCong()) : "",
+                    nv.getDiemUutien() != null ? formatDiem(nv.getDiemUutien()) : "",
                     nv.getDiemXettuyen() != null ? formatDiem(nv.getDiemXettuyen()) : "",
                     nv.getPhuongThucDiemTotNhat() != null ? nv.getPhuongThucDiemTotNhat() : "",
                     ketQua != null ? ketQua : "CHO_XET"
@@ -122,7 +152,7 @@ public class XetTuyenPanel extends BaseCrudPanel<NguyenVong> {
             public Component getTableCellRendererComponent(JTable table, Object value,
                     boolean isSelected, boolean hasFocus, int row, int col) {
                 Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
-                Object kq = model.getValueAt(row, 10);
+                Object kq = model.getValueAt(row, 13);
 
                 if (!isSelected) {
                     if ("TRUNG_TUYEN".equals(kq)) {
@@ -144,7 +174,6 @@ public class XetTuyenPanel extends BaseCrudPanel<NguyenVong> {
 
         updateTotalLabel(total, "ban ghi");
         updatePagingState(total);
-
         if (table != null) {
             table.clearSelection();
             table.revalidate();
@@ -304,7 +333,7 @@ public class XetTuyenPanel extends BaseCrudPanel<NguyenVong> {
     }
 
     private void buildBottomArea() {
-        taResult = new JTextArea(6, 0);
+        taResult = new JTextArea(8, 0);
         taResult.setFont(new Font("Monospaced", Font.PLAIN, 12));
         taResult.setEditable(false);
         taResult.setLineWrap(true);
@@ -315,18 +344,15 @@ public class XetTuyenPanel extends BaseCrudPanel<NguyenVong> {
                         "3. Diem tot nhat = max(THPT, VSAT, DGNL sau quy doi) + diem cong/uu tien\n" +
                         "4. Engine xet theo thu tu nguyen vong cua tung thi sinh\n" +
                         "5. Moi thi sinh chi duoc TRUNG_TUYEN 1 nguyen vong cao nhat\n\n" +
-                        "Cac cot can kiem tra sau khi chay:\n" +
-                        "- diem_thxt\n" +
-                        "- diem_cong\n" +
-                        "- diem_uutien\n" +
-                        "- diem_xettuyen\n" +
-                        "- phuong_thuc_diem_tot_nhat\n" +
-                        "- ket_qua\n\n");
-        JScrollPane sp = new JScrollPane(taResult);
-        sp.setBorder(BorderFactory.createTitledBorder("Log xet tuyen"));
+                        "Ghi chu hieu nang:\n" +
+                        "- Panel nay chi hien danh sach nguyen vong va log xet tuyen.\n" +
+                        "- Bang trung tuyen chi tiet va thong ke theo nganh - phuong thuc da tach sang panel rieng ben duoi menu Xet tuyen.\n" +
+                        "- Khi chuyen trang o panel nay se khong load 2 bang thong ke lon nua, tranh lag.\n\n");
+        JScrollPane logScroll = new JScrollPane(taResult);
+        logScroll.setBorder(BorderFactory.createTitledBorder("Log xet tuyen"));
 
         JPanel south = new JPanel(new BorderLayout(0, 4));
-        south.add(sp, BorderLayout.CENTER);
+        south.add(logScroll, BorderLayout.CENTER);
 
         totalLabel = new JLabel("Tong: 0 ban ghi");
         totalLabel.setFont(UIConstants.FONT_SMALL);
@@ -341,4 +367,52 @@ public class XetTuyenPanel extends BaseCrudPanel<NguyenVong> {
         south.add(ToolbarFactory.createBottomBar(totalLabel, paging), BorderLayout.SOUTH);
         add(south, BorderLayout.SOUTH);
     }
+
+
+    private String getToHopTotNhatDisplay(NguyenVong nv) {
+        if (nv == null) return "";
+        if (nv.getToHopDiemTotNhat() != null && !nv.getToHopDiemTotNhat().trim().isEmpty()) {
+            return nv.getToHopDiemTotNhat();
+        }
+        return parseToHopTotNhatFromGhiChu(nv.getGhiChu());
+    }
+
+    private String parseToHopTotNhatFromGhiChu(String ghiChu) {
+        if (ghiChu == null) return "";
+
+        java.util.regex.Matcher direct = java.util.regex.Pattern
+                .compile("Lay diem cao nhat:\\s*[^|()]+\\(([^)]+)\\)")
+                .matcher(ghiChu);
+        if (direct.find()) {
+            return direct.group(1);
+        }
+
+        java.util.regex.Matcher sourceMatcher = java.util.regex.Pattern
+                .compile("Lay diem cao nhat:\\s*([A-Za-z0-9_]+)")
+                .matcher(ghiChu);
+        String nguon = sourceMatcher.find() ? sourceMatcher.group(1) : null;
+
+        java.util.regex.Pattern pattern = nguon != null
+                ? java.util.regex.Pattern.compile(java.util.regex.Pattern.quote(nguon) + "\\(([^)]+)\\)=([0-9]+(?:\\.[0-9]+)?)")
+                : java.util.regex.Pattern.compile("[A-Za-z0-9_]+\\(([^)]+)\\)=([0-9]+(?:\\.[0-9]+)?)");
+
+        java.util.regex.Matcher matcher = pattern.matcher(ghiChu);
+        String bestToHop = "";
+        double bestScore = -1.0;
+
+        while (matcher.find()) {
+            try {
+                double score = Double.parseDouble(matcher.group(2));
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestToHop = matcher.group(1);
+                }
+            } catch (NumberFormatException ignored) {
+            }
+        }
+
+        return bestToHop;
+    }
+
+
 }

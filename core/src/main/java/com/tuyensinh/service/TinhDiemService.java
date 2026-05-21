@@ -58,13 +58,15 @@ public class TinhDiemService {
         public BigDecimal diemDgnl;
         public boolean coBangQuyDoi;
         public String phuongThucDiemTotNhat;
+        public String toHopDiemTotNhat;
         public String ghiChu;
 
         @Override
         public String toString() {
             return String.format(
-                    "Nguon=%s | THXT=%.2f | Cong=%.2f (UT=%.2f) | XetTuyen=%.2f | BQD=%s | THPT=%.2f | VSAT=%.2f | DGNL=%.2f | GhiChu=%s",
+                    "Nguon=%s | THM=%s | THXT=%.2f | Cong=%.2f (UT=%.2f) | XetTuyen=%.2f | BQD=%s | THPT=%.2f | VSAT=%.2f | DGNL=%.2f | GhiChu=%s",
                     phuongThucDiemTotNhat != null ? phuongThucDiemTotNhat : "?",
+                    toHopDiemTotNhat != null ? toHopDiemTotNhat : "?",
                     safeForLog(diemThxt),
                     safeForLog(diemCong),
                     safeForLog(diemUutien),
@@ -79,6 +81,31 @@ public class TinhDiemService {
 
         private static BigDecimal safeForLog(BigDecimal value) {
             return value != null ? value : BigDecimal.ZERO;
+        }
+    }
+
+
+    /** Ket qua tong hop khi tao diem cong toan bo bang che do batch. */
+    public static class KetQuaTaoDiemCongBatch {
+        public int processed;
+        public int success;
+        public int skipped;
+        public int error;
+        public int soDiemCong;
+        public int soChiTiet;
+        public boolean clearedOldData;
+        public final List<String> logRutGon = new ArrayList<>();
+
+        public void addLog(String message) {
+            if (message == null || message.trim().isEmpty()) return;
+            if (logRutGon.size() < 80) {
+                logRutGon.add(message);
+            }
+        }
+
+        public String getLogText() {
+            if (logRutGon.isEmpty()) return "Khong co loi/ghi chu chi tiet.";
+            return String.join("\n", logRutGon);
         }
     }
 
@@ -110,6 +137,7 @@ public class TinhDiemService {
             kq.ghiChu = "Khong co thong tin to hop";
             return kq;
         }
+        kq.toHopDiemTotNhat = safe(toHop.getMaTohop());
 
         PhuongThuc pt = nv.getPhuongThuc();
         if (pt == null) {
@@ -343,6 +371,7 @@ public class TinhDiemService {
         empty.diemVsat = ZERO;
         empty.diemDgnl = ZERO;
         empty.phuongThucDiemTotNhat = null;
+        empty.toHopDiemTotNhat = null;
         empty.ghiChu = "Khong tinh duoc diem";
 
         if (nv == null || nv.getThiSinh() == null || nv.getNganhToHop() == null) {
@@ -368,6 +397,9 @@ public class TinhDiemService {
             KetQuaDiem kq = tinhDiemTheoPhuongAn(nv, pa.phuongThuc, pa.nganhToHop);
             String label = labelPhuongThuc(pa.phuongThuc);
             kq.phuongThucDiemTotNhat = label;
+            if (isBlank(kq.toHopDiemTotNhat)) {
+                kq.toHopDiemTotNhat = maToHopCuaPhuongAn(pa.nganhToHop);
+            }
 
             BigDecimal diem = safe(kq.diemXettuyen);
             if (isPhuongThucTHPT(pa.phuongThuc)) {
@@ -397,10 +429,18 @@ public class TinhDiemService {
         best.diemDgnl = empty.diemDgnl;
 
         String prefix = "Lay diem cao nhat: " + best.phuongThucDiemTotNhat
+                + (isBlank(best.toHopDiemTotNhat) ? "" : "(" + best.toHopDiemTotNhat + ")")
                 + " | " + String.join(" ; ", tongHop);
         best.ghiChu = prefix + (isBlank(best.ghiChu) ? "" : " | " + best.ghiChu);
 
         return best;
+    }
+
+    private String maToHopCuaPhuongAn(NganhToHop nth) {
+        if (nth != null && nth.getToHop() != null && !isBlank(nth.getToHop().getMaTohop())) {
+            return nth.getToHop().getMaTohop();
+        }
+        return null;
     }
 
     private static class PhuongAnDiem {
@@ -713,18 +753,22 @@ public class TinhDiemService {
 
         Optional<DiemCong> diemCong = Optional.empty();
         try {
+            /*
+             * Khi xét tuyển chỉ đọc điểm cộng đã được tạo sẵn.
+             * Không tự tạo lại điểm cộng ở đây để tránh:
+             * - Xét tuyển bị chậm
+             * - DB tăng thêm row khi xét tuyển
+             * - Dữ liệu điểm cộng phát sinh ngoài bước chuẩn bị dữ liệu
+             *
+             * Nếu không có bản ghi DiemCong thì coi như điểm cộng = 0.
+             */
             diemCong = diemCongDao.findByThiSinhNganhToHopPhuongThuc(
                     nvGoc.getThiSinh().getThisinhId(),
                     nth.getNganhTohopId(),
                     pt.getPhuongthucId()
             );
-
-            if (!diemCong.isPresent()) {
-                diemCong = taoDiemCongChoPhuongAn(nvGoc.getThiSinh(), nth, pt);
-            }
         } catch (Exception e) {
-            // Diem cong loi thi van cho tinh diem thang diem chinh de debug.
-            System.err.println("Khong tao/lay duoc diem cong: " + e.getMessage());
+            System.err.println("Khong lay duoc diem cong: " + e.getMessage());
         }
 
         NguyenVong nvTam = new NguyenVong();
@@ -796,6 +840,556 @@ public class TinhDiemService {
         return isPhuongThucTHPT(pt) || isPhuongThucVSAT(pt) || isPhuongThucDGNLHCM(pt);
     }
 
+
+    /**
+     * Tao diem cong toan bo theo batch/cache.
+     *
+     * Diem manh so voi luong cu trong DiemCongPanel:
+     * - Neu clearOld = true: xoa nhanh bang xt_diemcong_chitiet va xt_diemcong bang DELETE bulk.
+     * - Load truoc nguyen vong, chung chi, thanh tich vao Map theo thisinh_id.
+     * - Tinh tong diem cong ngay trong RAM, khong goi recalculateTongHop tung ban ghi.
+     * - Persist DiemCong kem chi tiet theo batch de giam so transaction.
+     */
+    public KetQuaTaoDiemCongBatch taoDiemCongToanBoBatch(List<ThiSinh> thiSinhList,
+                                                          boolean onlyHasSource,
+                                                          boolean onlyHasNguyenVong,
+                                                          boolean clearOld,
+                                                          int limit,
+                                                          int batchSize) {
+        KetQuaTaoDiemCongBatch kq = new KetQuaTaoDiemCongBatch();
+        if (thiSinhList == null || thiSinhList.isEmpty()) {
+            kq.addLog("Danh sach thi sinh rong.");
+            return kq;
+        }
+
+        int safeBatchSize = batchSize > 0 ? batchSize : 500;
+
+        if (clearOld) {
+            diemCongDao.deleteAllFast();
+            kq.clearedOldData = true;
+        } else {
+            kq.addLog("Canh bao: chua xoa du lieu cu. Neu DB da co diem cong, co the loi trung khoa unique.");
+        }
+
+        Map<Integer, List<NguyenVong>> nvByThiSinh = nhomNguyenVongTheoThiSinh();
+        Map<Integer, List<ThiSinhChungChi>> chungChiByThiSinh = nhomChungChiHopLeTheoThiSinh();
+        Map<Integer, List<ThiSinhThanhTich>> thanhTichByThiSinh = nhomThanhTichHopLeTheoThiSinh();
+        Map<Integer, Boolean> toHopCoAnhCache = new HashMap<>();
+        Map<Integer, List<ToHopMon>> monToHopCache = new HashMap<>();
+
+        /*
+         * Cache map ma xet tuyen de tao day du DiemCong cho cac phuong thuc co the duoc dung khi xet tuyen.
+         * Truoc day batch chi lay nv.getPhuongThuc(), trong DB nguyen vong phan lon la THPT,
+         * nen xt_diemcong chi sinh phuongthuc_id=THPT. Khi xet tuyen so sanh THPT/VSAT/DGNL,
+         * DGNL/VSAT se khong co DiemCong san va co the bi tinh thieu diem cong hoac lam engine tu tao cham.
+         */
+        Map<Integer, MaXetTuyenMap> maXtByIdCache = new HashMap<>();
+        Map<String, List<MaXetTuyenMap>> maXtByMaCache = new HashMap<>();
+        Map<Integer, List<MaXetTuyenMap>> maXtByNganhCache = new HashMap<>();
+
+        List<DiemCong> buffer = new ArrayList<>(safeBatchSize);
+
+        for (ThiSinh ts : thiSinhList) {
+            if (limit > 0 && kq.processed >= limit) break;
+            if (ts == null || ts.getThisinhId() == null) {
+                kq.skipped++;
+                continue;
+            }
+
+            kq.processed++;
+            Integer thisinhId = ts.getThisinhId();
+            List<NguyenVong> nvs = nvByThiSinh.getOrDefault(thisinhId, Collections.emptyList());
+            ThiSinh tsTinh = !nvs.isEmpty() && nvs.get(0).getThiSinh() != null ? nvs.get(0).getThiSinh() : ts;
+
+            if (onlyHasNguyenVong && nvs.isEmpty()) {
+                kq.skipped++;
+                continue;
+            }
+
+            if (onlyHasSource && !coNguonDuLieuTinhDiemCached(tsTinh, chungChiByThiSinh, thanhTichByThiSinh)) {
+                kq.skipped++;
+                continue;
+            }
+
+            try {
+                List<PhuongAnDiemCong> phuongAnList = taoPhuongAnDiemCongTuNguyenVong(
+                        nvs,
+                        null,
+                        maXtByIdCache,
+                        maXtByMaCache,
+                        maXtByNganhCache
+                );
+                if (phuongAnList.isEmpty()) {
+                    kq.skipped++;
+                    continue;
+                }
+
+                int createdForThisinh = 0;
+                for (PhuongAnDiemCong pa : phuongAnList) {
+                    DiemCong dc = new DiemCong();
+                    dc.setThiSinh(tsTinh);
+                    dc.setNganhToHop(pa.nganhToHop);
+                    dc.setPhuongThuc(pa.phuongThuc);
+                    dc.setTongDiemChungChi(ZERO);
+                    dc.setTongDiemUutienXt(ZERO);
+                    dc.setTongDiemUutienQuyChe(ZERO);
+                    dc.setTongDiemCong(ZERO);
+
+                    List<DiemCongChiTiet> chiTietList = taoChiTietTuNguonGocCached(
+                            tsTinh,
+                            pa.nganhToHop,
+                            pa.phuongThuc,
+                            dc,
+                            chungChiByThiSinh,
+                            thanhTichByThiSinh,
+                            toHopCoAnhCache,
+                            monToHopCache
+                    );
+
+                    apDungTongHopDiemCong(dc, chiTietList);
+                    dc.getChiTietList().clear();
+                    for (DiemCongChiTiet ct : chiTietList) {
+                        ct.setDiemCong(dc);
+                        dc.getChiTietList().add(ct);
+                    }
+
+                    kq.soChiTiet += chiTietList.size();
+                    kq.soDiemCong++;
+                    createdForThisinh++;
+                    buffer.add(dc);
+
+                    if (buffer.size() >= safeBatchSize) {
+                        diemCongDao.saveBatch(buffer, safeBatchSize);
+                        buffer.clear();
+                    }
+                }
+
+                if (createdForThisinh > 0) {
+                    kq.success++;
+                } else {
+                    kq.skipped++;
+                }
+            } catch (Exception ex) {
+                kq.error++;
+                kq.addLog("Loi thi sinh " + safe(tsTinh.getCccd()) + " - " + safe(tsTinh.getHoVaTen()) + ": " + rootMessage(ex));
+            }
+        }
+
+        if (!buffer.isEmpty()) {
+            diemCongDao.saveBatch(buffer, safeBatchSize);
+            buffer.clear();
+        }
+
+        return kq;
+    }
+
+    private static class PhuongAnDiemCong {
+        final NganhToHop nganhToHop;
+        final PhuongThuc phuongThuc;
+
+        PhuongAnDiemCong(NganhToHop nganhToHop, PhuongThuc phuongThuc) {
+            this.nganhToHop = nganhToHop;
+            this.phuongThuc = phuongThuc;
+        }
+    }
+
+    /**
+     * Tao danh sach cap (nganh_tohop, phuong_thuc) can co DiemCong cho tung thi sinh.
+     *
+     * Diem quan trong:
+     * - Khong chi lay nv.getPhuongThuc(), vi cot phuongthuc_id trong xt_nguyenvong thuong la THPT.
+     * - Phai tao them cac phuong an VSAT/DGNL ma engine xet tuyen se dem ra so sanh trong tinhDiemTotNhat().
+     * - Quy tac tao phuong an duoc canh theo logic taoDanhSachPhuongAnDiem():
+     *   + phuong thuc goc cua nguyen vong;
+     *   + cac dong xt_ma_xettuyen cung ma xet tuyen/cung nganh;
+     *   + DGNL khai bao theo nganh bang ma NL1, gan vao to hop cua nguyen vong hien tai.
+     */
+    private List<PhuongAnDiemCong> taoPhuongAnDiemCongTuNguyenVong(List<NguyenVong> nvs,
+                                                                    PhuongThuc ptMacDinh,
+                                                                    Map<Integer, MaXetTuyenMap> maXtByIdCache,
+                                                                    Map<String, List<MaXetTuyenMap>> maXtByMaCache,
+                                                                    Map<Integer, List<MaXetTuyenMap>> maXtByNganhCache) {
+        List<PhuongAnDiemCong> result = new ArrayList<>();
+        Set<String> seen = new LinkedHashSet<>();
+        if (nvs == null) return result;
+
+        for (NguyenVong nv : nvs) {
+            if (nv == null || nv.getNganhToHop() == null || nv.getNganhToHop().getNganhTohopId() == null) continue;
+
+            NganhToHop nthGoc = nv.getNganhToHop();
+
+            // Neu caller truyen ptMacDinh thi chi tao theo phuong thuc do.
+            if (ptMacDinh != null) {
+                themPhuongAnDiemCong(result, seen, nthGoc, ptMacDinh);
+                continue;
+            }
+
+            // 1. Luon tao theo phuong thuc goc cua nguyen vong, thuong la THPT.
+            themPhuongAnDiemCong(result, seen, nthGoc, nv.getPhuongThuc());
+
+            MaXetTuyenMap maMap = layMaXetTuyenMapDayDuCached(nv.getMaXetTuyenMap(), maXtByIdCache);
+            String maXetTuyen = maMap != null ? maMap.getMaXetTuyen()
+                    : (nv.getMaXetTuyenMap() != null ? nv.getMaXetTuyenMap().getMaXetTuyen() : null);
+
+            // 2. Tao cac phuong thuc/tổ hợp duoc khai bao cung ma xet tuyen.
+            // Vi du NV C04 co the co dong THPT/VSAT trong xt_ma_xettuyen.
+            if (!isBlank(maXetTuyen)) {
+                for (MaXetTuyenMap m : layMaXetTuyenMapsTheoMaCached(maXetTuyen, maXtByMaCache)) {
+                    if (m == null || Boolean.FALSE.equals(m.getIsActive())) continue;
+                    if (!cungNganhNguyenVong(nv, m)) continue;
+
+                    PhuongThuc pt = m.getPhuongThuc();
+                    if (!laNguonDiemCanSoSanh(pt)) continue;
+
+                    NganhToHop nth = m.getNganhToHop() != null ? m.getNganhToHop() : nthGoc;
+                    themPhuongAnDiemCong(result, seen, nth, pt);
+                }
+            }
+
+            // 3. DGNL trong DB thuong khai bao theo nganh voi ma_xet_tuyen = NL1,
+            // khong trung ma to hop/nguyen vong. Vi vay phai bo sung rieng theo nganh.
+            Integer nganhId = layNganhId(nv, maMap);
+            if (nganhId != null) {
+                for (MaXetTuyenMap m : layMaXetTuyenMapsTheoNganhCached(nganhId, maXtByNganhCache)) {
+                    if (m == null || Boolean.FALSE.equals(m.getIsActive())) continue;
+                    PhuongThuc pt = m.getPhuongThuc();
+                    if (isPhuongThucDGNLHCM(pt)) {
+                        themPhuongAnDiemCong(result, seen, nthGoc, pt);
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    private void themPhuongAnDiemCong(List<PhuongAnDiemCong> result,
+                                      Set<String> seen,
+                                      NganhToHop nth,
+                                      PhuongThuc pt) {
+        if (nth == null || nth.getNganhTohopId() == null || pt == null || pt.getPhuongthucId() == null) return;
+        if (!laNguonDiemCanSoSanh(pt)) return;
+
+        String key = nth.getNganhTohopId() + "_" + pt.getPhuongthucId();
+        if (seen.add(key)) {
+            result.add(new PhuongAnDiemCong(nth, pt));
+        }
+    }
+
+    private MaXetTuyenMap layMaXetTuyenMapDayDuCached(MaXetTuyenMap raw,
+                                                       Map<Integer, MaXetTuyenMap> cache) {
+        if (raw == null || raw.getMaXettuyenId() == null) return raw;
+        if (cache == null) return raw;
+
+        return cache.computeIfAbsent(raw.getMaXettuyenId(), id -> {
+            try {
+                MaXetTuyenMap loaded = maXetTuyenMapDao.findByIdWithDetails(id);
+                return loaded != null ? loaded : raw;
+            } catch (Exception ex) {
+                return raw;
+            }
+        });
+    }
+
+    private List<MaXetTuyenMap> layMaXetTuyenMapsTheoMaCached(String maXetTuyen,
+                                                               Map<String, List<MaXetTuyenMap>> cache) {
+        if (isBlank(maXetTuyen)) return Collections.emptyList();
+        String key = maXetTuyen.trim().toUpperCase(Locale.ROOT);
+        if (cache == null) {
+            return maXetTuyenMapDao.findByMaXetTuyenWithDetails(key);
+        }
+        return cache.computeIfAbsent(key, k -> {
+            try {
+                return maXetTuyenMapDao.findByMaXetTuyenWithDetails(k);
+            } catch (Exception ex) {
+                return Collections.emptyList();
+            }
+        });
+    }
+
+    private List<MaXetTuyenMap> layMaXetTuyenMapsTheoNganhCached(Integer nganhId,
+                                                                  Map<Integer, List<MaXetTuyenMap>> cache) {
+        if (nganhId == null) return Collections.emptyList();
+        if (cache == null) {
+            return maXetTuyenMapDao.findByNganhIdWithDetails(nganhId);
+        }
+        return cache.computeIfAbsent(nganhId, id -> {
+            try {
+                return maXetTuyenMapDao.findByNganhIdWithDetails(id);
+            } catch (Exception ex) {
+                return Collections.emptyList();
+            }
+        });
+    }
+
+    private boolean cungNganhNguyenVong(NguyenVong nv, MaXetTuyenMap m) {
+        if (nv == null || m == null) return true;
+        Integer nvNganhId = layNganhId(nv, null);
+        Integer mapNganhId = m.getNganh() != null ? m.getNganh().getNganhId() : null;
+        return nvNganhId == null || mapNganhId == null || Objects.equals(nvNganhId, mapNganhId);
+    }
+
+    private Map<Integer, List<NguyenVong>> nhomNguyenVongTheoThiSinh() {
+        Map<Integer, List<NguyenVong>> map = new HashMap<>();
+        List<NguyenVong> all = nguyenVongDao.findAllForXetTuyen();
+        for (NguyenVong nv : all) {
+            if (nv == null || nv.getThiSinh() == null || nv.getThiSinh().getThisinhId() == null) continue;
+            map.computeIfAbsent(nv.getThiSinh().getThisinhId(), k -> new ArrayList<>()).add(nv);
+        }
+        return map;
+    }
+
+    private Map<Integer, List<ThiSinhChungChi>> nhomChungChiHopLeTheoThiSinh() {
+        Map<Integer, List<ThiSinhChungChi>> map = new HashMap<>();
+        for (ThiSinhChungChi cc : thiSinhChungChiService.findAll()) {
+            if (cc == null || cc.getThiSinh() == null || cc.getThiSinh().getThisinhId() == null) continue;
+            if (!Boolean.TRUE.equals(cc.getIsHopLe())) continue;
+            if (!"DA_XAC_MINH".equalsIgnoreCase(safe(cc.getTrangThaiXacMinh()))) continue;
+            if (!isChungChiConHan(cc)) continue;
+            map.computeIfAbsent(cc.getThiSinh().getThisinhId(), k -> new ArrayList<>()).add(cc);
+        }
+        return map;
+    }
+
+    private Map<Integer, List<ThiSinhThanhTich>> nhomThanhTichHopLeTheoThiSinh() {
+        Map<Integer, List<ThiSinhThanhTich>> map = new HashMap<>();
+        for (ThiSinhThanhTich tt : thiSinhThanhTichService.findAll()) {
+            if (tt == null || tt.getThiSinh() == null || tt.getThiSinh().getThisinhId() == null) continue;
+            if (!Boolean.TRUE.equals(tt.getIsHopLe())) continue;
+            if (!"DA_XAC_MINH".equalsIgnoreCase(safe(tt.getTrangThaiXacMinh()))) continue;
+            map.computeIfAbsent(tt.getThiSinh().getThisinhId(), k -> new ArrayList<>()).add(tt);
+        }
+        return map;
+    }
+
+    private boolean coNguonDuLieuTinhDiemCached(ThiSinh ts,
+                                                Map<Integer, List<ThiSinhChungChi>> chungChiByThiSinh,
+                                                Map<Integer, List<ThiSinhThanhTich>> thanhTichByThiSinh) {
+        if (ts == null || ts.getThisinhId() == null) return false;
+        if (!chungChiByThiSinh.getOrDefault(ts.getThisinhId(), Collections.emptyList()).isEmpty()) return true;
+        if (!thanhTichByThiSinh.getOrDefault(ts.getThisinhId(), Collections.emptyList()).isEmpty()) return true;
+
+        BigDecimal khuVuc = ts.getKhuVucUutien() != null ? safe(ts.getKhuVucUutien().getMucDiem()) : ZERO;
+        BigDecimal doiTuong = ts.getDoiTuongUutien() != null ? safe(ts.getDoiTuongUutien().getMucDiem()) : ZERO;
+        return khuVuc.add(doiTuong).compareTo(ZERO) > 0;
+    }
+
+    private List<DiemCongChiTiet> taoChiTietTuNguonGocCached(ThiSinh ts,
+                                                              NganhToHop nth,
+                                                              PhuongThuc pt,
+                                                              DiemCong dc,
+                                                              Map<Integer, List<ThiSinhChungChi>> chungChiByThiSinh,
+                                                              Map<Integer, List<ThiSinhThanhTich>> thanhTichByThiSinh,
+                                                              Map<Integer, Boolean> toHopCoAnhCache,
+                                                              Map<Integer, List<ToHopMon>> monToHopCache) {
+        List<DiemCongChiTiet> list = new ArrayList<>();
+        if (ts == null || ts.getThisinhId() == null || nth == null || pt == null) return list;
+
+        short thuTu = 1;
+
+        if (ts.getKhuVucUutien() != null
+                && ts.getKhuVucUutien().getMucDiem() != null
+                && ts.getKhuVucUutien().getMucDiem().compareTo(ZERO) > 0) {
+            DiemCongChiTiet ct = new DiemCongChiTiet();
+            ct.setDiemCong(dc);
+            ct.setLoaiNguon(DiemCongChiTiet.LoaiNguon.UUTIEN_KHUVUC);
+            ct.setMaNguon(ts.getKhuVucUutien().getMaKhuVuc());
+            ct.setTenNguon(ts.getKhuVucUutien().getTenKhuvuc());
+            ct.setGiaTriGoc(ts.getKhuVucUutien().getMucDiem().toPlainString());
+            ct.setDiemQuyDoi(ZERO);
+            ct.setDiemCongGiaTri(ts.getKhuVucUutien().getMucDiem());
+            ct.setThuTuUuTien(thuTu++);
+            ct.setIsApDung(true);
+            ct.setGhiChu("Uu tien quy che theo khu vuc");
+            list.add(ct);
+        }
+
+        if (ts.getDoiTuongUutien() != null
+                && ts.getDoiTuongUutien().getMucDiem() != null
+                && ts.getDoiTuongUutien().getMucDiem().compareTo(ZERO) > 0) {
+            DiemCongChiTiet ct = new DiemCongChiTiet();
+            ct.setDiemCong(dc);
+            ct.setLoaiNguon(DiemCongChiTiet.LoaiNguon.UUTIEN_DOITUONG);
+            ct.setMaNguon(ts.getDoiTuongUutien().getMaDoituong());
+            ct.setTenNguon(ts.getDoiTuongUutien().getTenDoituong());
+            ct.setGiaTriGoc(ts.getDoiTuongUutien().getMucDiem().toPlainString());
+            ct.setDiemQuyDoi(ZERO);
+            ct.setDiemCongGiaTri(ts.getDoiTuongUutien().getMucDiem());
+            ct.setThuTuUuTien(thuTu++);
+            ct.setIsApDung(true);
+            ct.setGhiChu("Uu tien quy che theo doi tuong");
+            list.add(ct);
+        }
+
+        List<ThiSinhChungChi> chungChiList = chungChiByThiSinh.getOrDefault(ts.getThisinhId(), Collections.emptyList());
+        for (ThiSinhChungChi cc : chungChiList) {
+            BigDecimal diemQdAnh = tinhDiemQuyDoiMonAnhSGU(cc);
+            BigDecimal diemCong = tinhDiemCongKhuyenKhichChungChiSGU(cc);
+
+            boolean toHopCoAnh = toHopCoMonAnhCached(nth.getToHop(), toHopCoAnhCache, monToHopCache);
+            boolean laPT2 = isPhuongThucDGNLHCM(pt);
+            boolean laPT3or4 = isPhuongThucVSATHoacTHPT(pt);
+
+            if (laPT2) {
+                if (diemCong.compareTo(ZERO) > 0) {
+                    DiemCongChiTiet ct = taoChiTietChungChi(dc, cc, pt, thuTu++);
+                    ct.setDiemQuyDoi(ZERO);
+                    ct.setDiemCongGiaTri(diemCong);
+                    ct.setGhiChu("PT2 - cong diem khuyen khich tu chung chi");
+                    list.add(ct);
+                }
+                continue;
+            }
+
+            if (laPT3or4) {
+                if (toHopCoAnh) {
+                    if (diemQdAnh.compareTo(ZERO) > 0) {
+                        DiemCongChiTiet ct = taoChiTietChungChi(dc, cc, pt, thuTu++);
+                        ct.setDiemQuyDoi(diemQdAnh);
+                        ct.setDiemCongGiaTri(ZERO);
+                        ct.setGhiChu("PT3/PT4 - quy doi diem mon Anh tu chung chi");
+                        list.add(ct);
+                    }
+                } else if (diemCong.compareTo(ZERO) > 0) {
+                    DiemCongChiTiet ct = taoChiTietChungChi(dc, cc, pt, thuTu++);
+                    ct.setDiemQuyDoi(ZERO);
+                    ct.setDiemCongGiaTri(diemCong);
+                    ct.setGhiChu("PT3/PT4 - to hop khong co mon Anh, cong diem khuyen khich");
+                    list.add(ct);
+                }
+            }
+        }
+
+        List<ThiSinhThanhTich> thanhTichList = thanhTichByThiSinh.getOrDefault(ts.getThisinhId(), Collections.emptyList());
+        for (ThiSinhThanhTich tt : thanhTichList) {
+            DiemCongChiTiet.LoaiNguon loaiNguon = xacDinhLoaiNguonThanhTich(tt);
+            if (loaiNguon == null) continue;
+
+            boolean monTrungToHop = monDatGiaiThuocToHopCached(tt, nth.getToHop(), monToHopCache);
+            BigDecimal diemCong = tinhDiemCongThanhTichSGU(tt, monTrungToHop);
+            if (diemCong.compareTo(ZERO) <= 0) continue;
+
+            DiemCongChiTiet ct = new DiemCongChiTiet();
+            ct.setDiemCong(dc);
+            ct.setLoaiNguon(loaiNguon);
+            ct.setMaNguon(tt.getNhomThanhTich());
+            ct.setTenNguon(tt.getTenThanhTich() != null ? tt.getTenThanhTich() : tt.getNhomThanhTich());
+            ct.setCapApDung(pt != null ? pt.getMaPhuongthuc() : null);
+            ct.setMonLienQuan(tt.getMonDatGiai());
+            ct.setGiaTriGoc(tt.getLoaiGiai());
+            ct.setDiemQuyDoi(ZERO);
+            ct.setDiemCongGiaTri(diemCong);
+            ct.setThuTuUuTien(thuTu++);
+            ct.setIsApDung(true);
+            ct.setGhiChu(monTrungToHop
+                    ? "Thanh tich co mon dat giai thuoc to hop xet tuyen"
+                    : "Thanh tich khong co mon dat giai trong to hop xet tuyen");
+            list.add(ct);
+        }
+
+        return list;
+    }
+
+    private boolean toHopCoMonAnhCached(ToHop toHop,
+                                        Map<Integer, Boolean> toHopCoAnhCache,
+                                        Map<Integer, List<ToHopMon>> monToHopCache) {
+        if (toHop == null || toHop.getTohopId() == null) return false;
+        return toHopCoAnhCache.computeIfAbsent(toHop.getTohopId(), id -> {
+            for (ToHopMon thm : layMonToHopCached(toHop, monToHopCache)) {
+                if (thm.getMon() != null && laMonAnh(thm.getMon())) {
+                    return true;
+                }
+            }
+            return false;
+        });
+    }
+
+    private List<ToHopMon> layMonToHopCached(ToHop toHop, Map<Integer, List<ToHopMon>> monToHopCache) {
+        if (toHop == null || toHop.getTohopId() == null) return Collections.emptyList();
+        return monToHopCache.computeIfAbsent(toHop.getTohopId(), id -> toHopDao.findMonByToHopId(id));
+    }
+
+    private boolean monDatGiaiThuocToHopCached(ThiSinhThanhTich tt,
+                                                ToHop toHop,
+                                                Map<Integer, List<ToHopMon>> monToHopCache) {
+        if (tt == null || toHop == null || isBlank(tt.getMonDatGiai())) return false;
+
+        String monDatGiai = normalize(tt.getMonDatGiai());
+        if (containsAny(monDatGiai, "KHAC")) return false;
+
+        for (ToHopMon thm : layMonToHopCached(toHop, monToHopCache)) {
+            if (thm.getMon() == null) continue;
+
+            String maMon = normalize(thm.getMon().getMaMon());
+            String tenMon = normalize(thm.getMon().getTenMon());
+
+            if (monDatGiai.equals(maMon) || monDatGiai.equals(tenMon)) return true;
+            if ((containsAny(monDatGiai, "TOAN") || monDatGiai.equals("TO")) && maMon.equals("TO")) return true;
+            if ((containsAny(monDatGiai, "VATLI", "VATLY") || monDatGiai.equals("LI")) && maMon.equals("LI")) return true;
+            if ((containsAny(monDatGiai, "HOAHOC") || monDatGiai.equals("HO")) && maMon.equals("HO")) return true;
+            if ((containsAny(monDatGiai, "SINHHOC") || monDatGiai.equals("SI")) && maMon.equals("SI")) return true;
+            if ((containsAny(monDatGiai, "NGUVAN", "VAN") || monDatGiai.equals("VA")) && maMon.equals("VA")) return true;
+            if ((containsAny(monDatGiai, "LICHSU") || monDatGiai.equals("SU")) && maMon.equals("SU")) return true;
+            if ((containsAny(monDatGiai, "DIALI", "DIALY") || monDatGiai.equals("DI")) && maMon.equals("DI")) return true;
+            if ((containsAny(monDatGiai, "TIENGANH", "NGOAINGU") || monDatGiai.equals("N1")) && maMon.equals("N1")) return true;
+            if (containsAny(monDatGiai, "GDKTPL", "KTPL") && maMon.equals("KTPL")) return true;
+        }
+
+        return false;
+    }
+
+    private void apDungTongHopDiemCong(DiemCong dc, List<DiemCongChiTiet> chiTietList) {
+        if (dc == null) return;
+
+        BigDecimal tongChungChi = ZERO;
+        BigDecimal tongUuTienXt = ZERO;
+        BigDecimal tongUuTienQc = ZERO;
+
+        if (chiTietList != null) {
+            for (DiemCongChiTiet ct : chiTietList) {
+                if (ct == null || Boolean.FALSE.equals(ct.getIsApDung()) || ct.getLoaiNguon() == null) continue;
+
+                BigDecimal diemCong = safe(ct.getDiemCongGiaTri());
+                switch (ct.getLoaiNguon()) {
+                    case CC_NGOAI_NGU:
+                        tongChungChi = tongChungChi.add(diemCong);
+                        break;
+                    case UUTIEN_KHUVUC:
+                    case UUTIEN_DOITUONG:
+                        tongUuTienQc = tongUuTienQc.add(diemCong);
+                        break;
+                    case UTXT_HSG_QUOCGIA:
+                    case UTXT_HSG_TINH:
+                    case UTXT_KHKT:
+                    case UTXT_NGHE_THUAT:
+                        tongUuTienXt = tongUuTienXt.add(diemCong);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        BigDecimal tongThucTe = tongChungChi.add(tongUuTienXt).add(tongUuTienQc);
+        BigDecimal tongSauTran = tongThucTe.min(new BigDecimal("3.00"));
+
+        dc.setTongDiemChungChi(tongChungChi);
+        dc.setTongDiemUutienXt(tongUuTienXt);
+        dc.setTongDiemUutienQuyChe(tongUuTienQc);
+        dc.setTongDiemCong(tongSauTran);
+        dc.setGhiChuTong(tongThucTe.compareTo(new BigDecimal("3.00")) > 0
+                ? "Tong diem cong thuc te = " + tongThucTe.toPlainString() + ", ap tran SGU = 3.00"
+                : null);
+    }
+
+    private String rootMessage(Throwable ex) {
+        if (ex == null) return "Khong ro loi";
+        Throwable root = ex;
+        while (root.getCause() != null) {
+            root = root.getCause();
+        }
+        return root.getMessage() != null ? root.getMessage() : root.toString();
+    }
+
     /**
      * Tao / cap nhat diem cong tu dong cho mot thi sinh theo cac nguyen vong.
      */
@@ -859,12 +1453,14 @@ public class TinhDiemService {
             }
 
             List<DiemCongChiTiet> chiTietList = taoChiTietTuNguonGoc(ts, nth, pt, dc);
+            apDungTongHopDiemCong(dc, chiTietList);
+            diemCongService.update(dc);
+
             for (DiemCongChiTiet ct : chiTietList) {
                 diemCongChiTietService.save(ct);
             }
 
-            diemCongService.recalculateTongHop(dc.getDiemcongId());
-            list.add(diemCongDao.findById(dc.getDiemcongId()));
+            list.add(dc);
         }
 
         return list;
@@ -905,12 +1501,14 @@ public class TinhDiemService {
         }
 
         List<DiemCongChiTiet> chiTietList = taoChiTietTuNguonGoc(ts, nth, pt, dc);
+        apDungTongHopDiemCong(dc, chiTietList);
+        diemCongService.update(dc);
+
         for (DiemCongChiTiet ct : chiTietList) {
             diemCongChiTietService.save(ct);
         }
 
-        diemCongService.recalculateTongHop(dc.getDiemcongId());
-        return Optional.ofNullable(diemCongDao.findById(dc.getDiemcongId()));
+        return Optional.of(dc);
     }
 
     private List<DiemCongChiTiet> taoChiTietTuNguonGoc(ThiSinh ts, NganhToHop nth, PhuongThuc pt, DiemCong dc) {

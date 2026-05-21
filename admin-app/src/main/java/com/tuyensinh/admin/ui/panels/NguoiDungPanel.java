@@ -1,6 +1,7 @@
 package com.tuyensinh.admin.ui.panels;
 
 import com.tuyensinh.admin.ui.*;
+import com.tuyensinh.admin.ui.SearchFieldOption;
 import com.tuyensinh.admin.ui.MainFrame;
 import com.tuyensinh.entity.*;
 import com.tuyensinh.service.*;
@@ -20,6 +21,7 @@ public class NguoiDungPanel extends BaseCrudPanel<NguoiDung> {
     private final NguoiDungService service;
     private final VaiTroService vaiTroService;
 
+    private JComboBox<SearchFieldOption> searchFieldCombo;
     private JComboBox<VaiTro> vaiTroFilter;
     private JButton btnToggleActive, btnChangePass;
 
@@ -61,7 +63,18 @@ public class NguoiDungPanel extends BaseCrudPanel<NguoiDung> {
     protected void buildToolbar() {
         JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
 
-        toolbar.add(new JLabel("Tim kiem:"));
+        toolbar.add(new JLabel("Tim theo:"));
+        searchFieldCombo = new JComboBox<>();
+        searchFieldCombo.addItem(new SearchFieldOption("ALL", "Tat ca"));
+        searchFieldCombo.addItem(new SearchFieldOption("ID", "ID nguoi dung"));
+        searchFieldCombo.addItem(new SearchFieldOption("USERNAME", "Username"));
+        searchFieldCombo.addItem(new SearchFieldOption("HOTEN", "Ho ten"));
+        searchFieldCombo.addItem(new SearchFieldOption("EMAIL", "Email"));
+        searchFieldCombo.addItem(new SearchFieldOption("VAITRO", "Ma/Ten vai tro"));
+        searchFieldCombo.addActionListener(e -> doSearch());
+        toolbar.add(searchFieldCombo);
+
+        toolbar.add(new JLabel("Tu khoa:"));
         searchTextField = new JTextField(20);
         searchTextField.addActionListener(e -> doSearch());
         toolbar.add(searchTextField);
@@ -149,7 +162,7 @@ public class NguoiDungPanel extends BaseCrudPanel<NguoiDung> {
         long total;
 
         if (!keyword.isEmpty()) {
-            List<NguoiDung> raw = service.search(keyword);
+            List<NguoiDung> raw = service.search(getSelectedSearchFieldKey(), keyword);
             total = raw.size();
             list = paginate(raw, currentPage, pageSize);
         } else if (selected != null) {
@@ -180,6 +193,15 @@ public class NguoiDungPanel extends BaseCrudPanel<NguoiDung> {
         if (pageSpinner != null) {
             ToolbarFactory.updatePagingSpinner(pageSpinner, currentPage, (int) total, pageSize);
         }
+    }
+
+
+    private String getSelectedSearchFieldKey() {
+        Object selected = searchFieldCombo != null ? searchFieldCombo.getSelectedItem() : null;
+        if (selected instanceof SearchFieldOption) {
+            return ((SearchFieldOption) selected).getKey();
+        }
+        return "ALL";
     }
 
     private List<NguoiDung> paginate(List<NguoiDung> raw, int page, int size) {

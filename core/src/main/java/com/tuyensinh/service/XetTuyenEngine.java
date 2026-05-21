@@ -44,14 +44,21 @@ public class XetTuyenEngine {
         }
 
         public String toString() {
-            return String.format("[%s] %s | NV=%s | Nganh=%s | Nguon=%s | THXT=%.2f | Cong=%.2f | XT=%.2f | Hang=%d/%s",
+            String nguon = ketQuaDiem != null && ketQuaDiem.phuongThucDiemTotNhat != null
+                    ? ketQuaDiem.phuongThucDiemTotNhat
+                    : (nguyenVong.getPhuongThucDiemTotNhat() != null ? nguyenVong.getPhuongThucDiemTotNhat() : "?");
+
+            String thm = ketQuaDiem != null && ketQuaDiem.toHopDiemTotNhat != null
+                    ? ketQuaDiem.toHopDiemTotNhat
+                    : (nguyenVong.getToHopDiemTotNhat() != null ? nguyenVong.getToHopDiemTotNhat() : "?");
+
+            return String.format("[%s] %s | NV=%s | Nganh=%s | Nguon=%s | THM=%s | THXT=%.2f | Cong=%.2f | XT=%.2f | Hang=%d/%s",
                     ketQua,
                     nguyenVong.getThiSinh() != null ? nguyenVong.getThiSinh().getHoVaTen() : "?",
                     nguyenVong.getThuTu() != null ? nguyenVong.getThuTu() : 0,
                     nguyenVong.getNganh() != null ? nguyenVong.getNganh().getMaNganh() : "?",
-                    ketQuaDiem != null && ketQuaDiem.phuongThucDiemTotNhat != null
-                            ? ketQuaDiem.phuongThucDiemTotNhat
-                            : (nguyenVong.getPhuongThucDiemTotNhat() != null ? nguyenVong.getPhuongThucDiemTotNhat() : "?"),
+                    nguon,
+                    thm,
                     ketQuaDiem != null && ketQuaDiem.diemThxt != null ? ketQuaDiem.diemThxt : ZERO,
                     ketQuaDiem != null && ketQuaDiem.diemCong != null ? ketQuaDiem.diemCong : ZERO,
                     ketQuaDiem != null && ketQuaDiem.diemXettuyen != null ? ketQuaDiem.diemXettuyen : ZERO,
@@ -250,6 +257,7 @@ public class XetTuyenEngine {
                         nv.setDiemUutien(ZERO);
                         nv.setDiemXettuyen(ZERO);
                         nv.setPhuongThucDiemTotNhat(null);
+                        nv.setToHopDiemTotNhat(null);
                         nv.setKetQua(NguyenVong.KetQua.TRUOT);
                         nv.setGhiChu(appendNote(nv.getGhiChu(), "LOI_TINH_DIEM: " + e.getMessage()));
                     }
@@ -530,6 +538,7 @@ public class XetTuyenEngine {
         nv.setDiemUutien(kq.diemUutien);
         nv.setDiemXettuyen(kq.diemXettuyen);
         nv.setPhuongThucDiemTotNhat(kq.phuongThucDiemTotNhat);
+        nv.setToHopDiemTotNhat(kq.toHopDiemTotNhat);
         nv.setGhiChu(kq.ghiChu);
     }
 

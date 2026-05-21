@@ -70,6 +70,56 @@ public class NguoiDungDao extends BaseDao<NguoiDung> implements INguoiDungDao {
         return em().createQuery(cq).getResultList();
     }
 
+
+
+    public List<NguoiDung> searchByField(String field, String keyword) {
+        CriteriaBuilder cb = cb();
+        CriteriaQuery<NguoiDung> cq = cb.createQuery(NguoiDung.class);
+        Root<NguoiDung> root = cq.from(NguoiDung.class);
+        Join<NguoiDung, ?> vaiTro = root.join("vaiTro", javax.persistence.criteria.JoinType.LEFT);
+        String f = field == null ? "ALL" : field.trim().toUpperCase();
+        String raw = keyword == null ? "" : keyword.trim();
+        String low = raw.toLowerCase();
+        String like = "%" + low + "%";
+        Predicate p;
+        switch (f) {
+            case "ID":
+                p = cb.equal(root.get("nguoidungId"), parseIntegerOrNeverMatch(raw));
+                break;
+            case "USERNAME":
+                p = cb.equal(cb.lower(root.get("username")), low);
+                break;
+            case "EMAIL":
+                p = cb.like(cb.lower(root.get("email")), like);
+                break;
+            case "VAITRO":
+                p = cb.or(
+                        cb.equal(cb.lower(vaiTro.get("maVaitro")), low),
+                        cb.like(cb.lower(vaiTro.get("tenVaitro")), like)
+                );
+                break;
+            case "HOTEN":
+                p = cb.like(cb.lower(root.get("hoTen")), like);
+                break;
+            default:
+                p = cb.or(
+                        cb.equal(cb.lower(root.get("username")), low),
+                        cb.like(cb.lower(root.get("hoTen")), like),
+                        cb.like(cb.lower(root.get("email")), like),
+                        cb.equal(cb.lower(vaiTro.get("maVaitro")), low),
+                        cb.like(cb.lower(vaiTro.get("tenVaitro")), like)
+                );
+                break;
+        }
+        cq.select(root).where(p);
+        cq.orderBy(cb.asc(root.get("username")));
+        return em().createQuery(cq).getResultList();
+    }
+
+    private Integer parseIntegerOrNeverMatch(String value) {
+        try { return Integer.parseInt(value.trim()); } catch (Exception e) { return -1; }
+    }
+
     public List<NguoiDung> findByPage(int page, int pageSize) {
         CriteriaBuilder cb = cb();
         CriteriaQuery<NguoiDung> cq = cb.createQuery(NguoiDung.class);

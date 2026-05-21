@@ -50,4 +50,12 @@ public class NganhToHopService implements INganhToHopService {
         return dao.countSearch(keyword);
     }
 
+    public List<NganhToHop> searchPage(String field, String keyword, int page, int pageSize) {
+        return dao.searchPageByField(field, keyword, page, pageSize);
+    }
+
+    public long countSearch(String field, String keyword) {
+        return dao.countSearchByField(field, keyword);
+    }
+
 }

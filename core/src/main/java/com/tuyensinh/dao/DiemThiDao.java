@@ -392,6 +392,121 @@ public class DiemThiDao extends BaseDao<DiemThi> implements IDiemThiDao {
         return query.getSingleResult();
     }
 
+
+
+    public List<DiemThi> searchPageByField(String field, String keyword, int page, int pageSize) {
+        javax.persistence.TypedQuery<DiemThi> query = buildSearchByFieldQuery(field, keyword, false);
+        query.setFirstResult((Math.max(1, page) - 1) * pageSize);
+        query.setMaxResults(pageSize);
+        return query.getResultList();
+    }
+
+    public long countSearchByField(String field, String keyword) {
+        javax.persistence.TypedQuery<Long> query = buildSearchByFieldQuery(field, keyword, true);
+        return query.getSingleResult();
+    }
+
+    @SuppressWarnings("unchecked")
+    private <R> javax.persistence.TypedQuery<R> buildSearchByFieldQuery(String field, String keyword, boolean countOnly) {
+        String f = normalizeField(field);
+        String raw = keyword == null ? "" : keyword.trim();
+        String low = raw.toLowerCase();
+
+        String select = countOnly ? "select count(d) " : "select d ";
+        String jpql = select +
+                "from DiemThi d " +
+                "left join d.thiSinh ts " +
+                "left join d.phuongThuc pt ";
+
+        String where;
+        boolean like = false;
+        switch (f) {
+            case "ID":
+                where = "d.diemthiId = :id";
+                break;
+            case "CCCD":
+                where = "lower(coalesce(ts.cccd, '')) = :text";
+                break;
+            case "SBD":
+                where = "lower(coalesce(d.sobaodanh, '')) = :text";
+                break;
+            case "MAPT":
+                where = "lower(coalesce(pt.maPhuongthuc, '')) = :text";
+                break;
+            case "NAM":
+                where = "d.namTuyensinh = :nam";
+                break;
+            case "HOTEN":
+                where = "lower(concat(concat(coalesce(ts.ho, ''), ' '), coalesce(ts.ten, ''))) like :kw";
+                like = true;
+                break;
+            case "TENPT":
+                where = "lower(coalesce(pt.tenPhuongthuc, '')) like :kw";
+                like = true;
+                break;
+            case "GHICHU":
+                where = "lower(coalesce(d.ghiChu, '')) like :kw";
+                like = true;
+                break;
+            default:
+                where = "lower(coalesce(ts.cccd, '')) = :text " +
+                        "or lower(coalesce(d.sobaodanh, '')) = :text " +
+                        "or lower(coalesce(pt.maPhuongthuc, '')) = :text " +
+                        "or lower(concat(concat(coalesce(ts.ho, ''), ' '), coalesce(ts.ten, ''))) like :kw " +
+                        "or lower(coalesce(pt.tenPhuongthuc, '')) like :kw " +
+                        "or lower(coalesce(d.ghiChu, '')) like :kw";
+                like = true;
+                break;
+        }
+
+        jpql += "where (" + where + ") ";
+        if (!countOnly) {
+            jpql += "order by ts.ten, ts.ho, pt.phuongthucId, d.diemthiId";
+        }
+
+        javax.persistence.TypedQuery<R> query;
+
+
+        if (countOnly) {
+
+
+            query = (javax.persistence.TypedQuery<R>) em().createQuery(jpql, Long.class);
+
+
+        } else {
+
+
+            query = (javax.persistence.TypedQuery<R>) em().createQuery(jpql, DiemThi.class);
+
+
+        }
+        if (where.contains(":id")) {
+            query.setParameter("id", parseIntegerOrNeverMatch(raw));
+        }
+        if (where.contains(":nam")) {
+            query.setParameter("nam", parseShortOrNeverMatch(raw));
+        }
+        if (where.contains(":text")) {
+            query.setParameter("text", low);
+        }
+        if (like || where.contains(":kw")) {
+            query.setParameter("kw", "%" + low + "%");
+        }
+        return query;
+    }
+
+    private String normalizeField(String field) {
+        return field == null ? "ALL" : field.trim().toUpperCase();
+    }
+
+    private Integer parseIntegerOrNeverMatch(String value) {
+        try { return Integer.parseInt(value.trim()); } catch (Exception e) { return -1; }
+    }
+
+    private Short parseShortOrNeverMatch(String value) {
+        try { return Short.parseShort(value.trim()); } catch (Exception e) { return Short.MIN_VALUE; }
+    }
+
     private String normalizeKeyword(String keyword) {
         return keyword == null ? "" : keyword.trim().toLowerCase();
     }

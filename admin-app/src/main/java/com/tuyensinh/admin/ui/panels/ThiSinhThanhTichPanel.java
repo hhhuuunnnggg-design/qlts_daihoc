@@ -4,6 +4,7 @@ import com.tuyensinh.admin.ui.BaseCrudPanel;
 import com.tuyensinh.admin.ui.MainFrame;
 import com.tuyensinh.admin.ui.ToolbarFactory;
 import com.tuyensinh.admin.ui.UIConstants;
+import com.tuyensinh.admin.ui.SearchFieldOption;
 import com.tuyensinh.entity.ThiSinh;
 import com.tuyensinh.entity.ThiSinhThanhTich;
 import com.tuyensinh.service.ThiSinhService;
@@ -20,6 +21,7 @@ public class ThiSinhThanhTichPanel extends BaseCrudPanel<ThiSinhThanhTich> {
 
     private final ThiSinhThanhTichService service;
     private final ThiSinhService thiSinhService;
+    private JComboBox<SearchFieldOption> searchFieldCombo;
 
     public ThiSinhThanhTichPanel(MainFrame mainFrame) {
         super(mainFrame);
@@ -41,19 +43,36 @@ public class ThiSinhThanhTichPanel extends BaseCrudPanel<ThiSinhThanhTich> {
 
     @Override
     protected void buildToolbar() {
-        JTextField[] searchFieldOut = new JTextField[1];
-        JPanel toolbar = ToolbarFactory.createSearchToolbar(
-                searchFieldOut,
-                this::doSearch,
-                new ToolbarFactory.ActionButton("Import Excel", this::showImportDialog),
-                new ToolbarFactory.ActionButton("Them moi", this::showAddDialog),
-                new ToolbarFactory.ActionButton("Sua", this::showEditDialog),
-                new ToolbarFactory.ActionButton("Xoa", this::doDelete),
-                new ToolbarFactory.ActionButton("Xac minh", this::xacMinhSelected),
-                new ToolbarFactory.ActionButton("Tu choi", this::tuChoiSelected),
-                new ToolbarFactory.ActionButton("Cho xac minh", this::choXacMinhSelected)
-        );
-        this.searchTextField = searchFieldOut[0];
+        JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
+        toolbar.add(new JLabel("Tim theo:"));
+        searchFieldCombo = new JComboBox<>();
+        searchFieldCombo.addItem(new SearchFieldOption("ALL", "Tat ca"));
+        searchFieldCombo.addItem(new SearchFieldOption("ID", "ID thanh tich"));
+        searchFieldCombo.addItem(new SearchFieldOption("CCCD", "CCCD"));
+        searchFieldCombo.addItem(new SearchFieldOption("SBD", "So bao danh"));
+        searchFieldCombo.addItem(new SearchFieldOption("HOTEN", "Ho ten"));
+        searchFieldCombo.addItem(new SearchFieldOption("NHOM", "Nhom thanh tich"));
+        searchFieldCombo.addItem(new SearchFieldOption("CAP", "Cap thanh tich"));
+        searchFieldCombo.addItem(new SearchFieldOption("GIAI", "Loai giai"));
+        searchFieldCombo.addItem(new SearchFieldOption("MON", "Mon dat giai"));
+        searchFieldCombo.addItem(new SearchFieldOption("NAM", "Nam dat giai"));
+        searchFieldCombo.addItem(new SearchFieldOption("XACMINH", "Trang thai xac minh"));
+        searchFieldCombo.addActionListener(e -> doSearch());
+        toolbar.add(searchFieldCombo);
+        toolbar.add(new JLabel("Tu khoa:"));
+        searchTextField = new JTextField(18);
+        searchTextField.addActionListener(e -> doSearch());
+        toolbar.add(searchTextField);
+        JButton btnSearch = new JButton("Tim");
+        btnSearch.addActionListener(e -> doSearch());
+        toolbar.add(btnSearch);
+        toolbar.add(new JButton("Import Excel") {{ addActionListener(e -> showImportDialog()); }});
+        toolbar.add(new JButton("Them moi") {{ addActionListener(e -> showAddDialog()); }});
+        toolbar.add(new JButton("Sua") {{ addActionListener(e -> showEditDialog()); }});
+        toolbar.add(new JButton("Xoa") {{ addActionListener(e -> doDelete()); }});
+        toolbar.add(new JButton("Xac minh") {{ addActionListener(e -> xacMinhSelected()); }});
+        toolbar.add(new JButton("Tu choi") {{ addActionListener(e -> tuChoiSelected()); }});
+        toolbar.add(new JButton("Cho xac minh") {{ addActionListener(e -> choXacMinhSelected()); }});
         add(toolbar, BorderLayout.NORTH);
     }
 
@@ -90,11 +109,12 @@ public class ThiSinhThanhTichPanel extends BaseCrudPanel<ThiSinhThanhTich> {
         model.setRowCount(0);
 
         String keyword = normalize(getSearchKeyword());
-        long total = keyword.isEmpty() ? service.countAll() : service.countSearch(keyword);
+        String field = getSelectedSearchFieldKey();
+        long total = keyword.isEmpty() ? service.countAll() : service.countSearch(field, keyword);
         normalizePage(total);
         List<ThiSinhThanhTich> list = keyword.isEmpty()
                 ? service.findPage(currentPage, pageSize)
-                : service.searchPage(keyword, currentPage, pageSize);
+                : service.searchPage(field, keyword, currentPage, pageSize);
 
         for (ThiSinhThanhTich tt : list) {
             ThiSinh ts = tt.getThiSinh();
@@ -117,6 +137,15 @@ public class ThiSinhThanhTichPanel extends BaseCrudPanel<ThiSinhThanhTich> {
 
         updateTotalLabel(total, "thanh tich");
         updatePagingState(total);
+    }
+
+
+    private String getSelectedSearchFieldKey() {
+        Object selected = searchFieldCombo != null ? searchFieldCombo.getSelectedItem() : null;
+        if (selected instanceof SearchFieldOption) {
+            return ((SearchFieldOption) selected).getKey();
+        }
+        return "ALL";
     }
 
     @Override

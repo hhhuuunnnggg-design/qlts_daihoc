@@ -114,6 +114,63 @@ public class NganhToHopDao extends BaseDao<NganhToHop> implements INganhToHopDao
                 .getSingleResult();
     }
 
+
+
+    public List<NganhToHop> searchPageByField(String field, String keyword, int page, int pageSize) {
+        javax.persistence.TypedQuery<NganhToHop> q = buildSearchByFieldQuery(field, keyword, false);
+        q.setFirstResult((Math.max(1, page) - 1) * pageSize);
+        q.setMaxResults(pageSize);
+        return q.getResultList();
+    }
+
+    public long countSearchByField(String field, String keyword) {
+        javax.persistence.TypedQuery<Long> q = buildSearchByFieldQuery(field, keyword, true);
+        return q.getSingleResult();
+    }
+
+    @SuppressWarnings("unchecked")
+    private <R> javax.persistence.TypedQuery<R> buildSearchByFieldQuery(String field, String keyword, boolean countOnly) {
+        String f = field == null ? "ALL" : field.trim().toUpperCase();
+        String raw = keyword == null ? "" : keyword.trim();
+        String low = raw.toLowerCase();
+        String select = countOnly ? "select count(nt) " : "select nt ";
+        String jpql = select + "from NganhToHop nt left join nt.nganh n left join nt.toHop th ";
+        String where;
+        boolean like = false;
+        switch (f) {
+            case "ID": where = "nt.nganhTohopId = :id"; break;
+            case "MANGANH": where = "lower(coalesce(n.maNganh, '')) = :text"; break;
+            case "MATOHOP": where = "lower(coalesce(th.maTohop, '')) = :text"; break;
+            case "TENNGANH": where = "lower(coalesce(n.tenNganh, '')) like :kw"; like = true; break;
+            case "TENTOHOP": where = "lower(coalesce(th.tenTohop, '')) like :kw"; like = true; break;
+            default:
+                where = "lower(coalesce(n.maNganh, '')) = :text or lower(coalesce(th.maTohop, '')) = :text " +
+                        "or lower(coalesce(n.tenNganh, '')) like :kw or lower(coalesce(th.tenTohop, '')) like :kw";
+                like = true; break;
+        }
+        jpql += "where (" + where + ") ";
+        if (!countOnly) jpql += "order by n.maNganh, th.maTohop, nt.nganhTohopId";
+        javax.persistence.TypedQuery<R> q;
+
+        if (countOnly) {
+
+            q = (javax.persistence.TypedQuery<R>) em().createQuery(jpql, Long.class);
+
+        } else {
+
+            q = (javax.persistence.TypedQuery<R>) em().createQuery(jpql, NganhToHop.class);
+
+        }
+        if (where.contains(":id")) q.setParameter("id", parseIntegerOrNeverMatch(raw));
+        if (where.contains(":text")) q.setParameter("text", low);
+        if (like || where.contains(":kw")) q.setParameter("kw", "%" + low + "%");
+        return q;
+    }
+
+    private Integer parseIntegerOrNeverMatch(String value) {
+        try { return Integer.parseInt(value.trim()); } catch (Exception e) { return -1; }
+    }
+
     private String normalizeKeyword(String keyword) {
         return keyword == null ? "" : keyword.trim().toLowerCase();
     }
