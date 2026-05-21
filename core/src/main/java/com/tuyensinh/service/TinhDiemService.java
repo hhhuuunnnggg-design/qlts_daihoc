@@ -432,7 +432,7 @@ public class TinhDiemService {
         if (pt == null || diemDgnl == null) return null;
 
         // 1. Neu to hop hien tai co bang quy doi truc tiep thi dung luon.
-        BigDecimal diemExact = timDiemQuyDoi(diemDgnl, pt, toHopHienTai, null);
+        BigDecimal diemExact = timDiemQuyDoi(diemDgnl, pt, toHopHienTai, null); 
         if (diemExact != null) {
             return new QuyDoiDgnlResult(toHopHienTai, diemExact);
         }
