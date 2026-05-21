@@ -160,7 +160,7 @@
                             <input type="text"
                                    class="form-control form-control-lg"
                                    name="cccd"
-                                   placeholder="VD: 079123456789 hoặc TS_0013"
+                                   placeholder="VD: TS_0055 hoặc TS00055"
                                    value="${param.cccd}"
                                    required
                                    autofocus
@@ -510,9 +510,9 @@
                                                     </div>
                                                 </div>
                                                 <div>
-                                                    <div class="score-label-sm">Điểm sàn</div>
+                                                    <div class="score-label-sm">Điểm trúng tuyển</div>
                                                     <div class="fw-bold text-danger fs-5">
-                                                        <fmt:formatNumber value="${r.nganh.diemSan}" pattern="#,##0.00"/>
+                                                        <fmt:formatNumber value="${r.nganh.diemTrungTuyen}" pattern="#,##0.00"/>
                                                     </div>
                                                 </div>
                                             </div>
@@ -529,8 +529,8 @@
                                             <c:otherwise>
                                                 <div class="text-danger fw-semibold">
                                                     <i class="bi bi-x-circle-fill me-1"></i>
-                                                    Dưới điểm sàn ngành
-                                                    (<fmt:formatNumber value="${r.diemInfo.diemXettuyen.subtract(r.nganh.diemSan)}" pattern="#,##0.000"/> đ)
+                                                    Dưới điểm trúng tuyển
+                                                    (<fmt:formatNumber value="${r.diemInfo.diemXettuyen.subtract(r.nganh.diemTrungTuyen)}" pattern="#,##0.000"/> đ)
                                                 </div>
                                             </c:otherwise>
                                         </c:choose>

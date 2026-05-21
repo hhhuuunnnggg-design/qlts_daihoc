@@ -96,4 +96,18 @@ public class MaXetTuyenMapService {
         return dao.countSearch(keyword);
     }
 
+    public List<MaXetTuyenMap> searchPage(String field, String keyword, int page, int pageSize) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return dao.findPage(page, pageSize);
+        }
+        return dao.searchPageByField(field, keyword, page, pageSize);
+    }
+
+    public long countSearch(String field, String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return dao.countAll();
+        }
+        return dao.countSearchByField(field, keyword);
+    }
+
 }

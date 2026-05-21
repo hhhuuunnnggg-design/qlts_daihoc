@@ -310,4 +310,12 @@ public class DiemThiService implements IDiemThiService {
         return dao.countSearchByCccdOrSoBaoDanh(keyword, phuongthucId);
     }
 
+    public List<DiemThi> searchDiemThiPage(String field, String keyword, int page, int pageSize) {
+        return dao.searchPageByField(field, keyword, page, pageSize);
+    }
+
+    public long countSearchDiemThi(String field, String keyword) {
+        return dao.countSearchByField(field, keyword);
+    }
+
 }

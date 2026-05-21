@@ -193,6 +193,22 @@ public class XetTuyenService implements IXetTuyenService {
         return nganhDao.countSearchByMaOrTen(keyword);
     }
 
+    public List<Nganh> searchNganhPage(String field, String keyword, int page, int pageSize) {
+        return nganhDao.searchPageByField(field, keyword, page, pageSize);
+    }
+
+    public long countSearchNganh(String field, String keyword) {
+        return nganhDao.countSearchByField(field, keyword);
+    }
+
+    public String findPhuongThucTextByNganhId(Integer nganhId) {
+        return nganhDao.findPhuongThucTextByNganhId(nganhId);
+    }
+
+    public long countNguyenVongByNganhId(Integer nganhId) {
+        return nganhDao.countNguyenVongByNganhId(nganhId);
+    }
+
     public List<ToHop> findToHopByPage(int page, int pageSize) {
         return toHopDao.findPage(page, pageSize);
     }
@@ -212,10 +228,6 @@ public class XetTuyenService implements IXetTuyenService {
     // --- Diem Thi ---
     public List<DiemThi> findDiemThiByThiSinh(Integer thisinhId) {
         return diemThiDao.findByThiSinhId(thisinhId);
-    }
-
-    public List<DiemThi> findDiemThiByThiSinhWithDetails(Integer thisinhId) {
-        return diemThiDao.findByThiSinhIdWithDetails(thisinhId);
     }
 
     public DiemThi saveDiemThi(DiemThi dt) {

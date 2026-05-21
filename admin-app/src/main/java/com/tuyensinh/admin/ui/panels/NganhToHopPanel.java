@@ -4,6 +4,7 @@ import com.tuyensinh.admin.ui.BaseCrudPanel;
 import com.tuyensinh.admin.ui.MainFrame;
 import com.tuyensinh.admin.ui.ToolbarFactory;
 import com.tuyensinh.admin.ui.UIConstants;
+import com.tuyensinh.admin.ui.SearchFieldOption;
 import com.tuyensinh.entity.Nganh;
 import com.tuyensinh.entity.NganhToHop;
 import com.tuyensinh.entity.ToHop;
@@ -19,6 +20,7 @@ public class NganhToHopPanel extends BaseCrudPanel<NganhToHop> {
 
     private final XetTuyenService xetTuyenService;
     private final NganhToHopService service;
+    private JComboBox<SearchFieldOption> searchFieldCombo;
 
     public NganhToHopPanel(MainFrame mainFrame) {
         super(mainFrame);
@@ -63,6 +65,41 @@ public class NganhToHopPanel extends BaseCrudPanel<NganhToHop> {
         table.getColumnModel().getColumn(5).setPreferredWidth(80);
     }
 
+
+    @Override
+    protected void buildToolbar() {
+        JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
+        toolbar.add(new JLabel("Tim theo:"));
+        searchFieldCombo = new JComboBox<>();
+        searchFieldCombo.addItem(new SearchFieldOption("ALL", "Tat ca"));
+        searchFieldCombo.addItem(new SearchFieldOption("ID", "ID lien ket"));
+        searchFieldCombo.addItem(new SearchFieldOption("MANGANH", "Ma nganh"));
+        searchFieldCombo.addItem(new SearchFieldOption("TENNGANH", "Ten nganh"));
+        searchFieldCombo.addItem(new SearchFieldOption("MATOHOP", "Ma to hop"));
+        searchFieldCombo.addItem(new SearchFieldOption("TENTOHOP", "Ten to hop"));
+        searchFieldCombo.addActionListener(e -> doSearch());
+        toolbar.add(searchFieldCombo);
+        toolbar.add(new JLabel("Tu khoa:"));
+        searchTextField = new JTextField(20);
+        searchTextField.addActionListener(e -> doSearch());
+        toolbar.add(searchTextField);
+        JButton btnSearch = new JButton("Tim");
+        btnSearch.addActionListener(e -> doSearch());
+        toolbar.add(btnSearch);
+        toolbar.add(new JButton("Them moi") {{ addActionListener(e -> showAddDialog()); }});
+        toolbar.add(new JButton("Sua") {{ addActionListener(e -> showEditDialog()); }});
+        toolbar.add(new JButton("Xoa") {{ addActionListener(e -> doDelete()); }});
+        add(toolbar, BorderLayout.NORTH);
+    }
+
+    private String getSelectedSearchFieldKey() {
+        Object selected = searchFieldCombo != null ? searchFieldCombo.getSelectedItem() : null;
+        if (selected instanceof SearchFieldOption) {
+            return ((SearchFieldOption) selected).getKey();
+        }
+        return "ALL";
+    }
+
     @Override
     protected void buildBottomBar() {
         totalLabel = new JLabel("Tong: 0 lien ket");
@@ -80,11 +117,12 @@ public class NganhToHopPanel extends BaseCrudPanel<NganhToHop> {
         model.setRowCount(0);
 
         String kw = getSearchKeyword();
-        long total = kw.isEmpty() ? service.countAll() : service.countSearch(kw);
+        String field = getSelectedSearchFieldKey();
+        long total = kw.isEmpty() ? service.countAll() : service.countSearch(field, kw);
         normalizePage(total);
         List<NganhToHop> list = kw.isEmpty()
                 ? service.findPage(currentPage, pageSize)
-                : service.searchPage(kw, currentPage, pageSize);
+                : service.searchPage(field, kw, currentPage, pageSize);
 
         for (NganhToHop nt : list) {
             model.addRow(new Object[]{

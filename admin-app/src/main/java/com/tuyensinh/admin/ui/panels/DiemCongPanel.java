@@ -1,6 +1,7 @@
 package com.tuyensinh.admin.ui.panels;
 
 import com.tuyensinh.admin.ui.*;
+import com.tuyensinh.admin.ui.SearchFieldOption;
 import com.tuyensinh.admin.ui.MainFrame;
 import com.tuyensinh.entity.*;
 import com.tuyensinh.service.*;
@@ -13,6 +14,7 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Refactored: extends BaseCrudPanel, uses TableFactory + parse helpers.
@@ -32,6 +34,7 @@ public class DiemCongPanel extends BaseCrudPanel<DiemCong> {
     private JTable detailTable;
     private DefaultTableModel detailModel;
     private JLabel detailTitleLabel;
+    private JComboBox<SearchFieldOption> searchFieldCombo;
 
     public DiemCongPanel(MainFrame mainFrame) {
         super(mainFrame);
@@ -51,7 +54,7 @@ public class DiemCongPanel extends BaseCrudPanel<DiemCong> {
 
     @Override
     protected String[] getTableColumns() {
-        return new String[]{"ID", "CCCD", "Ho Ten", "Nganh", "To Hop", "Ph. thuc", "Diem CC", "Diem UTXT", "Diem UTQC", "Diem Tong"};
+        return new String[]{"ID", "CCCD", "Ho Ten", "NV", "Nganh", "To Hop", "Ph. thuc", "Diem CC", "Diem HSG", "Diem UTXT", "Diem UTQC", "Diem Tong"};
     }
 
     @Override
@@ -73,9 +76,40 @@ public class DiemCongPanel extends BaseCrudPanel<DiemCong> {
     }
 
     @Override
+    protected void configureTableColumns() {
+        if (table == null) return;
+        table.getColumnModel().getColumn(0).setPreferredWidth(45);
+        table.getColumnModel().getColumn(1).setPreferredWidth(105);
+        table.getColumnModel().getColumn(2).setPreferredWidth(170);
+        table.getColumnModel().getColumn(3).setPreferredWidth(45);
+        table.getColumnModel().getColumn(4).setPreferredWidth(95);
+        table.getColumnModel().getColumn(5).setPreferredWidth(70);
+        table.getColumnModel().getColumn(6).setPreferredWidth(75);
+        table.getColumnModel().getColumn(7).setPreferredWidth(75);
+        table.getColumnModel().getColumn(8).setPreferredWidth(75);
+        table.getColumnModel().getColumn(9).setPreferredWidth(80);
+        table.getColumnModel().getColumn(10).setPreferredWidth(80);
+        table.getColumnModel().getColumn(11).setPreferredWidth(80);
+    }
+
+    @Override
     protected void buildToolbar() {
         JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
-        toolbar.add(new JLabel("Tim kiem:"));
+        toolbar.add(new JLabel("Tim theo:"));
+        searchFieldCombo = new JComboBox<>();
+        searchFieldCombo.addItem(new SearchFieldOption("ALL", "Tat ca"));
+        searchFieldCombo.addItem(new SearchFieldOption("ID", "ID diem cong"));
+        searchFieldCombo.addItem(new SearchFieldOption("CCCD", "CCCD"));
+        searchFieldCombo.addItem(new SearchFieldOption("SBD", "So bao danh"));
+        searchFieldCombo.addItem(new SearchFieldOption("HOTEN", "Ho ten"));
+        searchFieldCombo.addItem(new SearchFieldOption("NV", "Thu tu NV"));
+        searchFieldCombo.addItem(new SearchFieldOption("MANGANH", "Ma nganh"));
+        searchFieldCombo.addItem(new SearchFieldOption("MATOHOP", "Ma to hop"));
+        searchFieldCombo.addItem(new SearchFieldOption("MAPT", "Ma phuong thuc"));
+        searchFieldCombo.addActionListener(e -> doSearch());
+        toolbar.add(searchFieldCombo);
+
+        toolbar.add(new JLabel("Tu khoa:"));
         searchTextField = new JTextField(20);
         searchTextField.addActionListener(e -> doSearch());
         toolbar.add(searchTextField);
@@ -121,11 +155,12 @@ public class DiemCongPanel extends BaseCrudPanel<DiemCong> {
     public void loadData() {
         model.setRowCount(0);
         String kw = getSearchKeyword();
-        long total = kw.isEmpty() ? diemCongService.countAll() : diemCongService.countSearch(kw);
+        String field = getSelectedSearchFieldKey();
+        long total = kw.isEmpty() ? diemCongService.countAll() : diemCongService.countSearch(field, kw);
         normalizePage(total);
         List<DiemCong> list = kw.isEmpty()
                 ? diemCongService.findPage(currentPage, pageSize)
-                : diemCongService.searchPage(kw, currentPage, pageSize);
+                : diemCongService.searchPage(field, kw, currentPage, pageSize);
 
         for (DiemCong dc : list) {
             ThiSinh ts = dc.getThiSinh();
@@ -133,10 +168,12 @@ public class DiemCongPanel extends BaseCrudPanel<DiemCong> {
                     dc.getDiemcongId(),
                     ts != null ? ts.getCccd() : "",
                     ts != null ? ts.getHoVaTen() : "",
-                    dc.getNganhToHop() != null ? dc.getNganhToHop().getNganh().getMaNganh() : "",
-                    dc.getNganhToHop() != null ? dc.getNganhToHop().getToHop().getMaTohop() : "",
+                    timThuTuNguyenVong(dc),
+                    dc.getNganhToHop() != null && dc.getNganhToHop().getNganh() != null ? dc.getNganhToHop().getNganh().getMaNganh() : "",
+                    dc.getNganhToHop() != null && dc.getNganhToHop().getToHop() != null ? dc.getNganhToHop().getToHop().getMaTohop() : "",
                     dc.getPhuongThuc() != null ? dc.getPhuongThuc().getMaPhuongthuc() : "",
                     dc.getTongDiemChungChi(),
+                    tinhDiemHsg(dc),
                     dc.getTongDiemUutienXt(),
                     dc.getTongDiemUutienQuyChe(),
                     dc.getTongDiemCong()
@@ -156,6 +193,15 @@ public class DiemCongPanel extends BaseCrudPanel<DiemCong> {
                 detailTitleLabel.setText("Chi tiet diem cong: khong co du lieu");
             }
         }
+    }
+
+
+    private String getSelectedSearchFieldKey() {
+        Object selected = searchFieldCombo != null ? searchFieldCombo.getSelectedItem() : null;
+        if (selected instanceof SearchFieldOption) {
+            return ((SearchFieldOption) selected).getKey();
+        }
+        return "ALL";
     }
 
     @Override
@@ -369,6 +415,41 @@ public class DiemCongPanel extends BaseCrudPanel<DiemCong> {
         return s == null ? "" : s;
     }
 
+    /**
+     * Tim thu tu nguyen vong tuong ung voi ban ghi diem cong.
+     * DiemCong duoc tao theo thi sinh + nganh_to_hop + phuong_thuc, nen dung nganh_tohop_id de map ve NV.
+     */
+    private String timThuTuNguyenVong(DiemCong dc) {
+        if (dc == null || dc.getThiSinh() == null || dc.getThiSinh().getThisinhId() == null
+                || dc.getNganhToHop() == null || dc.getNganhToHop().getNganhTohopId() == null) {
+            return "";
+        }
+
+        List<NguyenVong> nvs = nguyenVongService.findByThiSinhId(dc.getThiSinh().getThisinhId());
+        for (NguyenVong nv : nvs) {
+            if (nv.getNganhToHop() != null
+                    && Objects.equals(nv.getNganhToHop().getNganhTohopId(), dc.getNganhToHop().getNganhTohopId())) {
+                return nv.getThuTu() != null ? String.valueOf(nv.getThuTu()) : "";
+            }
+        }
+        return "";
+    }
+
+    /** Tinh rieng diem cong hoc sinh gioi de dung yeu cau bien ban cham diem. */
+    private BigDecimal tinhDiemHsg(DiemCong dc) {
+        if (dc == null || dc.getDiemcongId() == null) return BigDecimal.ZERO;
+
+        BigDecimal tong = BigDecimal.ZERO;
+        List<DiemCongChiTiet> details = diemCongChiTietService.findAppliedByDiemCongId(dc.getDiemcongId());
+        for (DiemCongChiTiet ct : details) {
+            if (ct.getLoaiNguon() == DiemCongChiTiet.LoaiNguon.UTXT_HSG_QUOCGIA
+                    || ct.getLoaiNguon() == DiemCongChiTiet.LoaiNguon.UTXT_HSG_TINH) {
+                tong = tong.add(safe(ct.getDiemCongGiaTri()));
+            }
+        }
+        return tong;
+    }
+
     private String[] getDetailTableColumns() {
         return new String[]{
                 "ID", "Loai nguon", "Ma nguon", "Ten nguon",
@@ -500,16 +581,21 @@ public class DiemCongPanel extends BaseCrudPanel<DiemCong> {
     private void showGenerateAllDialog() {
         JCheckBox chkOnlyHasSource = new JCheckBox("Chi tao cho thi sinh co nguon du lieu diem cong", true);
         JCheckBox chkOnlyHasNguyenVong = new JCheckBox("Chi tao cho thi sinh co nguyen vong", true);
-        JCheckBox chkClearOld = new JCheckBox("Xoa toan bo diem cong cu truoc khi tao lai", false);
+        JCheckBox chkClearOld = new JCheckBox("Xoa toan bo diem cong cu truoc khi tao lai (che do nhanh)", true);
+        chkClearOld.setEnabled(false);
+        chkClearOld.setToolTipText("Che do batch can xoa du lieu cu de tranh trung khoa unique. Viec xoa dung DELETE bulk, khong duyet tung dong.");
 
         JSpinner spLimit = new JSpinner(new SpinnerNumberModel(0, 0, 200000, 100));
+        JSpinner spBatchSize = new JSpinner(new SpinnerNumberModel(1000, 100, 10000, 100));
 
         Object[] form = new Object[]{
-                "Tuy chon tao tat ca diem cong:",
+                "Tuy chon tao tat ca diem cong theo che do nhanh:",
                 chkOnlyHasSource,
                 chkOnlyHasNguyenVong,
                 chkClearOld,
-                "Gioi han so luong (0 = khong gioi han):", spLimit
+                "Gioi han so luong thi sinh (0 = khong gioi han):", spLimit,
+                "Batch size khi ghi DB:", spBatchSize,
+                "Luu y: che do moi khong log tung thi sinh, chi hien thi tong hop va toi da 80 dong loi/ghi chu."
         };
 
         int r = JOptionPane.showConfirmDialog(
@@ -521,120 +607,106 @@ public class DiemCongPanel extends BaseCrudPanel<DiemCong> {
         );
         if (r != JOptionPane.OK_OPTION) return;
 
+        int confirm = JOptionPane.showConfirmDialog(
+                this,
+                "He thong se xoa nhanh toan bo xt_diemcong_chitiet va xt_diemcong cu truoc khi tao lai. Tiep tuc?",
+                "Xac nhan xoa du lieu cu",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE
+        );
+        if (confirm != JOptionPane.YES_OPTION) return;
+
         boolean onlyHasSource = chkOnlyHasSource.isSelected();
         boolean onlyHasNguyenVong = chkOnlyHasNguyenVong.isSelected();
-        boolean clearOld = chkClearOld.isSelected();
+        boolean clearOld = true;
         int limit = (Integer) spLimit.getValue();
+        int batchSize = (Integer) spBatchSize.getValue();
 
-        runGenerateAll(onlyHasSource, onlyHasNguyenVong, clearOld, limit);
+        runGenerateAll(onlyHasSource, onlyHasNguyenVong, clearOld, limit, batchSize);
     }
 
-    private void runGenerateAll(boolean onlyHasSource, boolean onlyHasNguyenVong, boolean clearOld, int limit) {
-        List<ThiSinh> all = new ArrayList<>(thiSinhService.findAll());
-        all.sort(Comparator.comparing(
-                ThiSinh::getThisinhId,
-                Comparator.nullsLast(Integer::compareTo)
-        ));
+    private void runGenerateAll(boolean onlyHasSource,
+                                boolean onlyHasNguyenVong,
+                                boolean clearOld,
+                                int limit,
+                                int batchSize) {
+        JDialog progressDialog = new JDialog(SwingUtilities.getWindowAncestor(this), "Dang tao diem cong", Dialog.ModalityType.MODELESS);
+        JProgressBar progressBar = new JProgressBar();
+        progressBar.setIndeterminate(true);
+        JLabel lblStatus = new JLabel("Dang tao diem cong theo batch/cache, vui long khong tat ung dung...");
+        JPanel progressPanel = new JPanel(new BorderLayout(8, 8));
+        progressPanel.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
+        progressPanel.add(lblStatus, BorderLayout.NORTH);
+        progressPanel.add(progressBar, BorderLayout.CENTER);
+        progressDialog.setContentPane(progressPanel);
+        progressDialog.setSize(460, 120);
+        progressDialog.setLocationRelativeTo(this);
 
-        if (clearOld) {
-            int confirm = JOptionPane.showConfirmDialog(
-                    this,
-                    "Ban chac chan muon xoa toan bo diem cong va chi tiet diem cong cu?",
-                    "Xac nhan xoa du lieu cu",
-                    JOptionPane.YES_NO_OPTION,
-                    JOptionPane.WARNING_MESSAGE
-            );
-            if (confirm != JOptionPane.YES_OPTION) {
-                return;
+        SwingWorker<TinhDiemService.KetQuaTaoDiemCongBatch, Void> worker = new SwingWorker<>() {
+            @Override
+            protected TinhDiemService.KetQuaTaoDiemCongBatch doInBackground() {
+                List<ThiSinh> all = new ArrayList<>(thiSinhService.findAll());
+                all.sort(Comparator.comparing(
+                        ThiSinh::getThisinhId,
+                        Comparator.nullsLast(Integer::compareTo)
+                ));
+
+                return tinhDiemService.taoDiemCongToanBoBatch(
+                        all,
+                        onlyHasSource,
+                        onlyHasNguyenVong,
+                        clearOld,
+                        limit,
+                        batchSize
+                );
             }
 
-            List<DiemCong> oldList = new ArrayList<>(diemCongService.findAll());
-            for (DiemCong dc : oldList) {
+            @Override
+            protected void done() {
+                progressDialog.dispose();
+                setCursor(Cursor.getDefaultCursor());
+
                 try {
-                    diemCongChiTietService.deleteByDiemCongId(dc.getDiemcongId());
-                } catch (Exception ignored) {
+                    TinhDiemService.KetQuaTaoDiemCongBatch result = get();
+                    loadData();
+
+                    JTextArea taLog = new JTextArea(result.getLogText(), 12, 70);
+                    taLog.setEditable(false);
+                    taLog.setCaretPosition(0);
+
+                    JOptionPane.showMessageDialog(
+                            DiemCongPanel.this,
+                            new Object[]{
+                                    "Ket qua tao tat ca diem cong theo che do nhanh:",
+                                    "Da xu ly thi sinh: " + result.processed,
+                                    "Thanh cong: " + result.success,
+                                    "Bo qua: " + result.skipped,
+                                    "Loi: " + result.error,
+                                    "So dong xt_diemcong da tao: " + result.soDiemCong,
+                                    "So dong xt_diemcong_chitiet da tao: " + result.soChiTiet,
+                                    "Da xoa du lieu cu: " + (result.clearedOldData ? "Co" : "Khong"),
+                                    new JScrollPane(taLog)
+                            },
+                            "Ket qua",
+                            result.error > 0 ? JOptionPane.WARNING_MESSAGE : JOptionPane.INFORMATION_MESSAGE
+                    );
+                } catch (Exception ex) {
+                    Throwable root = ex;
+                    while (root.getCause() != null) {
+                        root = root.getCause();
+                    }
+                    JOptionPane.showMessageDialog(
+                            DiemCongPanel.this,
+                            "Loi khi tao diem cong: " + root.getMessage(),
+                            "Loi",
+                            JOptionPane.ERROR_MESSAGE
+                    );
                 }
             }
-            for (DiemCong dc : oldList) {
-                try {
-                    diemCongService.delete(dc);
-                } catch (Exception ignored) {
-                }
-            }
-        }
+        };
 
-        StringBuilder log = new StringBuilder();
-        int processed = 0;
-        int success = 0;
-        int skipped = 0;
-        int error = 0;
-
-        for (ThiSinh ts : all) {
-            if (limit > 0 && processed >= limit) break;
-
-            try {
-                if (onlyHasNguyenVong && !coNguyenVong(ts)) {
-                    skipped++;
-                    continue;
-                }
-
-                if (onlyHasSource && !coNguonDuLieuTinhDiem(ts)) {
-                    skipped++;
-                    continue;
-                }
-
-                List<DiemCong> created = tinhDiemService.taoDiemCongTuDong(ts, null);
-                processed++;
-
-                if (created == null || created.isEmpty()) {
-                    skipped++;
-                    log.append("- ")
-                            .append(safe(ts.getCccd())).append(" | ")
-                            .append(safe(ts.getHoVaTen()))
-                            .append(": khong tao duoc ban ghi diem cong.\n");
-                } else {
-                    success++;
-                    log.append("+ ")
-                            .append(safe(ts.getCccd())).append(" | ")
-                            .append(safe(ts.getHoVaTen()))
-                            .append(": tao/cap nhat ")
-                            .append(created.size())
-                            .append(" ban ghi.\n");
-                }
-            } catch (Exception ex) {
-                error++;
-                Throwable root = ex;
-                while (root.getCause() != null) {
-                    root = root.getCause();
-                }
-
-                log.append("! ")
-                        .append(safe(ts.getCccd())).append(" | ")
-                        .append(safe(ts.getHoVaTen()))
-                        .append(": loi -> ")
-                        .append(root.getMessage())
-                        .append("\n");
-            }
-        }
-
-        loadData();
-
-        JTextArea taLog = new JTextArea(log.toString(), 20, 70);
-        taLog.setEditable(false);
-        taLog.setCaretPosition(0);
-
-        JOptionPane.showMessageDialog(
-                this,
-                new Object[]{
-                        "Ket qua tao tat ca diem cong:",
-                        "Da xu ly: " + processed,
-                        "Thanh cong: " + success,
-                        "Bo qua: " + skipped,
-                        "Loi: " + error,
-                        new JScrollPane(taLog)
-                },
-                "Ket qua",
-                error > 0 ? JOptionPane.WARNING_MESSAGE : JOptionPane.INFORMATION_MESSAGE
-        );
+        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        worker.execute();
+        progressDialog.setVisible(true);
     }
 }

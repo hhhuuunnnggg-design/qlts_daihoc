@@ -58,4 +58,20 @@ public class NguyenVongService implements INguyenVongService {
         return dao.countSearch(keyword);
     }
 
+    public List<NguyenVong> searchPage(String field, String keyword, int page, int pageSize) {
+        return dao.searchPageByField(field, keyword, page, pageSize);
+    }
+
+    public long countSearch(String field, String keyword) {
+        return dao.countSearchByField(field, keyword);
+    }
+
+    public List<NguyenVong> findTrungTuyenChiTietTheoNganh(int maxRows) {
+        return dao.findTrungTuyenChiTietTheoNganh(maxRows);
+    }
+
+    public List<Object[]> thongKeTrungTuyenTheoNganhPhuongThuc() {
+        return dao.thongKeTrungTuyenTheoNganhPhuongThuc();
+    }
+
 }

@@ -100,6 +100,94 @@ public class ThiSinhDao extends BaseDao<ThiSinh> implements IThiSinhDao {
         return em().createQuery(cq).getSingleResult();
     }
 
+
+
+    public List<ThiSinh> findByPageWithSearch(String field, String keyword, int page, int pageSize) {
+        TypedQuery<ThiSinh> q = buildSearchByFieldQuery(field, keyword, false);
+        q.setFirstResult((Math.max(1, page) - 1) * pageSize);
+        q.setMaxResults(pageSize);
+        return q.getResultList();
+    }
+
+    public long countBySearch(String field, String keyword) {
+        TypedQuery<Long> q = buildSearchByFieldQuery(field, keyword, true);
+        return q.getSingleResult();
+    }
+
+    @SuppressWarnings("unchecked")
+    private <R> TypedQuery<R> buildSearchByFieldQuery(String field, String keyword, boolean countOnly) {
+        String f = field == null ? "ALL" : field.trim().toUpperCase();
+        String raw = keyword == null ? "" : keyword.trim();
+        String low = raw.toLowerCase();
+
+        String select = countOnly ? "select count(ts) " : "select ts ";
+        String jpql = select + "from ThiSinh ts " +
+                "left join ts.doiTuongUutien dt " +
+                "left join ts.khuVucUutien kv ";
+        String where;
+        boolean like = false;
+        switch (f) {
+            case "ID":
+                where = "ts.thisinhId = :id";
+                break;
+            case "CCCD":
+                where = "lower(coalesce(ts.cccd, '')) = :text";
+                break;
+            case "SBD":
+                where = "lower(coalesce(ts.sobaodanh, '')) = :text";
+                break;
+            case "DTUT":
+                where = "lower(coalesce(dt.maDoituong, '')) = :text";
+                break;
+            case "KVUT":
+                where = "lower(coalesce(kv.maKhuVuc, '')) = :text";
+                break;
+            case "SDT":
+                where = "lower(coalesce(ts.dienThoai, '')) = :text";
+                break;
+            case "HOTEN":
+                where = "lower(concat(concat(coalesce(ts.ho, ''), ' '), coalesce(ts.ten, ''))) like :kw";
+                like = true;
+                break;
+            case "EMAIL":
+                where = "lower(coalesce(ts.email, '')) like :kw";
+                like = true;
+                break;
+            default:
+                where = "lower(coalesce(ts.cccd, '')) = :text " +
+                        "or lower(coalesce(ts.sobaodanh, '')) = :text " +
+                        "or lower(coalesce(dt.maDoituong, '')) = :text " +
+                        "or lower(coalesce(kv.maKhuVuc, '')) = :text " +
+                        "or lower(concat(concat(coalesce(ts.ho, ''), ' '), coalesce(ts.ten, ''))) like :kw " +
+                        "or lower(coalesce(ts.email, '')) like :kw " +
+                        "or lower(coalesce(ts.dienThoai, '')) = :text";
+                like = true;
+                break;
+        }
+
+        jpql += "where (" + where + ") ";
+        if (!countOnly) jpql += "order by ts.ten, ts.ho, ts.thisinhId";
+        javax.persistence.TypedQuery<R> q;
+
+        if (countOnly) {
+
+            q = (javax.persistence.TypedQuery<R>) em().createQuery(jpql, Long.class);
+
+        } else {
+
+            q = (javax.persistence.TypedQuery<R>) em().createQuery(jpql, ThiSinh.class);
+
+        }
+        if (where.contains(":id")) q.setParameter("id", parseIntegerOrNeverMatch(raw));
+        if (where.contains(":text")) q.setParameter("text", low);
+        if (like || where.contains(":kw")) q.setParameter("kw", "%" + low + "%");
+        return q;
+    }
+
+    private Integer parseIntegerOrNeverMatch(String value) {
+        try { return Integer.parseInt(value.trim()); } catch (Exception e) { return -1; }
+    }
+
     public List<ThiSinh> findByNguoiDungId(Integer nguoidungId) {
         CriteriaBuilder cb = cb();
         CriteriaQuery<ThiSinh> cq = cb.createQuery(ThiSinh.class);

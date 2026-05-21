@@ -135,7 +135,7 @@
                         <th>Tổ hợp</th>
                         <th>Phương thức</th>
                         <th>Điểm xét tuyển</th>
-                        <th>Điểm sàn</th>
+                        <th>Điểm trúng tuyển </th>
                         <th>Kết quả</th>
                         <th style="width: 100px;">Thao tác</th>
                     </tr>
@@ -209,8 +209,8 @@
 
                                     <td>
                                         <c:choose>
-                                            <c:when test="${nv.nganh.diemSan != null}">
-                                                <fmt:formatNumber value="${nv.nganh.diemSan}" pattern="#,##0.00"/>
+                                            <c:when test="${nv.nganh.diemTrungTuyen != null}">
+                                                <fmt:formatNumber value="${nv.nganh.diemTrungTuyen}" pattern="#,##0.00"/>
                                             </c:when>
                                             <c:otherwise>-</c:otherwise>
                                         </c:choose>

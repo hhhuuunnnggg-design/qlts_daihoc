@@ -138,6 +138,77 @@ public class ThiSinhThanhTichDao extends BaseDao<ThiSinhThanhTich> implements IT
                 .getSingleResult();
     }
 
+
+
+    public List<ThiSinhThanhTich> searchPageByField(String field, String keyword, int page, int pageSize) {
+        javax.persistence.TypedQuery<ThiSinhThanhTich> q = buildSearchByFieldQuery(field, keyword, false);
+        q.setFirstResult((Math.max(1, page) - 1) * pageSize);
+        q.setMaxResults(pageSize);
+        return q.getResultList();
+    }
+
+    public long countSearchByField(String field, String keyword) {
+        javax.persistence.TypedQuery<Long> q = buildSearchByFieldQuery(field, keyword, true);
+        return q.getSingleResult();
+    }
+
+    @SuppressWarnings("unchecked")
+    private <R> javax.persistence.TypedQuery<R> buildSearchByFieldQuery(String field, String keyword, boolean countOnly) {
+        String f = field == null ? "ALL" : field.trim().toUpperCase();
+        String raw = keyword == null ? "" : keyword.trim();
+        String low = raw.toLowerCase();
+        String select = countOnly ? "select count(tt) " : "select tt ";
+        String jpql = select + "from ThiSinhThanhTich tt left join tt.thiSinh ts ";
+        String where;
+        boolean like = false;
+        switch (f) {
+            case "ID": where = "tt.thanhtichId = :id"; break;
+            case "CCCD": where = "lower(coalesce(ts.cccd, '')) = :text"; break;
+            case "SBD": where = "lower(coalesce(ts.sobaodanh, '')) = :text"; break;
+            case "NHOM": where = "lower(coalesce(tt.nhomThanhTich, '')) = :text"; break;
+            case "CAP": where = "lower(coalesce(tt.capThanhTich, '')) = :text"; break;
+            case "GIAI": where = "lower(coalesce(tt.loaiGiai, '')) = :text"; break;
+            case "MON": where = "lower(coalesce(tt.monDatGiai, '')) = :text"; break;
+            case "NAM": where = "tt.namDatGiai = :nam"; break;
+            case "XACMINH": where = "lower(coalesce(tt.trangThaiXacMinh, '')) = :text"; break;
+            case "HOTEN": where = "lower(concat(concat(coalesce(ts.ho, ''), ' '), coalesce(ts.ten, ''))) like :kw"; like = true; break;
+            default:
+                where = "lower(coalesce(ts.cccd, '')) = :text or lower(coalesce(ts.sobaodanh, '')) = :text " +
+                        "or lower(coalesce(tt.nhomThanhTich, '')) = :text or lower(coalesce(tt.capThanhTich, '')) = :text " +
+                        "or lower(coalesce(tt.loaiGiai, '')) = :text or lower(coalesce(tt.monDatGiai, '')) = :text " +
+                        "or lower(coalesce(tt.trangThaiXacMinh, '')) = :text " +
+                        "or lower(concat(concat(coalesce(ts.ho, ''), ' '), coalesce(ts.ten, ''))) like :kw " +
+                        "or lower(coalesce(tt.tenThanhTich, '')) like :kw or lower(coalesce(tt.ghiChu, '')) like :kw";
+                like = true; break;
+        }
+        jpql += "where (" + where + ") ";
+        if (!countOnly) jpql += "order by tt.thanhtichId";
+        javax.persistence.TypedQuery<R> q;
+
+        if (countOnly) {
+
+            q = (javax.persistence.TypedQuery<R>) em().createQuery(jpql, Long.class);
+
+        } else {
+
+            q = (javax.persistence.TypedQuery<R>) em().createQuery(jpql, ThiSinhThanhTich.class);
+
+        }
+        if (where.contains(":id")) q.setParameter("id", parseIntegerOrNeverMatch(raw));
+        if (where.contains(":nam")) q.setParameter("nam", parseShortOrNeverMatch(raw));
+        if (where.contains(":text")) q.setParameter("text", low);
+        if (like || where.contains(":kw")) q.setParameter("kw", "%" + low + "%");
+        return q;
+    }
+
+    private Integer parseIntegerOrNeverMatch(String value) {
+        try { return Integer.parseInt(value.trim()); } catch (Exception e) { return -1; }
+    }
+
+    private Short parseShortOrNeverMatch(String value) {
+        try { return Short.parseShort(value.trim()); } catch (Exception e) { return Short.MIN_VALUE; }
+    }
+
     private String normalizeKeyword(String keyword) {
         return keyword == null ? "" : keyword.trim().toLowerCase();
     }

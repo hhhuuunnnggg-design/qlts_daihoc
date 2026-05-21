@@ -255,6 +255,65 @@ public class BangQuyDoiDao extends BaseDao<BangQuyDoi> implements IBangQuyDoiDao
                 .getSingleResult();
     }
 
+
+
+    public List<BangQuyDoi> searchPageByField(String field, String keyword, int page, int pageSize) {
+        javax.persistence.TypedQuery<BangQuyDoi> q = buildSearchByFieldQuery(field, keyword, false);
+        q.setFirstResult((Math.max(1, page) - 1) * pageSize);
+        q.setMaxResults(pageSize);
+        return q.getResultList();
+    }
+
+    public long countSearchByField(String field, String keyword) {
+        javax.persistence.TypedQuery<Long> q = buildSearchByFieldQuery(field, keyword, true);
+        return q.getSingleResult();
+    }
+
+    @SuppressWarnings("unchecked")
+    private <R> javax.persistence.TypedQuery<R> buildSearchByFieldQuery(String field, String keyword, boolean countOnly) {
+        String f = field == null ? "ALL" : field.trim().toUpperCase();
+        String raw = keyword == null ? "" : keyword.trim();
+        String low = raw.toLowerCase();
+        String select = countOnly ? "select count(b) " : "select b ";
+        String jpql = select + "from BangQuyDoi b left join b.phuongThuc pt left join b.toHop th left join b.mon m ";
+        String where;
+        boolean like = false;
+        switch (f) {
+            case "ID": where = "b.bangquydoiId = :id"; break;
+            case "MAQD": where = "lower(coalesce(b.maQuydoi, '')) = :text"; break;
+            case "MAPT": where = "lower(coalesce(pt.maPhuongthuc, '')) = :text"; break;
+            case "MATOHOP": where = "lower(coalesce(th.maTohop, '')) = :text"; break;
+            case "MAMON": where = "lower(coalesce(m.maMon, '')) = :text"; break;
+            case "PHANVI": where = "lower(coalesce(b.phanVi, '')) = :text"; break;
+            default:
+                where = "lower(coalesce(b.maQuydoi, '')) = :text or lower(coalesce(pt.maPhuongthuc, '')) = :text " +
+                        "or lower(coalesce(th.maTohop, '')) = :text or lower(coalesce(m.maMon, '')) = :text " +
+                        "or lower(coalesce(b.phanVi, '')) = :text or lower(coalesce(pt.tenPhuongthuc, '')) like :kw";
+                like = true; break;
+        }
+        jpql += "where (" + where + ") ";
+        if (!countOnly) jpql += "order by pt.phuongthucId, b.diemTu, b.bangquydoiId";
+        javax.persistence.TypedQuery<R> q;
+
+        if (countOnly) {
+
+            q = (javax.persistence.TypedQuery<R>) em().createQuery(jpql, Long.class);
+
+        } else {
+
+            q = (javax.persistence.TypedQuery<R>) em().createQuery(jpql, BangQuyDoi.class);
+
+        }
+        if (where.contains(":id")) q.setParameter("id", parseIntegerOrNeverMatch(raw));
+        if (where.contains(":text")) q.setParameter("text", low);
+        if (like || where.contains(":kw")) q.setParameter("kw", "%" + low + "%");
+        return q;
+    }
+
+    private Integer parseIntegerOrNeverMatch(String value) {
+        try { return Integer.parseInt(value.trim()); } catch (Exception e) { return -1; }
+    }
+
     private String normalizeKeyword(String keyword) {
         return keyword == null ? "" : keyword.trim().toLowerCase();
     }

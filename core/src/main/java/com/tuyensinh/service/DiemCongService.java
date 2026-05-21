@@ -138,4 +138,21 @@ public class DiemCongService implements IDiemCongService {
         return dao.countSearch(keyword);
     }
 
+    public List<DiemCong> searchPage(String field, String keyword, int page, int pageSize) {
+        return dao.searchPageByField(field, keyword, page, pageSize);
+    }
+
+    public long countSearch(String field, String keyword) {
+        return dao.countSearchByField(field, keyword);
+    }
+
+    public void deleteAllFast() {
+        dao.deleteAllFast();
+    }
+
+    public void saveBatch(List<DiemCong> list, int batchSize) {
+        dao.saveBatch(list, batchSize);
+    }
+
+
 }

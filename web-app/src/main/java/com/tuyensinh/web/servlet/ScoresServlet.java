@@ -1,8 +1,12 @@
 package com.tuyensinh.web.servlet;
 
+import java.math.BigDecimal;
+
+import com.tuyensinh.entity.DiemCong;
 import com.tuyensinh.entity.DiemThi;
 import com.tuyensinh.entity.PhuongThuc;
 import com.tuyensinh.entity.ThiSinh;
+import com.tuyensinh.service.DiemCongService;
 import com.tuyensinh.service.MonService;
 import com.tuyensinh.service.ThiSinhService;
 import com.tuyensinh.service.XetTuyenService;
@@ -26,11 +30,12 @@ public class ScoresServlet extends BaseServlet {
     protected ModelAndView handleGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         ModelAndView auth = authController.requireLogin(request, response);
-        if (auth != null) return auth;
+        if (auth != null)
+            return auth;
 
         try {
             ThiSinh thiSinh = thiSinhService.findByNguoiDungId(
-                authController.getCurrentUser(request).getNguoidungId()).orElse(null);
+                    authController.getCurrentUser(request).getNguoidungId()).orElse(null);
 
             if (thiSinh == null) {
                 setMessage(request, "Không tìm thấy thông tin thí sinh.", "warning");
@@ -38,11 +43,13 @@ public class ScoresServlet extends BaseServlet {
             }
 
             return viewResolver.view("scores")
-                .addObject("currentPage", "scores")
-                .addObject("thiSinh", thiSinh)
-                .addObject("danhSachDiemThi", xetTuyenService.findDiemThiByThiSinhWithDetails(thiSinh.getThisinhId()))
-                .addObject("danhSachPhuongThuc", xetTuyenService.findActivePhuongThuc())
-                .addObject("danhSachMon", monService.findAll());
+                    .addObject("currentPage", "scores")
+                    .addObject("thiSinh", thiSinh)
+
+                    .addObject("danhSachDiemThi",
+                            xetTuyenService.findDiemThiByThiSinhWithDetails(thiSinh.getThisinhId()))
+                    .addObject("danhSachPhuongThuc", xetTuyenService.findActivePhuongThuc())
+                    .addObject("danhSachMon", monService.findAll());
 
         } catch (Exception e) {
             setMessage(request, "Đã xảy ra lỗi: " + e.getMessage(), "danger");
@@ -54,11 +61,12 @@ public class ScoresServlet extends BaseServlet {
     protected ModelAndView handlePost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         ModelAndView auth = authController.requireLogin(request, response);
-        if (auth != null) return auth;
+        if (auth != null)
+            return auth;
 
         try {
             ThiSinh thiSinh = thiSinhService.findByNguoiDungId(
-                authController.getCurrentUser(request).getNguoidungId()).orElse(null);
+                    authController.getCurrentUser(request).getNguoidungId()).orElse(null);
 
             if (thiSinh == null) {
                 setMessage(request, "Không tìm thấy thông tin thí sinh.", "danger");

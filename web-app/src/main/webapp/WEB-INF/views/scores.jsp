@@ -118,9 +118,10 @@
                             <th>Phương thức</th>
                             <th>Số báo danh</th>
                             <th>Năm tuyển sinh</th>
-                            <th>Điểm tổng kết</th>
+                            <!-- <th>Điểm tổng kết</th> -->
                             <th>Thang điểm</th>
-                            <th>Thao tác</th>
+                            <!-- <th>Thao tác</th> -->
+                              <th>Xem điểm</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -136,7 +137,7 @@
                                         </td>
                                         <td>${dt.sobaodanh != null ? dt.sobaodanh : '-'}</td>
                                         <td>${dt.namTuyensinh}</td>
-                                        <td>
+                                        <!-- <td>
                                             <c:if test="${not empty dt.danhSachDiemChiTiet}">
                                                 <c:set var="tongDiem" value="0"/>
                                                 <c:forEach var="ct" items="${dt.danhSachDiemChiTiet}">
@@ -146,7 +147,7 @@
                                                 </c:forEach>
                                                 <fmt:formatNumber value="${tongDiem}" pattern="#,##0.00"/>
                                             </c:if>
-                                        </td>
+                                        </td> -->
                                         <td>${dt.phuongThuc.thangDiem}</td>
                                         <td>
                                             <button type="button" class="btn btn-sm btn-outline-primary" 
@@ -335,14 +336,15 @@
                 namTuyenSinh: '${dt.namTuyensinh}',
                 ghiChu: '${dt.ghiChu}',
                 chiTiet: []
+                
             };
             <c:forEach var="ct" items="${dt.danhSachDiemChiTiet}">
                 scoreDetails[${dt.diemthiId}].chiTiet.push({
                     mon: '${ct.mon.tenMon}',
                     maMon: '${ct.mon.maMon}',
                     diemGoc: '${ct.diemGoc}',
-                    diemQuyDoi: '${ct.diemQuydoi}',
-                    diemSuDung: '${ct.diemSudung}'
+                    diemQuyDoi: '${ct.diemQuydoi }',
+                    diemSuDung: '${ct.diemSudung }',
                 });
             </c:forEach>
         </c:forEach>

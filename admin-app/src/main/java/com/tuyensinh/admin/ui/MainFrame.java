@@ -147,6 +147,7 @@ public class MainFrame extends JFrame {
         addNavSpacer(12);
         addNavItem("Nguyện vọng", "nguyenvong", null);
         addNavItem("Xét tuyển (6 check)", "xettuyen", null);
+        addNavItem("TK sau xét tuyển", "xettuyen_thongke", null);
         addNavItem("Thống kê tuyển sinh", "thongke_tuyensinh", null);
 
         // ---- Sidebar bottom: user info + logout ----
@@ -270,6 +271,7 @@ public class MainFrame extends JFrame {
         sidebar.add(Box.createVerticalStrut(12));
         sidebar.add(navItems.get("nguyenvong"));
         sidebar.add(navItems.get("xettuyen"));
+        sidebar.add(navItems.get("xettuyen_thongke"));
         sidebar.add(navItems.get("thongke_tuyensinh"));
         sidebar.add(Box.createVerticalStrut(8));
         sidebar.add(navLabelSys);
@@ -382,6 +384,7 @@ public class MainFrame extends JFrame {
         JComponent diemCongPanel = new DiemCongPanel(this);
         JComponent nguyenVongPanel = new NguyenVongPanel(this);
         JComponent xetTuyenPanel = new XetTuyenPanel(this);
+        JComponent xetTuyenThongKePanel = new XetTuyenThongKePanel(this);
         JComponent thongKeTuyenSinhPanel = new ThongKeTuyenSinhPanel(this);
         JComponent bangQuyDoiPanel = new BangQuyDoiPanel(this);
         JComponent nganhToHopMonPanel = new NganhToHopMonPanel(this);
@@ -403,6 +406,7 @@ public class MainFrame extends JFrame {
         contentPanel.add(diemCongPanel, "diemcong");
         contentPanel.add(nguyenVongPanel, "nguyenvong");
         contentPanel.add(xetTuyenPanel, "xettuyen");
+        contentPanel.add(xetTuyenThongKePanel, "xettuyen_thongke");
         contentPanel.add(thongKeTuyenSinhPanel, "thongke_tuyensinh");
         contentPanel.add(bangQuyDoiPanel, "bangquydoi");
         contentPanel.add(nganhToHopMonPanel, "nganhtohopmon");
@@ -424,6 +428,7 @@ public class MainFrame extends JFrame {
         pagePanels.put("diemcong", diemCongPanel);
         pagePanels.put("nguyenvong", nguyenVongPanel);
         pagePanels.put("xettuyen", xetTuyenPanel);
+        pagePanels.put("xettuyen_thongke", xetTuyenThongKePanel);
         pagePanels.put("thongke_tuyensinh", thongKeTuyenSinhPanel);
         pagePanels.put("bangquydoi", bangQuyDoiPanel);
         pagePanels.put("nganhtohopmon", nganhToHopMonPanel);
@@ -645,6 +650,8 @@ public class MainFrame extends JFrame {
                 return "Quản lý nguyện vọng";
             case "xettuyen":
                 return "Xét tuyển";
+            case "xettuyen_thongke":
+                return "Thống kê xét tuyển";
             case "thongke_tuyensinh":
                 return "Thống kê tuyển sinh";
             case "bangquydoi":

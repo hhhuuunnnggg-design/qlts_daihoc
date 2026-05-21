@@ -66,6 +66,13 @@ public class NguyenVong {
     @Column(name = "phuong_thuc_diem_tot_nhat", length = 20)
     private String phuongThucDiemTotNhat;
 
+    /**
+     * Ma to hop mon thuc te duoc dung khi chon diem cao nhat.
+     * Vi du: NV goc hien A01 nhung thi sinh du diem C00 va C00 cao nhat thi luu C00.
+     */
+    @Column(name = "tohop_diem_tot_nhat", length = 20)
+    private String toHopDiemTotNhat;
+
     @Column(name = "ghi_chu", length = 255)
     private String ghiChu;
 

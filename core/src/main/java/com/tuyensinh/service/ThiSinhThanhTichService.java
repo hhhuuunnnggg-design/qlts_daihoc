@@ -71,4 +71,12 @@ public class ThiSinhThanhTichService implements IThiSinhThanhTichService {
         return dao.countSearch(keyword);
     }
 
+    public List<ThiSinhThanhTich> searchPage(String field, String keyword, int page, int pageSize) {
+        return dao.searchPageByField(field, keyword, page, pageSize);
+    }
+
+    public long countSearch(String field, String keyword) {
+        return dao.countSearchByField(field, keyword);
+    }
+
 }

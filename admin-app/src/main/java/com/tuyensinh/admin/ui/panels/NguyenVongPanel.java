@@ -5,6 +5,7 @@ import com.tuyensinh.admin.ui.MainFrame;
 import com.tuyensinh.admin.ui.TableFactory;
 import com.tuyensinh.admin.ui.ToolbarFactory;
 import com.tuyensinh.admin.ui.UIConstants;
+import com.tuyensinh.admin.ui.SearchFieldOption;
 import com.tuyensinh.entity.MaXetTuyenMap;
 import com.tuyensinh.entity.NganhToHop;
 import com.tuyensinh.entity.NguyenVong;
@@ -39,6 +40,7 @@ public class NguyenVongPanel extends BasePanel {
     private JTable detailTable;
     private DefaultTableModel detailModel;
 
+    private JComboBox<SearchFieldOption> cboSearchField;
     private JTextField txtSearch;
     private JLabel lblTotal;
     private JLabel lblDetailTitle;
@@ -83,8 +85,25 @@ public class NguyenVongPanel extends BasePanel {
     private JPanel buildToolbar() {
         JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
 
-        toolbar.add(new JLabel("Tim (CCCD / SBD / Ho ten / Ma XT / Nganh):"));
+        toolbar.add(new JLabel("Tim theo:"));
+        cboSearchField = new JComboBox<>();
+        cboSearchField.addItem(new SearchFieldOption("ALL", "Tat ca"));
+        cboSearchField.addItem(new SearchFieldOption("ID", "ID nguyen vong"));
+        cboSearchField.addItem(new SearchFieldOption("CCCD", "CCCD"));
+        cboSearchField.addItem(new SearchFieldOption("SBD", "So bao danh"));
+        cboSearchField.addItem(new SearchFieldOption("HOTEN", "Ho ten"));
+        cboSearchField.addItem(new SearchFieldOption("NV", "Thu tu NV"));
+        cboSearchField.addItem(new SearchFieldOption("MAXT", "Ma xet tuyen"));
+        cboSearchField.addItem(new SearchFieldOption("MANGANH", "Ma nganh"));
+        cboSearchField.addItem(new SearchFieldOption("MATOHOP", "Ma to hop goc"));
+        cboSearchField.addItem(new SearchFieldOption("THMTOTNHAT", "THM diem cao nhat"));
+        cboSearchField.addItem(new SearchFieldOption("MAPT", "Ma phuong thuc"));
+        cboSearchField.addItem(new SearchFieldOption("KETQUA", "Ket qua"));
+        cboSearchField.addItem(new SearchFieldOption("NGUONDIEM", "Nguon diem tot nhat"));
+        cboSearchField.addActionListener(e -> doSearch());
+        toolbar.add(cboSearchField);
 
+        toolbar.add(new JLabel("Tu khoa:"));
         txtSearch = new JTextField(24);
         txtSearch.addActionListener(e -> doSearch());
         toolbar.add(txtSearch);
@@ -125,7 +144,7 @@ public class NguyenVongPanel extends BasePanel {
     private JComponent buildCenter() {
         model = TableFactory.newReadOnlyModel(
                 "ID", "CCCD", "SBD", "Ho ten", "NV", "Ma XT", "CT",
-                "Nganh", "To hop", "Ph. thuc", "Diem XT", "Ket qua"
+                "Nganh", "To hop goc", "THM tot nhat", "Ph. thuc", "Diem XT", "Ket qua"
         );
         table = TableFactory.create(model);
         configureMainTable(table);
@@ -133,7 +152,7 @@ public class NguyenVongPanel extends BasePanel {
         table.getSelectionModel().addListSelectionListener(this::onMainSelectionChanged);
 
         detailModel = TableFactory.newReadOnlyModel(
-                "NV", "Ma XT", "CT", "Ten CT", "Nganh", "To hop",
+                "NV", "Ma XT", "CT", "Ten CT", "Nganh", "To hop goc", "THM tot nhat",
                 "Ph. thuc", "Diem XT", "Ket qua", "Ghi chu"
         );
         detailTable = TableFactory.create(detailModel);
@@ -164,13 +183,14 @@ public class NguyenVongPanel extends BasePanel {
         lblDetailTitle.setText("Chua chon thi sinh.");
 
         String keyword = normalizeForSearch(txtSearch != null ? txtSearch.getText() : "");
-        long total = keyword.isEmpty() ? service.countAll() : service.countSearch(keyword);
+        String searchField = getSelectedSearchFieldKey();
+        long total = keyword.isEmpty() ? service.countAll() : service.countSearch(searchField, keyword);
 
         normalizeCurrentPage(total);
 
         currentList = keyword.isEmpty()
                 ? service.findPage(currentPage, pageSize)
-                : service.searchPage(keyword, currentPage, pageSize);
+                : service.searchPage(searchField, keyword, currentPage, pageSize);
 
         for (NguyenVong nv : currentList) {
             ThiSinh ts = nv.getThiSinh();
@@ -185,6 +205,7 @@ public class NguyenVongPanel extends BasePanel {
                     getChuongTrinhTag(nv),
                     nv.getNganh() != null ? safe(nv.getNganh().getTenNganh()) : "",
                     getToHopDisplay(nv),
+                    getToHopTotNhatDisplay(nv),
                     nv.getPhuongThuc() != null ? safe(nv.getPhuongThuc().getMaPhuongthuc()) : "",
                     formatScore(nv.getDiemXettuyen()),
                     safe(nv.getKetQua())
@@ -209,6 +230,15 @@ public class NguyenVongPanel extends BasePanel {
             table.setRowSelectionInterval(0, 0);
             loadDetailForSelected();
         }
+    }
+
+
+    private String getSelectedSearchFieldKey() {
+        Object selected = cboSearchField != null ? cboSearchField.getSelectedItem() : null;
+        if (selected instanceof SearchFieldOption) {
+            return ((SearchFieldOption) selected).getKey();
+        }
+        return "ALL";
     }
 
     private void doSearch() {
@@ -269,6 +299,7 @@ public class NguyenVongPanel extends BasePanel {
                     getTenChuongTrinh(nv),
                     nv.getNganh() != null ? safe(nv.getNganh().getTenNganh()) : "",
                     getToHopDisplay(nv),
+                    getToHopTotNhatDisplay(nv),
                     nv.getPhuongThuc() != null ? safe(nv.getPhuongThuc().getMaPhuongthuc()) : "",
                     formatScore(nv.getDiemXettuyen()),
                     safe(nv.getKetQua()),
@@ -742,10 +773,11 @@ public class NguyenVongPanel extends BasePanel {
         setColumnWidth(table, 5, 95);   // Ma XT
         setColumnWidth(table, 6, 60);   // CT
         setColumnWidth(table, 7, 210);  // Nganh
-        setColumnWidth(table, 8, 80);   // To hop
-        setColumnWidth(table, 9, 75);   // PT
-        setColumnWidth(table, 10, 75);  // Diem XT
-        setColumnWidth(table, 11, 90);  // Ket qua
+        setColumnWidth(table, 8, 85);   // To hop goc
+        setColumnWidth(table, 9, 95);   // THM tot nhat
+        setColumnWidth(table, 10, 75);  // PT
+        setColumnWidth(table, 11, 75);  // Diem XT
+        setColumnWidth(table, 12, 90);  // Ket qua
     }
 
     private void configureDetailTable(JTable table) {
@@ -754,11 +786,12 @@ public class NguyenVongPanel extends BasePanel {
         setColumnWidth(table, 2, 60);
         setColumnWidth(table, 3, 220);
         setColumnWidth(table, 4, 210);
-        setColumnWidth(table, 5, 80);
-        setColumnWidth(table, 6, 75);
-        setColumnWidth(table, 7, 75);
-        setColumnWidth(table, 8, 90);
-        setColumnWidth(table, 9, 260);
+        setColumnWidth(table, 5, 85);   // To hop goc
+        setColumnWidth(table, 6, 95);   // THM tot nhat
+        setColumnWidth(table, 7, 75);   // Phuong thuc
+        setColumnWidth(table, 8, 75);   // Diem XT
+        setColumnWidth(table, 9, 90);   // Ket qua
+        setColumnWidth(table, 10, 260); // Ghi chu
     }
 
     private void setColumnWidth(JTable table, int colIndex, int width) {
@@ -785,6 +818,7 @@ public class NguyenVongPanel extends BasePanel {
         }
 
         sb.append(' ').append(getToHopDisplay(nv));
+        sb.append(' ').append(getToHopTotNhatDisplay(nv));
 
         if (nv.getPhuongThuc() != null) {
             sb.append(' ').append(safe(nv.getPhuongThuc().getMaPhuongthuc()));
@@ -829,6 +863,51 @@ public class NguyenVongPanel extends BasePanel {
         }
 
         return "";
+    }
+
+    private String getToHopTotNhatDisplay(NguyenVong nv) {
+        if (nv == null) return "";
+        if (nv.getToHopDiemTotNhat() != null && !nv.getToHopDiemTotNhat().trim().isEmpty()) {
+            return safe(nv.getToHopDiemTotNhat());
+        }
+        return parseToHopTotNhatFromGhiChu(nv.getGhiChu());
+    }
+
+    private String parseToHopTotNhatFromGhiChu(String ghiChu) {
+        if (ghiChu == null) return "";
+
+        java.util.regex.Matcher direct = java.util.regex.Pattern
+                .compile("Lay diem cao nhat:\\s*[^|()]+\\(([^)]+)\\)")
+                .matcher(ghiChu);
+        if (direct.find()) {
+            return direct.group(1);
+        }
+
+        java.util.regex.Matcher sourceMatcher = java.util.regex.Pattern
+                .compile("Lay diem cao nhat:\\s*([A-Za-z0-9_]+)")
+                .matcher(ghiChu);
+        String nguon = sourceMatcher.find() ? sourceMatcher.group(1) : null;
+
+        java.util.regex.Pattern pattern = nguon != null
+                ? java.util.regex.Pattern.compile(java.util.regex.Pattern.quote(nguon) + "\\(([^)]+)\\)=([0-9]+(?:\\.[0-9]+)?)")
+                : java.util.regex.Pattern.compile("[A-Za-z0-9_]+\\(([^)]+)\\)=([0-9]+(?:\\.[0-9]+)?)");
+
+        java.util.regex.Matcher matcher = pattern.matcher(ghiChu);
+        String bestToHop = "";
+        double bestScore = -1.0;
+
+        while (matcher.find()) {
+            try {
+                double score = Double.parseDouble(matcher.group(2));
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestToHop = matcher.group(1);
+                }
+            } catch (NumberFormatException ignored) {
+            }
+        }
+
+        return bestToHop;
     }
 
     private String formatScore(BigDecimal score) {

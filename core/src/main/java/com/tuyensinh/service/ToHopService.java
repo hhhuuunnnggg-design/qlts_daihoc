@@ -68,4 +68,12 @@ public class ToHopService implements IToHopService {
         return dao.countSearchByMaOrTen(keyword);
     }
 
+    public List<ToHop> searchPage(String field, String keyword, int page, int pageSize) {
+        return dao.searchPageByField(field, keyword, page, pageSize);
+    }
+
+    public long countSearch(String field, String keyword) {
+        return dao.countSearchByField(field, keyword);
+    }
+
 }

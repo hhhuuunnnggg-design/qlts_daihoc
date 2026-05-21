@@ -1,6 +1,7 @@
 package com.tuyensinh.admin.ui.panels;
 
 import com.tuyensinh.admin.ui.*;
+import com.tuyensinh.admin.ui.SearchFieldOption;
 import com.tuyensinh.admin.ui.MainFrame;
 import com.tuyensinh.entity.*;
 import com.tuyensinh.service.*;
@@ -26,7 +27,7 @@ public class DiemThiPanel extends BaseCrudPanel<DiemThi> {
     private JTable detailTable;
     private DefaultTableModel detailModel;
 
-    private JComboBox<PhuongThuc> phuongThucFilter;
+    private JComboBox<SearchFieldOption> searchFieldCombo;
 
     public DiemThiPanel(MainFrame mainFrame) {
         super(mainFrame);
@@ -65,20 +66,21 @@ public class DiemThiPanel extends BaseCrudPanel<DiemThi> {
     protected void buildToolbar() {
         JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
 
-        toolbar.add(new JLabel("Phuong thuc:"));
-        phuongThucFilter = new JComboBox<>();
-        phuongThucFilter.addItem(null);
-        for (PhuongThuc pt : phuongThucDao.findAll()) {
-            if (PhuongThuc.XTT.equalsIgnoreCase(pt.getMaPhuongthuc())) {
-                continue;
-            }
-            phuongThucFilter.addItem(pt);
-        }
-        phuongThucFilter.addActionListener(e -> { currentPage = 1; loadData(); });
-        configurePhuongThucCombo(phuongThucFilter);
-        toolbar.add(phuongThucFilter);
+        toolbar.add(new JLabel("Tim theo:"));
+        searchFieldCombo = new JComboBox<>();
+        searchFieldCombo.addItem(new SearchFieldOption("ALL", "Tat ca"));
+        searchFieldCombo.addItem(new SearchFieldOption("ID", "ID phieu diem"));
+        searchFieldCombo.addItem(new SearchFieldOption("CCCD", "CCCD"));
+        searchFieldCombo.addItem(new SearchFieldOption("SBD", "So bao danh"));
+        searchFieldCombo.addItem(new SearchFieldOption("HOTEN", "Ho ten"));
+        searchFieldCombo.addItem(new SearchFieldOption("MAPT", "Ma phuong thuc"));
+        searchFieldCombo.addItem(new SearchFieldOption("TENPT", "Ten phuong thuc"));
+        searchFieldCombo.addItem(new SearchFieldOption("NAM", "Nam tuyen sinh"));
+        searchFieldCombo.addItem(new SearchFieldOption("GHICHU", "Ghi chu"));
+        searchFieldCombo.addActionListener(e -> { currentPage = 1; loadData(); });
+        toolbar.add(searchFieldCombo);
 
-        toolbar.add(new JLabel("  Tim kiem:"));
+        toolbar.add(new JLabel("  Tu khoa:"));
         searchTextField = new JTextField(15);
         searchTextField.addActionListener(e -> doSearch());
         toolbar.add(searchTextField);
@@ -151,20 +153,15 @@ public class DiemThiPanel extends BaseCrudPanel<DiemThi> {
             detailModel.setRowCount(0);
         }
 
-        PhuongThuc pt = (PhuongThuc) phuongThucFilter.getSelectedItem();
         String kw = getSearchKeyword();
-        Short ptId = pt != null ? pt.getPhuongthucId() : null;
+        String searchField = getSelectedSearchFieldKey();
 
         long total;
         List<DiemThi> list;
         if (!kw.isEmpty()) {
-            total = diemThiService.countSearchDiemThi(kw, ptId);
+            total = diemThiService.countSearchDiemThi(searchField, kw);
             normalizePage(total);
-            list = diemThiService.searchDiemThiPage(kw, ptId, currentPage, pageSize);
-        } else if (ptId != null) {
-            total = diemThiService.countByPhuongThuc(ptId);
-            normalizePage(total);
-            list = diemThiService.findByPhuongThucPage(ptId, currentPage, pageSize);
+            list = diemThiService.searchDiemThiPage(searchField, kw, currentPage, pageSize);
         } else {
             total = diemThiService.countAll();
             normalizePage(total);
@@ -185,6 +182,15 @@ public class DiemThiPanel extends BaseCrudPanel<DiemThi> {
         }
         updateTotalLabel(total, "ban ghi");
         updatePagingState(total);
+    }
+
+
+    private String getSelectedSearchFieldKey() {
+        Object selected = searchFieldCombo != null ? searchFieldCombo.getSelectedItem() : null;
+        if (selected instanceof SearchFieldOption) {
+            return ((SearchFieldOption) selected).getKey();
+        }
+        return "ALL";
     }
 
     @Override

@@ -52,6 +52,10 @@ public class NguoiDungService implements INguoiDungService {
         return dao.searchByUsernameOrHoTen(keyword);
     }
 
+    public List<NguoiDung> search(String field, String keyword) {
+        return dao.searchByField(field, keyword);
+    }
+
     public List<NguoiDung> findByRole(Short vaitroId) {
         return dao.findByVaiTro(vaitroId);
     }

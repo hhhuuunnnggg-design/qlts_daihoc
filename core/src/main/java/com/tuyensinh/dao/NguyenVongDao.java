@@ -180,6 +180,7 @@ public class NguyenVongDao extends BaseDao<NguyenVong> implements INguyenVongDao
                                 "or lower(coalesce(n.tenNganh, '')) like :kw " +
                                 "or lower(coalesce(th.maTohop, '')) like :kw " +
                                 "or lower(coalesce(th.tenTohop, '')) like :kw " +
+                                "or lower(coalesce(nv.toHopDiemTotNhat, '')) like :kw " +
                                 "or lower(coalesce(pt.maPhuongthuc, '')) like :kw " +
                                 "or lower(coalesce(pt.tenPhuongthuc, '')) like :kw " +
                                 "or lower(coalesce(nv.ketQua, '')) like :kw " +
@@ -209,13 +210,165 @@ public class NguyenVongDao extends BaseDao<NguyenVong> implements INguyenVongDao
                                 "or lower(coalesce(n.tenNganh, '')) like :kw " +
                                 "or lower(coalesce(th.maTohop, '')) like :kw " +
                                 "or lower(coalesce(th.tenTohop, '')) like :kw " +
+                                "or lower(coalesce(nv.toHopDiemTotNhat, '')) like :kw " +
                                 "or lower(coalesce(pt.maPhuongthuc, '')) like :kw " +
                                 "or lower(coalesce(pt.tenPhuongthuc, '')) like :kw " +
                                 "or lower(coalesce(nv.ketQua, '')) like :kw " +
+                                "or lower(coalesce(nv.toHopDiemTotNhat, '')) like :kw " +
                                 "or lower(coalesce(nv.phuongThucDiemTotNhat, '')) like :kw",
                         Long.class)
                 .setParameter("kw", kw)
                 .getSingleResult();
+    }
+
+
+
+    public List<NguyenVong> searchPageByField(String field, String keyword, int page, int pageSize) {
+        javax.persistence.TypedQuery<NguyenVong> query = buildSearchByFieldQuery(field, keyword, false);
+        query.setFirstResult((Math.max(1, page) - 1) * pageSize);
+        query.setMaxResults(pageSize);
+        return query.getResultList();
+    }
+
+    public long countSearchByField(String field, String keyword) {
+        javax.persistence.TypedQuery<Long> query = buildSearchByFieldQuery(field, keyword, true);
+        return query.getSingleResult();
+    }
+
+    @SuppressWarnings("unchecked")
+    private <R> javax.persistence.TypedQuery<R> buildSearchByFieldQuery(String field, String keyword, boolean countOnly) {
+        String f = field == null ? "ALL" : field.trim().toUpperCase();
+        String raw = keyword == null ? "" : keyword.trim();
+        String low = raw.toLowerCase();
+
+        String select = countOnly ? "select count(nv) " : "select nv ";
+        String fetch = countOnly ? "" : "fetch ";
+        String jpql = select +
+                "from NguyenVong nv " +
+                "left join " + fetch + "nv.thiSinh ts " +
+                "left join " + fetch + "nv.nganh n " +
+                "left join " + fetch + "nv.nganhToHop nt " +
+                "left join " + fetch + "nt.toHop th " +
+                "left join " + fetch + "nv.phuongThuc pt " +
+                "left join nv.maXetTuyenMap mx ";
+        String where;
+        boolean like = false;
+        switch (f) {
+            case "ID":
+                where = "nv.nguyenvongId = :id";
+                break;
+            case "CCCD":
+                where = "lower(coalesce(ts.cccd, '')) = :text";
+                break;
+            case "SBD":
+                where = "lower(coalesce(ts.sobaodanh, '')) = :text";
+                break;
+            case "NV":
+                where = "nv.thuTu = :thuTu";
+                break;
+            case "MAXT":
+                where = "lower(coalesce(mx.maXetTuyen, '')) = :text";
+                break;
+            case "MANGANH":
+                where = "lower(coalesce(n.maNganh, '')) = :text";
+                break;
+            case "MATOHOP":
+                where = "lower(coalesce(th.maTohop, '')) = :text";
+                break;
+            case "THMTOTNHAT":
+                where = "lower(coalesce(nv.toHopDiemTotNhat, '')) = :text";
+                break;
+            case "MAPT":
+                where = "lower(coalesce(pt.maPhuongthuc, '')) = :text";
+                break;
+            case "KETQUA":
+                where = "lower(coalesce(nv.ketQua, '')) = :text";
+                break;
+            case "NGUONDIEM":
+                where = "lower(coalesce(nv.phuongThucDiemTotNhat, '')) = :text";
+                break;
+            case "HOTEN":
+                where = "lower(concat(concat(coalesce(ts.ho, ''), ' '), coalesce(ts.ten, ''))) like :kw";
+                like = true;
+                break;
+            default:
+                where = "lower(coalesce(ts.cccd, '')) = :text " +
+                        "or lower(coalesce(ts.sobaodanh, '')) = :text " +
+                        "or lower(coalesce(mx.maXetTuyen, '')) = :text " +
+                        "or lower(coalesce(n.maNganh, '')) = :text " +
+                        "or lower(coalesce(th.maTohop, '')) = :text " +
+                        "or lower(coalesce(nv.toHopDiemTotNhat, '')) = :text " +
+                        "or lower(coalesce(pt.maPhuongthuc, '')) = :text " +
+                        "or lower(coalesce(nv.ketQua, '')) = :text " +
+                        "or lower(coalesce(nv.phuongThucDiemTotNhat, '')) = :text " +
+                        "or lower(concat(concat(coalesce(ts.ho, ''), ' '), coalesce(ts.ten, ''))) like :kw " +
+                        "or lower(coalesce(n.tenNganh, '')) like :kw";
+                like = true;
+                break;
+        }
+        jpql += "where (" + where + ") ";
+        if (!countOnly) jpql += "order by ts.ten, ts.ho, nv.thuTu, nv.nguyenvongId";
+        javax.persistence.TypedQuery<R> q;
+
+        if (countOnly) {
+
+            q = (javax.persistence.TypedQuery<R>) em().createQuery(jpql, Long.class);
+
+        } else {
+
+            q = (javax.persistence.TypedQuery<R>) em().createQuery(jpql, NguyenVong.class);
+
+        }
+        if (where.contains(":id")) q.setParameter("id", parseIntegerOrNeverMatch(raw));
+        if (where.contains(":thuTu")) q.setParameter("thuTu", parseShortOrNeverMatch(raw));
+        if (where.contains(":text")) q.setParameter("text", low);
+        if (like || where.contains(":kw")) q.setParameter("kw", "%" + low + "%");
+        return q;
+    }
+
+    private Integer parseIntegerOrNeverMatch(String value) {
+        try { return Integer.parseInt(value.trim()); } catch (Exception e) { return -1; }
+    }
+
+    private Short parseShortOrNeverMatch(String value) {
+        try { return Short.parseShort(value.trim()); } catch (Exception e) { return Short.MIN_VALUE; }
+    }
+
+    /**
+     * Danh sach trung tuyen chi tiet, sap xep theo nganh de hien thi bang phu trong panel Xet tuyen.
+     */
+    public List<NguyenVong> findTrungTuyenChiTietTheoNganh(int maxRows) {
+        int limit = maxRows <= 0 ? 10000 : maxRows;
+        return em().createQuery(
+                        "select nv from NguyenVong nv " +
+                                "left join fetch nv.thiSinh ts " +
+                                "left join fetch nv.nganh n " +
+                                "left join fetch nv.nganhToHop nt " +
+                                "left join fetch nt.toHop th " +
+                                "left join fetch nv.phuongThuc pt " +
+                                "where nv.ketQua = :ketQua " +
+                                "order by n.maNganh, nv.phuongThucDiemTotNhat, nv.diemXettuyen desc, ts.ten, ts.ho, nv.thuTu",
+                        NguyenVong.class)
+                .setParameter("ketQua", NguyenVong.KetQua.TRUNG_TUYEN)
+                .setMaxResults(limit)
+                .getResultList();
+    }
+
+    /**
+     * Thong ke so luong trung tuyen theo nganh va theo nguon diem tot nhat
+     * (THPT/VSAT/DGNL). Day la cot co y nghia nhat sau khi he thong so sanh diem tot nhat.
+     */
+    public List<Object[]> thongKeTrungTuyenTheoNganhPhuongThuc() {
+        return em().createQuery(
+                        "select n.maNganh, n.tenNganh, coalesce(nv.phuongThucDiemTotNhat, 'CHUA_RO'), count(nv) " +
+                                "from NguyenVong nv " +
+                                "join nv.nganh n " +
+                                "where nv.ketQua = :ketQua " +
+                                "group by n.maNganh, n.tenNganh, nv.phuongThucDiemTotNhat " +
+                                "order by n.maNganh, nv.phuongThucDiemTotNhat",
+                        Object[].class)
+                .setParameter("ketQua", NguyenVong.KetQua.TRUNG_TUYEN)
+                .getResultList();
     }
 
     private String normalizeKeyword(String keyword) {
@@ -244,6 +397,7 @@ public class NguyenVongDao extends BaseDao<NguyenVong> implements INguyenVongDao
                                         "    nv.diemUutien = :diemUutien, " +
                                         "    nv.diemXettuyen = :diemXettuyen, " +
                                         "    nv.phuongThucDiemTotNhat = :phuongThucDiemTotNhat, " +
+                                        "    nv.toHopDiemTotNhat = :toHopDiemTotNhat, " +
                                         "    nv.ketQua = :ketQua, " +
                                         "    nv.ghiChu = :ghiChu " +
                                         "WHERE nv.nguyenvongId = :id")
@@ -252,6 +406,7 @@ public class NguyenVongDao extends BaseDao<NguyenVong> implements INguyenVongDao
                         .setParameter("diemUutien", nv.getDiemUutien())
                         .setParameter("diemXettuyen", nv.getDiemXettuyen())
                         .setParameter("phuongThucDiemTotNhat", nv.getPhuongThucDiemTotNhat())
+                        .setParameter("toHopDiemTotNhat", nv.getToHopDiemTotNhat())
                         .setParameter("ketQua", nv.getKetQua())
                         .setParameter("ghiChu", nv.getGhiChu())
                         .setParameter("id", nv.getNguyenvongId())
