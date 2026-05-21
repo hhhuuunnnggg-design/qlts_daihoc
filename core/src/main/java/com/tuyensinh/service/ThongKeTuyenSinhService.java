@@ -19,6 +19,9 @@ public class ThongKeTuyenSinhService {
         data.topNganh = getTopNganhNhieuNguyenVong(10);
         data.thiSinhTheoDoiTuong = dao.thongKeThiSinhTheoDoiTuong();
         data.thiSinhTheoKhuVuc = dao.thongKeThiSinhTheoKhuVuc();
+        data.nganhTuyenSinhChiTiet = getNganhTuyenSinhChiTiet();
+        data.trungTuyenTheoNganh = getDanhSachTrungTuyenTheoNganh();
+        data.trungTuyenPhuongThucTheoNganh = getSoLuongTrungTuyenTheoNganhPhuongThuc();
         return data;
     }
 
@@ -113,6 +116,9 @@ public class ThongKeTuyenSinhService {
         public List<TopNganhDto> topNganh;
         public java.util.List<ThongKeThiSinhGroupDto> thiSinhTheoDoiTuong;
         public java.util.List<ThongKeThiSinhGroupDto> thiSinhTheoKhuVuc;
+        public List<NganhTuyenSinhDto> nganhTuyenSinhChiTiet;
+        public List<TrungTuyenTheoNganhDto> trungTuyenTheoNganh;
+        public List<TrungTuyenPhuongThucTheoNganhDto> trungTuyenPhuongThucTheoNganh;
     }
 
     public static class TongQuanDto {
@@ -216,6 +222,137 @@ public class ThongKeTuyenSinhService {
 
         for (Object[] row : rows) {
             result.add(new DiemThiSinhDto(row));
+        }
+
+        return result;
+    }
+
+    public static class NganhTuyenSinhDto {
+        public String maNganh;
+        public String tenNganh;
+        public Integer chiTieu;
+        public BigDecimal diemSan;
+        public BigDecimal diemTrungTuyen;
+        public String phuongThuc;
+        public Long tongNguyenVong;
+        public Long soTrungTuyen;
+        public Double tyLeNguyenVongChiTieu;
+        public String trangThai;
+
+        public NganhTuyenSinhDto(Object[] row) {
+            this.maNganh = row[0] != null ? row[0].toString() : "";
+            this.tenNganh = row[1] != null ? row[1].toString() : "";
+            this.chiTieu = row[2] != null ? ((Number) row[2]).intValue() : 0;
+            this.diemSan = row[3] instanceof BigDecimal ? (BigDecimal) row[3] : null;
+            this.diemTrungTuyen = row[4] instanceof BigDecimal ? (BigDecimal) row[4] : null;
+            this.phuongThuc = row[5] != null ? row[5].toString() : "";
+            this.tongNguyenVong = row[6] != null ? ((Number) row[6]).longValue() : 0L;
+            this.soTrungTuyen = row[7] != null ? ((Number) row[7]).longValue() : 0L;
+
+            if (this.chiTieu != null && this.chiTieu > 0) {
+                this.tyLeNguyenVongChiTieu = this.tongNguyenVong.doubleValue() / this.chiTieu;
+            } else {
+                this.tyLeNguyenVongChiTieu = 0.0;
+            }
+
+            if (this.chiTieu == null || this.chiTieu == 0) {
+                this.trangThai = "Chưa có chỉ tiêu";
+            } else if (this.soTrungTuyen < this.chiTieu) {
+                this.trangThai = "Thiếu " + (this.chiTieu - this.soTrungTuyen);
+            } else if (this.soTrungTuyen.equals(Long.valueOf(this.chiTieu))) {
+                this.trangThai = "Đủ chỉ tiêu";
+            } else {
+                this.trangThai = "Vượt " + (this.soTrungTuyen - this.chiTieu);
+            }
+        }
+    }
+
+    public static class TrungTuyenTheoNganhDto {
+        public String maNganh;
+        public String tenNganh;
+        public String cccd;
+        public String hoTen;
+        public String sobaodanh;
+        public String phuongThuc;
+        public Integer thuTu;
+        public BigDecimal diemXetTuyen;
+        public String ketQua;
+
+        public TrungTuyenTheoNganhDto(Object[] row) {
+            this.maNganh = row[0] != null ? row[0].toString() : "";
+            this.tenNganh = row[1] != null ? row[1].toString() : "";
+            this.cccd = row[2] != null ? row[2].toString() : "";
+            this.hoTen = row[3] != null ? row[3].toString() : "";
+            this.sobaodanh = row[4] != null ? row[4].toString() : "";
+            this.phuongThuc = row[5] != null ? row[5].toString() : "";
+            this.thuTu = row[6] != null ? ((Number) row[6]).intValue() : null;
+            this.diemXetTuyen = row[7] instanceof BigDecimal ? (BigDecimal) row[7] : null;
+            this.ketQua = row[8] != null ? row[8].toString() : "";
+        }
+    }
+
+    public static class TrungTuyenPhuongThucTheoNganhDto {
+        public String maNganh;
+        public String tenNganh;
+        public Integer chiTieu;
+        public Long thpt;
+        public Long dgnl;
+        public Long vsat;
+        public Long tongTrungTuyen;
+        public Long conThieuVuot;
+        public String trangThai;
+
+        public TrungTuyenPhuongThucTheoNganhDto(Object[] row) {
+            this.maNganh = row[0] != null ? row[0].toString() : "";
+            this.tenNganh = row[1] != null ? row[1].toString() : "";
+            this.chiTieu = row[2] != null ? ((Number) row[2]).intValue() : 0;
+            this.thpt = row[3] != null ? ((Number) row[3]).longValue() : 0L;
+            this.dgnl = row[4] != null ? ((Number) row[4]).longValue() : 0L;
+            this.vsat = row[5] != null ? ((Number) row[5]).longValue() : 0L;
+            this.tongTrungTuyen = row[6] != null ? ((Number) row[6]).longValue() : 0L;
+
+            this.conThieuVuot = this.tongTrungTuyen - this.chiTieu;
+
+            if (this.chiTieu == null || this.chiTieu == 0) {
+                this.trangThai = "Chưa có chỉ tiêu";
+            } else if (this.conThieuVuot < 0) {
+                this.trangThai = "Thiếu " + Math.abs(this.conThieuVuot);
+            } else if (this.conThieuVuot == 0) {
+                this.trangThai = "Đủ chỉ tiêu";
+            } else {
+                this.trangThai = "Vượt " + this.conThieuVuot;
+            }
+        }
+    }
+
+    public List<NganhTuyenSinhDto> getNganhTuyenSinhChiTiet() {
+        List<Object[]> rows = dao.thongKeNganhTuyenSinhChiTiet();
+        List<NganhTuyenSinhDto> result = new ArrayList<>();
+
+        for (Object[] row : rows) {
+            result.add(new NganhTuyenSinhDto(row));
+        }
+
+        return result;
+    }
+
+    public List<TrungTuyenTheoNganhDto> getDanhSachTrungTuyenTheoNganh() {
+        List<Object[]> rows = dao.danhSachTrungTuyenTheoNganh();
+        List<TrungTuyenTheoNganhDto> result = new ArrayList<>();
+
+        for (Object[] row : rows) {
+            result.add(new TrungTuyenTheoNganhDto(row));
+        }
+
+        return result;
+    }
+
+    public List<TrungTuyenPhuongThucTheoNganhDto> getSoLuongTrungTuyenTheoNganhPhuongThuc() {
+        List<Object[]> rows = dao.soLuongTrungTuyenTheoNganhPhuongThuc();
+        List<TrungTuyenPhuongThucTheoNganhDto> result = new ArrayList<>();
+
+        for (Object[] row : rows) {
+            result.add(new TrungTuyenPhuongThucTheoNganhDto(row));
         }
 
         return result;

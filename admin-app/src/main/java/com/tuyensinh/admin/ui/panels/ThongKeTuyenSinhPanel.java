@@ -17,6 +17,8 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumnModel;
 import java.awt.*;
+import javax.swing.RowFilter;
+import javax.swing.table.TableRowSorter;
 
 public class ThongKeTuyenSinhPanel extends BasePanel {
 
@@ -41,6 +43,19 @@ public class ThongKeTuyenSinhPanel extends BasePanel {
 
     private JTable tblDiemThiSinh;
     private DefaultTableModel modelDiemThiSinh;
+
+    private JTable tblNganhTuyenSinh;
+    private DefaultTableModel modelNganhTuyenSinh;
+
+    private JTable tblTrungTuyenTheoNganh;
+    private DefaultTableModel modelTrungTuyenTheoNganh;
+
+    private JTable tblTrungTuyenPhuongThucTheoNganh;
+    private DefaultTableModel modelTrungTuyenPhuongThucTheoNganh;
+
+    private JComboBox<String> cboFilterNganh;
+    private JComboBox<String> cboFilterPhuongThuc;
+    private JComboBox<String> cboFilterKetQua;
 
     private JTextField txtThiSinhKey;
     private JLabel lblThiSinhInfo;
@@ -110,11 +125,65 @@ public class ThongKeTuyenSinhPanel extends BasePanel {
         tabs.addTab("Theo phương thức", buildTheoPhuongThucPanel());
         tabs.addTab("Top ngành nhiều nguyện vọng", buildTopNganhPanel());
         tabs.addTab("Thí sinh", buildThiSinhPanel());
+        tabs.addTab("Ngành tuyển sinh", buildNganhTuyenSinhPanel());
+        tabs.addTab("Trúng tuyển theo ngành", buildTrungTuyenTheoNganhPanel());
+        tabs.addTab("SL trúng tuyển PT/ngành", buildTrungTuyenPhuongThucTheoNganhPanel());
 
-        content.add(cardsPanel, BorderLayout.NORTH);
+        JPanel topPanel = new JPanel(new BorderLayout(0, 8));
+        topPanel.setOpaque(false);
+        topPanel.add(cardsPanel, BorderLayout.CENTER);
+        topPanel.add(buildFilterPanel(), BorderLayout.SOUTH);
+
+        content.add(topPanel, BorderLayout.NORTH);
         content.add(tabs, BorderLayout.CENTER);
 
         return content;
+    }
+
+    private JPanel buildFilterPanel() {
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 8));
+        panel.setOpaque(false);
+        panel.setBorder(BorderFactory.createTitledBorder("Bộ lọc thống kê"));
+
+        cboFilterNganh = new JComboBox<>();
+        cboFilterPhuongThuc = new JComboBox<>();
+        cboFilterKetQua = new JComboBox<>();
+
+        cboFilterNganh.setPreferredSize(new Dimension(260, 32));
+        cboFilterPhuongThuc.setPreferredSize(new Dimension(160, 32));
+        cboFilterKetQua.setPreferredSize(new Dimension(160, 32));
+
+        cboFilterNganh.addItem("Tất cả ngành");
+
+        cboFilterPhuongThuc.addItem("Tất cả phương thức");
+        cboFilterPhuongThuc.addItem("THPT");
+        cboFilterPhuongThuc.addItem("DGNL");
+        cboFilterPhuongThuc.addItem("VSAT");
+
+        cboFilterKetQua.addItem("Tất cả kết quả");
+        cboFilterKetQua.addItem("TRUNG_TUYEN");
+        cboFilterKetQua.addItem("TRUOT");
+        cboFilterKetQua.addItem("CHUA_XET");
+
+        JButton btnLoc = new JButton("Lọc");
+        btnLoc.addActionListener(e -> applyThongKeFilter());
+
+        JButton btnLamMoi = new JButton("Làm mới");
+        btnLamMoi.addActionListener(e -> resetThongKeFilter());
+
+        panel.add(new JLabel("Ngành:"));
+        panel.add(cboFilterNganh);
+
+        panel.add(new JLabel("Phương thức:"));
+        panel.add(cboFilterPhuongThuc);
+
+        panel.add(new JLabel("Kết quả:"));
+        panel.add(cboFilterKetQua);
+
+        panel.add(btnLoc);
+        panel.add(btnLamMoi);
+
+        return panel;
     }
 
     private JScrollPane buildTheoNganhPanel() {
@@ -307,6 +376,125 @@ public class ThongKeTuyenSinhPanel extends BasePanel {
         return panel;
     }
 
+    private JPanel buildNganhTuyenSinhPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setOpaque(false);
+
+        modelNganhTuyenSinh = TableFactory.newReadOnlyModel(
+                "Mã ngành",
+                "Tên ngành",
+                "Chỉ tiêu",
+                "Điểm sàn",
+                "Điểm trúng tuyển",
+                "Phương thức xét tuyển",
+                "Tổng NV",
+                "Trúng tuyển",
+                "Tỷ lệ NV/CT",
+                "Trạng thái"
+        );
+
+        tblNganhTuyenSinh = TableFactory.create(modelNganhTuyenSinh);
+        tblNganhTuyenSinh.setAutoCreateRowSorter(true);
+        centerTable(tblNganhTuyenSinh);
+
+        tblNganhTuyenSinh.getColumnModel().getColumn(0).setPreferredWidth(90);
+        tblNganhTuyenSinh.getColumnModel().getColumn(1).setPreferredWidth(250);
+        tblNganhTuyenSinh.getColumnModel().getColumn(2).setPreferredWidth(80);
+        tblNganhTuyenSinh.getColumnModel().getColumn(3).setPreferredWidth(90);
+        tblNganhTuyenSinh.getColumnModel().getColumn(4).setPreferredWidth(120);
+        tblNganhTuyenSinh.getColumnModel().getColumn(5).setPreferredWidth(180);
+        tblNganhTuyenSinh.getColumnModel().getColumn(6).setPreferredWidth(90);
+        tblNganhTuyenSinh.getColumnModel().getColumn(7).setPreferredWidth(100);
+        tblNganhTuyenSinh.getColumnModel().getColumn(8).setPreferredWidth(110);
+        tblNganhTuyenSinh.getColumnModel().getColumn(9).setPreferredWidth(120);
+
+        JScrollPane scrollPane = TableFactory.wrap(tblNganhTuyenSinh);
+        scrollPane.setBorder(BorderFactory.createTitledBorder(
+                "Mục 2 - Danh sách ngành, chỉ tiêu, điểm sàn, điểm trúng tuyển, phương thức xét tuyển, số nguyện vọng"
+        ));
+
+        panel.add(scrollPane, BorderLayout.CENTER);
+        return panel;
+    }
+
+    private JPanel buildTrungTuyenTheoNganhPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setOpaque(false);
+
+        modelTrungTuyenTheoNganh = TableFactory.newReadOnlyModel(
+                "Mã ngành",
+                "Tên ngành",
+                "CCCD",
+                "Họ tên",
+                "SBD",
+                "Phương thức",
+                "NV",
+                "Điểm XT",
+                "Kết quả"
+        );
+
+        tblTrungTuyenTheoNganh = TableFactory.create(modelTrungTuyenTheoNganh);
+        tblTrungTuyenTheoNganh.setAutoCreateRowSorter(true);
+        centerTable(tblTrungTuyenTheoNganh);
+
+        tblTrungTuyenTheoNganh.getColumnModel().getColumn(0).setPreferredWidth(90);
+        tblTrungTuyenTheoNganh.getColumnModel().getColumn(1).setPreferredWidth(230);
+        tblTrungTuyenTheoNganh.getColumnModel().getColumn(2).setPreferredWidth(120);
+        tblTrungTuyenTheoNganh.getColumnModel().getColumn(3).setPreferredWidth(180);
+        tblTrungTuyenTheoNganh.getColumnModel().getColumn(4).setPreferredWidth(90);
+        tblTrungTuyenTheoNganh.getColumnModel().getColumn(5).setPreferredWidth(90);
+        tblTrungTuyenTheoNganh.getColumnModel().getColumn(6).setPreferredWidth(60);
+        tblTrungTuyenTheoNganh.getColumnModel().getColumn(7).setPreferredWidth(90);
+        tblTrungTuyenTheoNganh.getColumnModel().getColumn(8).setPreferredWidth(110);
+
+        JScrollPane scrollPane = TableFactory.wrap(tblTrungTuyenTheoNganh);
+        scrollPane.setBorder(BorderFactory.createTitledBorder(
+                "Mục 6 - Danh sách trúng tuyển chi tiết theo ngành"
+        ));
+
+        panel.add(scrollPane, BorderLayout.CENTER);
+        return panel;
+    }
+
+    private JPanel buildTrungTuyenPhuongThucTheoNganhPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setOpaque(false);
+
+        modelTrungTuyenPhuongThucTheoNganh = TableFactory.newReadOnlyModel(
+                "Mã ngành",
+                "Tên ngành",
+                "Chỉ tiêu",
+                "THPT",
+                "DGNL",
+                "VSAT",
+                "Tổng trúng tuyển",
+                "Còn thiếu/vượt",
+                "Trạng thái"
+        );
+
+        tblTrungTuyenPhuongThucTheoNganh = TableFactory.create(modelTrungTuyenPhuongThucTheoNganh);
+        tblTrungTuyenPhuongThucTheoNganh.setAutoCreateRowSorter(true);
+        centerTable(tblTrungTuyenPhuongThucTheoNganh);
+
+        tblTrungTuyenPhuongThucTheoNganh.getColumnModel().getColumn(0).setPreferredWidth(90);
+        tblTrungTuyenPhuongThucTheoNganh.getColumnModel().getColumn(1).setPreferredWidth(260);
+        tblTrungTuyenPhuongThucTheoNganh.getColumnModel().getColumn(2).setPreferredWidth(80);
+        tblTrungTuyenPhuongThucTheoNganh.getColumnModel().getColumn(3).setPreferredWidth(80);
+        tblTrungTuyenPhuongThucTheoNganh.getColumnModel().getColumn(4).setPreferredWidth(80);
+        tblTrungTuyenPhuongThucTheoNganh.getColumnModel().getColumn(5).setPreferredWidth(80);
+        tblTrungTuyenPhuongThucTheoNganh.getColumnModel().getColumn(6).setPreferredWidth(130);
+        tblTrungTuyenPhuongThucTheoNganh.getColumnModel().getColumn(7).setPreferredWidth(130);
+        tblTrungTuyenPhuongThucTheoNganh.getColumnModel().getColumn(8).setPreferredWidth(120);
+
+        JScrollPane scrollPane = TableFactory.wrap(tblTrungTuyenPhuongThucTheoNganh);
+        scrollPane.setBorder(BorderFactory.createTitledBorder(
+                "Mục 6 - Số lượng trúng tuyển từng phương thức theo ngành"
+        ));
+
+        panel.add(scrollPane, BorderLayout.CENTER);
+        return panel;
+    }
+
     @Override
     public void loadData() {
         btnRefresh.setEnabled(false);
@@ -341,11 +529,36 @@ public class ThongKeTuyenSinhPanel extends BasePanel {
     private void renderDashboard(ThongKeTuyenSinhService.DashboardData data) {
         if (data == null || data.tongQuan == null) return;
 
+        loadFilterNganhOptions(data);
+
         renderCards(data.tongQuan);
         renderTheoNganh(data);
         renderTheoPhuongThuc(data);
         renderTopNganh(data);
         renderThongKeThiSinh(data);
+        renderNganhTuyenSinh(data);
+        renderTrungTuyenTheoNganh(data);
+        renderTrungTuyenPhuongThucTheoNganh(data);
+    }
+
+    private void loadFilterNganhOptions(ThongKeTuyenSinhService.DashboardData data) {
+        if (cboFilterNganh == null) return;
+
+        Object selected = cboFilterNganh.getSelectedItem();
+
+        cboFilterNganh.removeAllItems();
+        cboFilterNganh.addItem("Tất cả ngành");
+
+        if (data != null && data.nganhTuyenSinhChiTiet != null) {
+            for (ThongKeTuyenSinhService.NganhTuyenSinhDto row : data.nganhTuyenSinhChiTiet) {
+                String item = row.maNganh + " - " + row.tenNganh;
+                cboFilterNganh.addItem(item);
+            }
+        }
+
+        if (selected != null) {
+            cboFilterNganh.setSelectedItem(selected);
+        }
     }
 
     private void renderCards(ThongKeTuyenSinhService.TongQuanDto dto) {
@@ -459,6 +672,73 @@ public class ThongKeTuyenSinhPanel extends BasePanel {
         }
     }
 
+    private void renderNganhTuyenSinh(ThongKeTuyenSinhService.DashboardData data) {
+        if (modelNganhTuyenSinh == null) return;
+
+        modelNganhTuyenSinh.setRowCount(0);
+
+        if (data.nganhTuyenSinhChiTiet == null) return;
+
+        for (ThongKeTuyenSinhService.NganhTuyenSinhDto row : data.nganhTuyenSinhChiTiet) {
+            modelNganhTuyenSinh.addRow(new Object[]{
+                    row.maNganh,
+                    row.tenNganh,
+                    formatNumber(row.chiTieu),
+                    formatDiem(row.diemSan),
+                    formatDiem(row.diemTrungTuyen),
+                    row.phuongThuc,
+                    formatNumber(row.tongNguyenVong),
+                    formatNumber(row.soTrungTuyen),
+                    String.format("%.2f", row.tyLeNguyenVongChiTieu),
+                    row.trangThai
+            });
+        }
+    }
+
+    private void renderTrungTuyenTheoNganh(ThongKeTuyenSinhService.DashboardData data) {
+        if (modelTrungTuyenTheoNganh == null) return;
+
+        modelTrungTuyenTheoNganh.setRowCount(0);
+
+        if (data.trungTuyenTheoNganh == null) return;
+
+        for (ThongKeTuyenSinhService.TrungTuyenTheoNganhDto row : data.trungTuyenTheoNganh) {
+            modelTrungTuyenTheoNganh.addRow(new Object[]{
+                    row.maNganh,
+                    row.tenNganh,
+                    row.cccd,
+                    row.hoTen,
+                    row.sobaodanh,
+                    row.phuongThuc,
+                    row.thuTu != null ? row.thuTu : "",
+                    formatDiem(row.diemXetTuyen),
+                    row.ketQua
+            });
+        }
+    }
+
+    private void renderTrungTuyenPhuongThucTheoNganh(ThongKeTuyenSinhService.DashboardData data) {
+        if (modelTrungTuyenPhuongThucTheoNganh == null) return;
+
+        modelTrungTuyenPhuongThucTheoNganh.setRowCount(0);
+
+        if (data.trungTuyenPhuongThucTheoNganh == null) return;
+
+        for (ThongKeTuyenSinhService.TrungTuyenPhuongThucTheoNganhDto row : data.trungTuyenPhuongThucTheoNganh) {
+            modelTrungTuyenPhuongThucTheoNganh.addRow(new Object[]{
+                    row.maNganh,
+                    row.tenNganh,
+                    formatNumber(row.chiTieu),
+                    formatNumber(row.thpt),
+                    formatNumber(row.dgnl),
+                    formatNumber(row.vsat),
+                    formatNumber(row.tongTrungTuyen),
+                    formatNumber(row.conThieuVuot),
+                    row.trangThai
+            });
+        }
+    }
+
     private void searchThiSinhDetail() {
         String key = txtThiSinhKey != null ? txtThiSinhKey.getText().trim() : "";
         if (key.isEmpty()) {
@@ -541,5 +821,182 @@ public class ThongKeTuyenSinhPanel extends BasePanel {
     private String formatDiem(BigDecimal value) {
         if (value == null) return "";
         return value.setScale(2, RoundingMode.HALF_UP).toPlainString();
+    }
+
+    private void applyThongKeFilter() {
+        String nganh = getSelectedFilterValue(cboFilterNganh, "Tất cả ngành");
+        String phuongThuc = getSelectedFilterValue(cboFilterPhuongThuc, "Tất cả phương thức");
+        String ketQua = getSelectedFilterValue(cboFilterKetQua, "Tất cả kết quả");
+
+        applyFilterToTable(tblTheoNganh, nganh, phuongThuc, ketQua,
+                0, 1, -1, -1, -1, -1, -1);
+
+        applyFilterToTable(tblTheoPhuongThuc, nganh, phuongThuc, ketQua,
+                -1, -1, 0, -1, -1, -1, -1);
+
+        applyFilterToTable(tblTopNganh, nganh, phuongThuc, ketQua,
+                1, 2, -1, -1, -1, -1, -1);
+
+        applyFilterToTable(tblNganhTuyenSinh, nganh, phuongThuc, ketQua,
+                0, 1, 5, -1, -1, -1, -1);
+
+        applyFilterToTable(tblTrungTuyenTheoNganh, nganh, phuongThuc, ketQua,
+                0, 1, 5, 8, -1, -1, -1);
+
+        applyFilterToTable(tblTrungTuyenPhuongThucTheoNganh, nganh, phuongThuc, ketQua,
+                0, 1, -1, -1, 3, 4, 5);
+    }
+
+    private void resetThongKeFilter() {
+        if (cboFilterNganh != null) cboFilterNganh.setSelectedIndex(0);
+        if (cboFilterPhuongThuc != null) cboFilterPhuongThuc.setSelectedIndex(0);
+        if (cboFilterKetQua != null) cboFilterKetQua.setSelectedIndex(0);
+
+        clearTableFilter(tblTheoNganh);
+        clearTableFilter(tblTheoPhuongThuc);
+        clearTableFilter(tblTopNganh);
+        clearTableFilter(tblNganhTuyenSinh);
+        clearTableFilter(tblTrungTuyenTheoNganh);
+        clearTableFilter(tblTrungTuyenPhuongThucTheoNganh);
+    }
+
+    private String getSelectedFilterValue(JComboBox<String> comboBox, String allText) {
+        if (comboBox == null || comboBox.getSelectedItem() == null) return "";
+
+        String value = comboBox.getSelectedItem().toString().trim();
+        if (value.equalsIgnoreCase(allText)) return "";
+
+        return value;
+    }
+
+    private void clearTableFilter(JTable table) {
+        if (table == null) return;
+
+        if (table.getRowSorter() instanceof TableRowSorter) {
+            ((TableRowSorter<?>) table.getRowSorter()).setRowFilter(null);
+        }
+    }
+
+    private void applyFilterToTable(
+            JTable table,
+            String nganhFilter,
+            String phuongThucFilter,
+            String ketQuaFilter,
+            int maNganhCol,
+            int tenNganhCol,
+            int phuongThucCol,
+            int ketQuaCol,
+            int thptCol,
+            int dgnlCol,
+            int vsatCol
+    ) {
+        if (table == null) return;
+
+        TableRowSorter sorter;
+
+        if (table.getRowSorter() instanceof TableRowSorter) {
+            sorter = (TableRowSorter) table.getRowSorter();
+        } else {
+            sorter = new TableRowSorter(table.getModel());
+            table.setRowSorter(sorter);
+        }
+
+        RowFilter filter = new RowFilter() {
+            @Override
+            public boolean include(Entry entry) {
+                if (nganhFilter != null && !nganhFilter.isEmpty()) {
+                    String maNganh = extractMaNganh(nganhFilter);
+                    String keyword = nganhFilter.toLowerCase();
+
+                    boolean matchNganh = false;
+
+                    if (maNganhCol >= 0) {
+                        String value = getEntryString(entry, maNganhCol);
+                        if (value.equalsIgnoreCase(maNganh)) {
+                            matchNganh = true;
+                        }
+                    }
+
+                    if (tenNganhCol >= 0) {
+                        String value = getEntryString(entry, tenNganhCol).toLowerCase();
+                        if (value.contains(keyword) || keyword.contains(value)) {
+                            matchNganh = true;
+                        }
+                    }
+
+                    if (!matchNganh) return false;
+                }
+
+                if (phuongThucFilter != null && !phuongThucFilter.isEmpty()) {
+                    boolean matchPhuongThuc = true;
+
+                    if (phuongThucCol >= 0) {
+                        String value = getEntryString(entry, phuongThucCol);
+                        matchPhuongThuc = value.toUpperCase().contains(phuongThucFilter.toUpperCase());
+                    }
+
+                    if (phuongThucCol < 0 && (thptCol >= 0 || dgnlCol >= 0 || vsatCol >= 0)) {
+                        int checkCol = -1;
+
+                        if ("THPT".equalsIgnoreCase(phuongThucFilter)) {
+                            checkCol = thptCol;
+                        } else if ("DGNL".equalsIgnoreCase(phuongThucFilter)) {
+                            checkCol = dgnlCol;
+                        } else if ("VSAT".equalsIgnoreCase(phuongThucFilter)) {
+                            checkCol = vsatCol;
+                        }
+
+                        if (checkCol >= 0) {
+                            long value = parseLongFromTable(getEntryString(entry, checkCol));
+                            matchPhuongThuc = value > 0;
+                        }
+                    }
+
+                    if (!matchPhuongThuc) return false;
+                }
+
+                if (ketQuaFilter != null && !ketQuaFilter.isEmpty()) {
+                    if (ketQuaCol >= 0) {
+                        String value = getEntryString(entry, ketQuaCol);
+                        if (!value.equalsIgnoreCase(ketQuaFilter)) {
+                            return false;
+                        }
+                    }
+                }
+
+                return true;
+            }
+        };
+
+        sorter.setRowFilter(filter);
+    }
+
+    private String getEntryString(RowFilter.Entry entry, int columnIndex) {
+        if (columnIndex < 0 || columnIndex >= entry.getValueCount()) return "";
+        Object value = entry.getValue(columnIndex);
+        return value == null ? "" : value.toString().trim();
+    }
+
+    private String extractMaNganh(String text) {
+        if (text == null) return "";
+        String value = text.trim();
+
+        int idx = value.indexOf(" - ");
+        if (idx > 0) {
+            return value.substring(0, idx).trim();
+        }
+
+        return value;
+    }
+
+    private long parseLongFromTable(String value) {
+        if (value == null || value.trim().isEmpty()) return 0;
+
+        try {
+            String normalized = value.trim().replace(".", "").replace(",", "");
+            return Long.parseLong(normalized);
+        } catch (Exception e) {
+            return 0;
+        }
     }
 }

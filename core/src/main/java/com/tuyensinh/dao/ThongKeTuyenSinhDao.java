@@ -239,4 +239,78 @@ public class ThongKeTuyenSinhDao {
             em.close();
         }
     }
+
+    public java.util.List<Object[]> thongKeNganhTuyenSinhChiTiet() {
+        EntityManager em = HibernateUtil.getSessionFactory().createEntityManager();
+        try {
+            return em.createNativeQuery(
+                    "SELECT " +
+                            "n.ma_nganh, " +
+                            "n.ten_nganh, " +
+                            "n.chi_tieu, " +
+                            "n.diem_san, " +
+                            "n.diem_trung_tuyen, " +
+                            "GROUP_CONCAT(DISTINCT pt.ma_phuongthuc ORDER BY pt.ma_phuongthuc SEPARATOR ', ') AS phuong_thuc, " +
+                            "COUNT(DISTINCT nv.nguyenvong_id) AS tong_nguyen_vong, " +
+                            "SUM(CASE WHEN UPPER(nv.ket_qua) = 'TRUNG_TUYEN' THEN 1 ELSE 0 END) AS so_trung_tuyen " +
+                            "FROM xt_nganh n " +
+                            "LEFT JOIN xt_nganh_phuongthuc np ON np.nganh_id = n.nganh_id " +
+                            "LEFT JOIN xt_phuongthuc pt ON pt.phuongthuc_id = np.phuongthuc_id " +
+                            "LEFT JOIN xt_nguyenvong nv ON nv.nganh_id = n.nganh_id " +
+                            "GROUP BY n.nganh_id, n.ma_nganh, n.ten_nganh, n.chi_tieu, n.diem_san, n.diem_trung_tuyen " +
+                            "ORDER BY n.ma_nganh ASC"
+            ).getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+    public java.util.List<Object[]> danhSachTrungTuyenTheoNganh() {
+        EntityManager em = HibernateUtil.getSessionFactory().createEntityManager();
+        try {
+            return em.createNativeQuery(
+                    "SELECT " +
+                            "n.ma_nganh, " +
+                            "n.ten_nganh, " +
+                            "ts.cccd, " +
+                            "CONCAT(ts.ho, ' ', ts.ten) AS ho_ten, " +
+                            "ts.sobaodanh, " +
+                            "pt.ma_phuongthuc, " +
+                            "nv.thu_tu, " +
+                            "nv.diem_xettuyen, " +
+                            "nv.ket_qua " +
+                            "FROM xt_nguyenvong nv " +
+                            "JOIN xt_thisinh ts ON ts.thisinh_id = nv.thisinh_id " +
+                            "JOIN xt_nganh n ON n.nganh_id = nv.nganh_id " +
+                            "JOIN xt_phuongthuc pt ON pt.phuongthuc_id = nv.phuongthuc_id " +
+                            "WHERE UPPER(nv.ket_qua) = 'TRUNG_TUYEN' " +
+                            "ORDER BY n.ma_nganh ASC, nv.diem_xettuyen DESC, ts.sobaodanh ASC"
+            ).getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+    public java.util.List<Object[]> soLuongTrungTuyenTheoNganhPhuongThuc() {
+        EntityManager em = HibernateUtil.getSessionFactory().createEntityManager();
+        try {
+            return em.createNativeQuery(
+                    "SELECT " +
+                            "n.ma_nganh, " +
+                            "n.ten_nganh, " +
+                            "n.chi_tieu, " +
+                            "SUM(CASE WHEN pt.ma_phuongthuc = 'THPT' AND UPPER(nv.ket_qua) = 'TRUNG_TUYEN' THEN 1 ELSE 0 END) AS thpt, " +
+                            "SUM(CASE WHEN pt.ma_phuongthuc = 'DGNL' AND UPPER(nv.ket_qua) = 'TRUNG_TUYEN' THEN 1 ELSE 0 END) AS dgnl, " +
+                            "SUM(CASE WHEN pt.ma_phuongthuc = 'VSAT' AND UPPER(nv.ket_qua) = 'TRUNG_TUYEN' THEN 1 ELSE 0 END) AS vsat, " +
+                            "SUM(CASE WHEN UPPER(nv.ket_qua) = 'TRUNG_TUYEN' THEN 1 ELSE 0 END) AS tong_trung_tuyen " +
+                            "FROM xt_nganh n " +
+                            "LEFT JOIN xt_nguyenvong nv ON nv.nganh_id = n.nganh_id " +
+                            "LEFT JOIN xt_phuongthuc pt ON pt.phuongthuc_id = nv.phuongthuc_id " +
+                            "GROUP BY n.nganh_id, n.ma_nganh, n.ten_nganh, n.chi_tieu " +
+                            "ORDER BY tong_trung_tuyen DESC, n.ma_nganh ASC"
+            ).getResultList();
+        } finally {
+            em.close();
+        }
+    }
 }
