@@ -409,9 +409,7 @@ public class ThongKeTuyenSinhPanel extends BasePanel {
         tblNganhTuyenSinh.getColumnModel().getColumn(9).setPreferredWidth(120);
 
         JScrollPane scrollPane = TableFactory.wrap(tblNganhTuyenSinh);
-        scrollPane.setBorder(BorderFactory.createTitledBorder(
-                "Mục 2 - Danh sách ngành, chỉ tiêu, điểm sàn, điểm trúng tuyển, phương thức xét tuyển, số nguyện vọng"
-        ));
+        scrollPane.setBorder(BorderFactory.createEmptyBorder());
 
         panel.add(scrollPane, BorderLayout.CENTER);
         return panel;
@@ -448,9 +446,7 @@ public class ThongKeTuyenSinhPanel extends BasePanel {
         tblTrungTuyenTheoNganh.getColumnModel().getColumn(8).setPreferredWidth(110);
 
         JScrollPane scrollPane = TableFactory.wrap(tblTrungTuyenTheoNganh);
-        scrollPane.setBorder(BorderFactory.createTitledBorder(
-                "Mục 6 - Danh sách trúng tuyển chi tiết theo ngành"
-        ));
+        scrollPane.setBorder(BorderFactory.createEmptyBorder());
 
         panel.add(scrollPane, BorderLayout.CENTER);
         return panel;
@@ -487,9 +483,7 @@ public class ThongKeTuyenSinhPanel extends BasePanel {
         tblTrungTuyenPhuongThucTheoNganh.getColumnModel().getColumn(8).setPreferredWidth(120);
 
         JScrollPane scrollPane = TableFactory.wrap(tblTrungTuyenPhuongThucTheoNganh);
-        scrollPane.setBorder(BorderFactory.createTitledBorder(
-                "Mục 6 - Số lượng trúng tuyển từng phương thức theo ngành"
-        ));
+        scrollPane.setBorder(BorderFactory.createEmptyBorder());
 
         panel.add(scrollPane, BorderLayout.CENTER);
         return panel;
